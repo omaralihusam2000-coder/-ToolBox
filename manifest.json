@@ -1,0 +1,47 @@
+{
+  "name": "ToolBox - أدوات مجانية",
+  "short_name": "ToolBox",
+  "description": "موقع أدوات مجانية أونلاين - PDF, صور, نصوص, حاسبات, تصميم وأكثر",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#e63946",
+  "orientation": "any",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23e63946'/><text y='.9em' font-size='80' x='50%' text-anchor='middle'>🔧</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "PDF إلى Word",
+      "short_name": "PDF→Word",
+      "description": "تحويل PDF إلى Word",
+      "url": "/tools/pdf-to-word.html",
+      "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>📄</text></svg>", "sizes": "any"}]
+    },
+    {
+      "name": "مولد QR Code",
+      "short_name": "QR Code",
+      "description": "إنشاء QR Code",
+      "url": "/tools/qr-generator.html",
+      "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>📱</text></svg>", "sizes": "any"}]
+    },
+    {
+      "name": "ضغط الصور",
+      "short_name": "ضغط صور",
+      "description": "ضغط حجم الصور",
+      "url": "/tools/image-compressor.html",
+      "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>🖼️</text></svg>", "sizes": "any"}]
+    }
+  ],
+  "screenshots": [],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

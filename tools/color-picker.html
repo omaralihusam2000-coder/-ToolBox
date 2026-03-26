@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="منتقي الألوان مجاناً أونلاين - ToolBox">
+  <meta property="og:title" content="منتقي الألوان | ToolBox">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#e63946">
+  <title>منتقي الألوان | ToolBox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body dir="rtl">
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo"><div class="logo-icon">🔧</div><span class="logo-text">Tool<span>Box</span></span></a>
+    <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="search-input" placeholder="ابحث عن أداة..." data-ar-placeholder="ابحث عن أداة..." data-en-placeholder="Search tools..."><div class="search-results" id="search-results"></div></div>
+    <div class="header-actions">
+      <button class="btn-icon" id="theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+</header>
+<div class="tool-page">
+  <div class="tool-hero">
+    <div class="tool-hero-inner">
+      <div class="breadcrumb">
+        <a href="/" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+        <span>›</span>
+        <span data-ar="أدوات التصميم" data-en="Design Tools">أدوات التصميم</span>
+        <span>›</span>
+        <span>منتقي الألوان</span>
+      </div>
+      <div class="tool-title-area">
+        <span class="tool-big-icon">🎨</span>
+        <div>
+          <h1 data-ar="منتقي الألوان" data-en="Color Picker">منتقي الألوان</h1>
+          <p data-ar="اختر الألوان واحصل على قيم HEX وRGB وHSL" data-en="Pick colors and get HEX, RGB, HSL values">اختر الألوان واحصل على قيم HEX وRGB وHSL</p>
+        </div>
+      </div>
+      <div class="tool-meta">
+        <div class="tool-stat-badge">📊 <span data-ar="الاستخدامات:" data-en="Uses:">الاستخدامات:</span> <span class="val" id="tool-usage-count">0</span></div>
+        <div class="tool-stat-badge">👥 <span class="val" id="tool-live-users">--</span> <span data-ar="الآن" data-en="online">الآن</span></div>
+        <button class="btn-icon" id="tool-fav-btn" title="مفضلة">🤍</button>
+      </div>
+    </div>
+  </div>
+  <div class="tool-workspace">
+    <div class="ad-banner" style="margin-bottom:20px">📢 <span data-ar="مساحة إعلانية - Google AdSense" data-en="Ad Space - Google AdSense">مساحة إعلانية</span></div>
+    <div class="tool-box">
+      <h3 data-ar="🎨 اختر اللون" data-en="🎨 Pick Color">🎨 اختر اللون</h3>
+      <input type="color" id="color-input" value="#e63946" oninput="updateColorValues()"
+        style="width:100%;height:80px;border-radius:8px;cursor:pointer;border:none;padding:4px;background:none">
+      <div id="swatch" style="width:100%;height:60px;border-radius:8px;margin-top:12px;background:#e63946;border:1px solid var(--border-color)"></div>
+    </div>
+    <div class="tool-box">
+      <h3 data-ar="📋 قيم اللون" data-en="📋 Color Values">📋 قيم اللون</h3>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="output-box">
+          <button class="copy-btn" onclick="copyText(document.getElementById('hex-val').value,this)">نسخ</button>
+          <strong>HEX: </strong><input id="hex-val" readonly style="background:none;border:none;color:var(--text-primary);font-family:monospace;font-size:1rem;width:calc(100% - 60px)">
+        </div>
+        <div class="output-box">
+          <button class="copy-btn" onclick="copyText(document.getElementById('rgb-val').value,this)">نسخ</button>
+          <strong>RGB: </strong><input id="rgb-val" readonly style="background:none;border:none;color:var(--text-primary);font-family:monospace;font-size:1rem;width:calc(100% - 60px)">
+        </div>
+        <div class="output-box">
+          <button class="copy-btn" onclick="copyText(document.getElementById('hsl-val').value,this)">نسخ</button>
+          <strong>HSL: </strong><input id="hsl-val" readonly style="background:none;border:none;color:var(--text-primary);font-family:monospace;font-size:1rem;width:calc(100% - 60px)">
+        </div>
+        <div class="output-box">
+          <button class="copy-btn" onclick="copyText(document.getElementById('rgba-val').value,this)">نسخ</button>
+          <strong>RGBA: </strong><input id="rgba-val" readonly style="background:none;border:none;color:var(--text-primary);font-family:monospace;font-size:1rem;width:calc(100% - 60px)">
+        </div>
+      </div>
+    </div>
+    <div class="tool-box">
+      <h3 data-ar="🎨 لوحة التدرجات" data-en="🎨 Color Shades">🎨 لوحة التدرجات</h3>
+      <div id="color-palette" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px"></div>
+    </div>
+
+    <div class="share-section">
+      <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>
+      <div class="share-btns">
+        <button class="share-btn facebook" id="share-facebook">f Facebook</button>
+        <button class="share-btn telegram" id="share-telegram">✈ Telegram</button>
+        <button class="share-btn whatsapp" id="share-whatsapp">📱 WhatsApp</button>
+        <button class="share-btn twitter" id="share-twitter">𝕏 Twitter</button>
+      </div>
+    </div>
+    <div class="rating-section">
+      <h4 data-ar="⭐ هل كانت هذه الأداة مفيدة؟" data-en="⭐ Was this tool helpful?">⭐ هل كانت هذه الأداة مفيدة؟</h4>
+      <div class="rating-btns">
+        <button class="rating-btn like" id="rate-like">👍 <span data-ar="نعم" data-en="Yes">نعم</span></button>
+        <button class="rating-btn dislike" id="rate-dislike">👎 <span data-ar="لا" data-en="No">لا</span></button>
+      </div>
+      <div class="rating-bar-wrap"><div class="rating-bar" id="rating-bar" style="width:0%"></div></div>
+      <p class="rating-text" id="rating-text"></p>
+    </div>
+    <div class="ad-banner" style="margin-top:20px">📢 <span data-ar="مساحة إعلانية" data-en="Ad Space">مساحة إعلانية</span></div>
+  </div>
+</div>
+<div id="toast-container" class="toast-container"></div>
+<div id="loading-overlay" class="loading-overlay"><div class="spinner"></div><div class="loading-text"></div></div>
+<script src="/js/app.js"></script>
+<script src="/js/tools/design-tools.js"></script>
+<script>initColorPicker();</script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="تحويل صيغة الصور مجاناً أونلاين - ToolBox">
+  <meta property="og:title" content="تحويل صيغة الصور | ToolBox">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#e63946">
+  <title>تحويل صيغة الصور | ToolBox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body dir="rtl">
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo"><div class="logo-icon">🔧</div><span class="logo-text">Tool<span>Box</span></span></a>
+    <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="search-input" placeholder="ابحث عن أداة..." data-ar-placeholder="ابحث عن أداة..." data-en-placeholder="Search tools..."><div class="search-results" id="search-results"></div></div>
+    <div class="header-actions">
+      <button class="btn-icon" id="theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+</header>
+<div class="tool-page">
+  <div class="tool-hero">
+    <div class="tool-hero-inner">
+      <div class="breadcrumb">
+        <a href="/" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+        <span>›</span>
+        <span data-ar="أدوات الملفات" data-en="File Tools">أدوات الملفات</span>
+        <span>›</span>
+        <span>تحويل صيغة الصور</span>
+      </div>
+      <div class="tool-title-area">
+        <span class="tool-big-icon">🔄</span>
+        <div>
+          <h1 data-ar="تحويل صيغة الصور" data-en="Image Format Converter">تحويل صيغة الصور</h1>
+          <p data-ar="حوّل الصور بين PNG وJPG وWEBP وبصيغ أخرى" data-en="Convert images between PNG, JPG, WEBP formats">حوّل الصور بين PNG وJPG وWEBP وبصيغ أخرى</p>
+        </div>
+      </div>
+      <div class="tool-meta">
+        <div class="tool-stat-badge">📊 <span data-ar="الاستخدامات:" data-en="Uses:">الاستخدامات:</span> <span class="val" id="tool-usage-count">0</span></div>
+        <div class="tool-stat-badge">👥 <span class="val" id="tool-live-users">--</span> <span data-ar="الآن" data-en="online">الآن</span></div>
+        <button class="btn-icon" id="tool-fav-btn" title="مفضلة">🤍</button>
+      </div>
+    </div>
+  </div>
+  <div class="tool-workspace">
+    <div class="ad-banner" style="margin-bottom:20px">📢 <span data-ar="مساحة إعلانية - Google AdSense" data-en="Ad Space - Google AdSense">مساحة إعلانية</span></div>
+    <div class="tool-box">
+      <h3 data-ar="📁 رفع صورة" data-en="📁 Upload Image">📁 رفع صورة</h3>
+      <div class="upload-area" id="upload-area">
+        <span class="upload-icon">🔄</span>
+        <div class="upload-title" data-ar="اسحب الصورة هنا" data-en="Drag image here">اسحب الصورة هنا</div>
+        <button class="btn-red" style="margin-top:16px" data-ar="اختر ملف" data-en="Choose File">اختر ملف</button>
+        <input type="file" id="file-input" accept="image/*" >
+      </div>
+      <div class="file-list" id="file-list"></div>
+    </div>
+    <div id="image-preview" style="display:none;text-align:center;margin-bottom:16px"></div>
+    <div class="tool-box">
+      <h3 data-ar="⚙️ خيارات التحويل" data-en="⚙️ Options">⚙️ خيارات التحويل</h3>
+      <div class="grid-2">
+        <div class="form-group">
+          <label data-ar="الصيغة المطلوبة" data-en="Output Format">الصيغة المطلوبة</label>
+          <select class="form-control" id="output-format">
+            <option value="png">PNG</option>
+            <option value="jpg" selected>JPG</option>
+            <option value="webp">WEBP</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>الجودة: <span id="quality-val">92%</span></label>
+          <input type="range" id="quality-slider" min="10" max="100" value="92"
+            oninput="document.getElementById('quality-val').textContent=this.value+'%'">
+        </div>
+      </div>
+      <button class="btn-red" style="width:100%;padding:14px;font-size:1.05rem" id="convert-btn" disabled
+        data-ar="🔄 تحويل الصورة" data-en="🔄 Convert Image">🔄 تحويل الصورة</button>
+    </div>
+    <div class="tool-box" id="result-section" style="display:none">
+      <h3 data-ar="✅ تم التحويل!" data-en="✅ Converted!">✅ تم التحويل!</h3>
+      <p id="result-info" style="color:var(--text-secondary);font-size:0.9rem"></p>
+    </div>
+
+    <div class="share-section">
+      <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>
+      <div class="share-btns">
+        <button class="share-btn facebook" id="share-facebook">f Facebook</button>
+        <button class="share-btn telegram" id="share-telegram">✈ Telegram</button>
+        <button class="share-btn whatsapp" id="share-whatsapp">📱 WhatsApp</button>
+        <button class="share-btn twitter" id="share-twitter">𝕏 Twitter</button>
+      </div>
+    </div>
+    <div class="rating-section">
+      <h4 data-ar="⭐ هل كانت هذه الأداة مفيدة؟" data-en="⭐ Was this tool helpful?">⭐ هل كانت هذه الأداة مفيدة؟</h4>
+      <div class="rating-btns">
+        <button class="rating-btn like" id="rate-like">👍 <span data-ar="نعم" data-en="Yes">نعم</span></button>
+        <button class="rating-btn dislike" id="rate-dislike">👎 <span data-ar="لا" data-en="No">لا</span></button>
+      </div>
+      <div class="rating-bar-wrap"><div class="rating-bar" id="rating-bar" style="width:0%"></div></div>
+      <p class="rating-text" id="rating-text"></p>
+    </div>
+    <div class="ad-banner" style="margin-top:20px">📢 <span data-ar="مساحة إعلانية" data-en="Ad Space">مساحة إعلانية</span></div>
+  </div>
+</div>
+<div id="toast-container" class="toast-container"></div>
+<div id="loading-overlay" class="loading-overlay"><div class="spinner"></div><div class="loading-text"></div></div>
+<script src="/js/app.js"></script>
+<script src="/js/tools/image-tools.js"></script>
+<script>initImageConverter();</script>
+</body>
+</html>
