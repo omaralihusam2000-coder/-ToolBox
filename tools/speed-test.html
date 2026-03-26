@@ -20,31 +20,49 @@
     }
     .gauge-container {
       position: relative;
-      width: 260px;
-      height: 140px;
-      margin: 0 auto 24px;
+      width: 280px;
+      height: 160px;
+      margin: 0 auto 16px;
     }
-    .gauge-svg { width: 260px; height: 140px; }
-    .gauge-track { fill: none; stroke: var(--border-color); stroke-width: 18; stroke-linecap: round; }
-    .gauge-fill { fill: none; stroke: var(--accent-red); stroke-width: 18; stroke-linecap: round;
-      transition: stroke-dashoffset 0.4s ease, stroke 0.4s ease;
-      transform-origin: center;
+    .gauge-svg { width: 280px; height: 160px; }
+    .gauge-track { fill: none; stroke: var(--border-color); stroke-width: 20; stroke-linecap: round; }
+    .gauge-fill { fill: none; stroke: var(--accent-red); stroke-width: 20; stroke-linecap: round;
+      transition: stroke-dashoffset 0.4s cubic-bezier(0.4,0,0.2,1), stroke 0.4s ease;
+      filter: drop-shadow(0 0 6px currentColor);
     }
+    .gauge-tick { fill: none; stroke: var(--text-muted); stroke-width: 1; opacity: 0.4; }
+    .gauge-tick-label { font-size: 9px; fill: var(--text-muted); text-anchor: middle; }
     .gauge-value {
       position: absolute;
-      bottom: 0; left: 50%;
+      bottom: 8px; left: 50%;
       transform: translateX(-50%);
       text-align: center;
     }
     .gauge-num {
-      font-size: 3rem; font-weight: 900;
+      font-size: 3.2rem; font-weight: 900;
       color: var(--text-primary); line-height: 1;
+      font-variant-numeric: tabular-nums;
     }
-    .gauge-unit { font-size: 0.9rem; color: var(--text-muted); margin-top: 2px; }
+    .gauge-unit { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; letter-spacing: 1px; }
     .gauge-label { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
+
+    /* Connection info bar */
+    .connection-info {
+      display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+      margin: 16px 0; padding: 12px 16px;
+      background: var(--bg-primary); border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+    .conn-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.82rem; color: var(--text-secondary);
+    }
+    .conn-item .conn-val { font-weight: 700; color: var(--text-primary); }
+    .conn-item .conn-icon { font-size: 1rem; }
+
     .speed-results-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 16px;
       margin-top: 24px;
       width: 100%;
@@ -56,12 +74,24 @@
       padding: 20px 16px;
       text-align: center;
       transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
     }
-    .speed-result-card.highlight { border-color: var(--accent-red); box-shadow: 0 0 16px rgba(230,57,70,0.15); }
+    .speed-result-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--border-color);
+      transition: background 0.3s ease;
+    }
+    .speed-result-card.highlight::before { background: linear-gradient(90deg, var(--accent-red), var(--accent-yellow)); }
+    .speed-result-card.highlight { border-color: var(--accent-red); box-shadow: 0 0 20px rgba(230,57,70,0.12); }
     .speed-result-card .res-icon { font-size: 1.6rem; margin-bottom: 8px; }
-    .speed-result-card .res-val { font-size: 1.6rem; font-weight: 900; color: var(--accent-yellow); line-height: 1; }
+    .speed-result-card .res-val {
+      font-size: 1.8rem; font-weight: 900; color: var(--accent-yellow); line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
     .speed-result-card .res-unit { font-size: 0.75rem; color: var(--text-muted); }
-    .speed-result-card .res-label { font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px; }
+    .speed-result-card .res-label { font-size: 0.82rem; color: var(--text-secondary); margin-top: 6px; }
     .speed-progress-wrap { width: 100%; margin: 16px 0; }
     .speed-progress-bar {
       height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden;
@@ -71,18 +101,43 @@
       border-radius: 3px; transition: width 0.3s ease;
     }
     .quality-badge {
-      display: inline-block; padding: 6px 18px; border-radius: 20px;
-      font-weight: 700; font-size: 0.9rem; margin-top: 16px;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 24px; border-radius: 24px;
+      font-weight: 700; font-size: 0.95rem; margin-top: 16px;
     }
     .quality-excellent { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid #22c55e; }
     .quality-good { background: rgba(72,149,239,0.15); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
     .quality-fair { background: rgba(255,209,102,0.15); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
     .quality-poor { background: rgba(230,57,70,0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
+
+    /* Recommendation box */
+    .speed-recommendation {
+      margin-top: 20px; padding: 16px;
+      background: var(--bg-primary); border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+    .speed-recommendation h4 {
+      font-size: 0.9rem; margin: 0 0 8px 0; color: var(--text-primary);
+    }
+    .speed-rec-list {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .speed-rec-item {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.8rem; padding: 4px 10px;
+      border-radius: 12px; border: 1px solid var(--border-color);
+    }
+    .speed-rec-item.ok { border-color: #22c55e33; color: #22c55e; background: rgba(34,197,94,0.05); }
+    .speed-rec-item.warn { border-color: rgba(255,209,102,0.3); color: var(--accent-yellow); background: rgba(255,209,102,0.05); }
+    .speed-rec-item.bad { border-color: rgba(230,57,70,0.3); color: var(--accent-red); background: rgba(230,57,70,0.05); }
+
     .speed-history-item {
       display: flex; align-items: center; gap: 12px;
       background: var(--bg-primary); border: 1px solid var(--border-color);
       border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 8px;
+      transition: background 0.2s ease;
     }
+    .speed-history-item:hover { background: var(--bg-hover); }
     .speed-history-item .ts { font-size: 0.75rem; color: var(--text-muted); min-width: 90px; }
     .speed-history-item .vals { flex: 1; display: flex; gap: 16px; flex-wrap: wrap; }
     .speed-history-item .hval { font-size: 0.85rem; color: var(--text-secondary); }
@@ -92,23 +147,38 @@
       display: inline-flex; align-items: center; gap: 10px;
       background: linear-gradient(135deg, var(--accent-red), #c1121f);
       color: white; border: none; border-radius: 50px;
-      padding: 16px 48px; font-size: 1.1rem; font-weight: 700;
+      padding: 16px 56px; font-size: 1.1rem; font-weight: 700;
       cursor: pointer; font-family: inherit;
-      box-shadow: 0 4px 20px rgba(230,57,70,0.4);
-      transition: all var(--transition);
+      box-shadow: 0 4px 24px rgba(230,57,70,0.4);
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      position: relative; overflow: hidden;
     }
-    .btn-start-test:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(230,57,70,0.5); }
+    .btn-start-test::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .btn-start-test:hover::after { opacity: 1; }
+    .btn-start-test:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(230,57,70,0.5); }
     .btn-start-test:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-start-test:disabled::after { display: none; }
     .phase-label {
       font-size: 0.95rem; color: var(--text-secondary);
       text-align: center; min-height: 24px; margin: 8px 0;
     }
     @keyframes pulse-ring {
-      0% { transform: scale(0.9); opacity: 0.7; }
-      50% { transform: scale(1.05); opacity: 1; }
-      100% { transform: scale(0.9); opacity: 0.7; }
+      0% { transform: scale(0.95); opacity: 0.7; }
+      50% { transform: scale(1.02); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.7; }
     }
     .testing .gauge-container { animation: pulse-ring 1.5s ease-in-out infinite; }
+
+    /* Server info */
+    .server-info {
+      text-align: center; font-size: 0.8rem; color: var(--text-muted);
+      margin: 8px 0;
+    }
+    .server-info strong { color: var(--text-secondary); }
   </style>
 </head>
 <body dir="rtl">
@@ -152,14 +222,36 @@
     <div class="tool-box">
       <h3 data-ar="🌐 اختبر سرعة اتصالك" data-en="🌐 Test Your Connection Speed">🌐 اختبر سرعة اتصالك</h3>
 
+      <!-- Connection Info -->
+      <div class="connection-info" id="connection-info">
+        <div class="conn-item"><span class="conn-icon">🌐</span> <span data-ar="نوع الاتصال:" data-en="Connection:">نوع الاتصال:</span> <span class="conn-val" id="conn-type">--</span></div>
+        <div class="conn-item"><span class="conn-icon">🖥️</span> <span data-ar="الخادم:" data-en="Server:">الخادم:</span> <span class="conn-val" id="conn-server">Cloudflare</span></div>
+        <div class="conn-item"><span class="conn-icon">📍</span> <span data-ar="IP:" data-en="IP:">IP:</span> <span class="conn-val" id="conn-ip">--</span></div>
+      </div>
+
       <!-- Gauge -->
       <div class="speed-gauge-wrap" id="gauge-wrap">
         <div class="gauge-container" id="gauge-container">
-          <svg class="gauge-svg" viewBox="0 0 260 140">
+          <svg class="gauge-svg" viewBox="0 0 280 160">
             <!-- Arc: starts at 9 o'clock (180°) goes clockwise to 0° -->
-            <path class="gauge-track" d="M 20 130 A 110 110 0 0 1 240 130" />
-            <path class="gauge-fill" id="gauge-fill" d="M 20 130 A 110 110 0 0 1 240 130"
-              stroke-dasharray="346" stroke-dashoffset="346" />
+            <path class="gauge-track" d="M 20 140 A 120 120 0 0 1 260 140" />
+            <!-- Tick marks for 0, 25, 50, 75, 100, 150, 200 Mbps -->
+            <line class="gauge-tick" x1="20" y1="140" x2="26" y2="140" />
+            <text class="gauge-tick-label" x="14" y="137">0</text>
+            <line class="gauge-tick" x1="40" y1="65" x2="46" y2="68" />
+            <text class="gauge-tick-label" x="32" y="60">25</text>
+            <line class="gauge-tick" x1="88" y1="26" x2="91" y2="32" />
+            <text class="gauge-tick-label" x="88" y="18">50</text>
+            <line class="gauge-tick" x1="140" y1="16" x2="140" y2="22" />
+            <text class="gauge-tick-label" x="140" y="10">100</text>
+            <line class="gauge-tick" x1="192" y1="26" x2="189" y2="32" />
+            <text class="gauge-tick-label" x="192" y="18">150</text>
+            <line class="gauge-tick" x1="240" y1="65" x2="234" y2="68" />
+            <text class="gauge-tick-label" x="248" y="60">200</text>
+            <line class="gauge-tick" x1="260" y1="140" x2="254" y2="140" />
+            <!-- Arc path length ≈ π × radius (120) = 377, used for stroke-dasharray animation -->
+            <path class="gauge-fill" id="gauge-fill" d="M 20 140 A 120 120 0 0 1 260 140"
+              stroke-dasharray="377" stroke-dashoffset="377" />
           </svg>
           <div class="gauge-value">
             <div class="gauge-num" id="gauge-num">0</div>
@@ -171,6 +263,9 @@
 
       <!-- Phase label -->
       <div class="phase-label" id="phase-label"></div>
+
+      <!-- Server info during test -->
+      <div class="server-info" id="server-info" style="display:none"></div>
 
       <!-- Progress -->
       <div class="speed-progress-wrap">
@@ -218,6 +313,13 @@
       <div style="text-align:center">
         <div class="quality-badge" id="quality-badge"></div>
       </div>
+
+      <!-- Recommendation -->
+      <div class="speed-recommendation" id="speed-recommendation">
+        <h4 data-ar="💡 مناسب لـ:" data-en="💡 Suitable for:">💡 مناسب لـ:</h4>
+        <div class="speed-rec-list" id="rec-list"></div>
+      </div>
+
       <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
         <button class="btn-red" onclick="startSpeedTest()" data-ar="🔄 إعادة الاختبار" data-en="🔄 Retest">🔄 إعادة الاختبار</button>
         <button class="btn-outline" onclick="shareResults()" data-ar="📤 مشاركة النتائج" data-en="📤 Share Results">📤 مشاركة النتائج</button>

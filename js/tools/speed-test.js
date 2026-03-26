@@ -1,16 +1,44 @@
 /**
- * Internet Speed Test
+ * Internet Speed Test - Professional
  * Uses fetch API with timing to measure download/upload speed and ping.
+ * Features: ISP detection, connection type, server info, usage recommendations
  */
 
 // ===== INIT =====
 function initSpeedTest() {
   initToolPage('speed-test');
+  detectConnectionInfo();
   renderSpeedHistory();
 }
 
+// ===== CONNECTION INFO =====
+function detectConnectionInfo() {
+  // Network type
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const typeEl = document.getElementById('conn-type');
+  if (typeEl && conn) {
+    const type = conn.effectiveType || conn.type || '--';
+    const typeLabels = { '4g': '4G / WiFi', '3g': '3G', '2g': '2G', 'slow-2g': 'Slow 2G', 'wifi': 'WiFi', 'ethernet': 'Ethernet' };
+    typeEl.textContent = typeLabels[type] || type.toUpperCase();
+  } else if (typeEl) {
+    typeEl.textContent = currentLang === 'ar' ? 'غير معروف' : 'Unknown';
+  }
+
+  // IP address (lightweight fetch)
+  const ipEl = document.getElementById('conn-ip');
+  if (ipEl) {
+    fetch('https://cloudflare.com/cdn-cgi/trace', { cache: 'no-store' })
+      .then(r => r.text())
+      .then(text => {
+        const ipMatch = text.match(/ip=(.+)/);
+        if (ipMatch) ipEl.textContent = ipMatch[1].trim();
+      })
+      .catch(() => { ipEl.textContent = '--'; });
+  }
+}
+
 // ===== GAUGE =====
-const GAUGE_TOTAL = 346; // stroke-dasharray of the arc path
+const GAUGE_TOTAL = 377; // stroke-dasharray of the arc path (updated for larger gauge)
 
 function setGauge(mbps, maxMbps) {
   const fill = document.getElementById('gauge-fill');
@@ -74,11 +102,12 @@ async function measurePing() {
 
 // ===== DOWNLOAD TEST =====
 async function measureDownload(onProgress) {
-  // We download a set of progressively larger payloads from a free CDN
+  // Download progressively larger payloads from Cloudflare
   const testUrls = [
     'https://speed.cloudflare.com/__down?bytes=1000000',    // 1 MB
     'https://speed.cloudflare.com/__down?bytes=5000000',    // 5 MB
     'https://speed.cloudflare.com/__down?bytes=10000000',   // 10 MB
+    'https://speed.cloudflare.com/__down?bytes=25000000',   // 25 MB
   ];
 
   const results = [];
@@ -101,7 +130,9 @@ async function measureDownload(onProgress) {
   }
 
   if (results.length === 0) return fallbackDownloadTest(onProgress);
-  return Math.max(...results);
+  // Use median of last 3 results for more stable reading
+  const sorted = results.slice().sort((a, b) => a - b);
+  return sorted.length >= 3 ? sorted[Math.floor(sorted.length / 2)] : Math.max(...results);
 }
 
 // Fallback: generate local data blob to test throughput
@@ -154,7 +185,6 @@ async function measureUpload(onProgress) {
     } catch (_) {
       // Fallback: measure local processing time as proxy
       const t0 = performance.now();
-      // simulate by reading blob
       await new Response(blob).arrayBuffer();
       const elapsed = Math.max((performance.now() - t0) / 1000, 0.01);
       const mbps = (sizes[i] * 8) / (elapsed * 1_000_000);
@@ -181,6 +211,8 @@ async function startSpeedTest() {
 
   document.getElementById('results-section').style.display = 'none';
   document.getElementById('gauge-container').classList.add('testing');
+  const serverInfo = document.getElementById('server-info');
+  if (serverInfo) { serverInfo.style.display = 'block'; serverInfo.innerHTML = '<strong>Cloudflare Edge</strong> — CDN'; }
   resetGauge();
   setProgress(0);
 
@@ -194,7 +226,7 @@ async function startSpeedTest() {
 
     const { ping, jitter } = await measurePing();
     setProgress(15);
-    setPhaseLabel(lang === 'ar' ? `📶 Ping: ${ping} ms — جيد!` : `📶 Ping: ${ping} ms — Good!`);
+    setPhaseLabel(lang === 'ar' ? `📶 Ping: ${ping} ms` : `📶 Ping: ${ping} ms`);
     await sleep(400);
 
     // Phase 2: Download
@@ -229,6 +261,7 @@ async function startSpeedTest() {
     renderSpeedHistory();
 
     setPhaseLabel(lang === 'ar' ? '✅ اكتمل الاختبار' : '✅ Test Complete');
+    if (serverInfo) serverInfo.style.display = 'none';
   } catch (err) {
     setPhaseLabel(lang === 'ar' ? '❌ حدث خطأ أثناء الاختبار' : '❌ Error during test');
     showToast(lang === 'ar' ? 'حدث خطأ، حاول مرة أخرى' : 'Error occurred, please retry', 'error');
@@ -254,20 +287,59 @@ function showSpeedResults({ download, upload, ping, jitter }) {
   let cls, label;
   if (download >= 100 && ping < 20) {
     cls = 'quality-excellent';
-    label = lang === 'ar' ? '🚀 ممتاز' : '🚀 Excellent';
+    label = lang === 'ar' ? '🚀 ممتاز — أداء احترافي' : '🚀 Excellent — Pro Performance';
   } else if (download >= 25 && ping < 50) {
     cls = 'quality-good';
-    label = lang === 'ar' ? '✅ جيد' : '✅ Good';
+    label = lang === 'ar' ? '✅ جيد — أداء مستقر' : '✅ Good — Stable Performance';
   } else if (download >= 5 && ping < 100) {
     cls = 'quality-fair';
-    label = lang === 'ar' ? '⚠️ متوسط' : '⚠️ Fair';
+    label = lang === 'ar' ? '⚠️ متوسط — قابل للتحسين' : '⚠️ Fair — Could Be Better';
   } else {
     cls = 'quality-poor';
-    label = lang === 'ar' ? '🔴 ضعيف' : '🔴 Poor';
+    label = lang === 'ar' ? '🔴 ضعيف — يحتاج تحسين' : '🔴 Poor — Needs Improvement';
   }
   if (badge) { badge.className = 'quality-badge ' + cls; badge.textContent = label; }
 
+  // Recommendations
+  renderRecommendations(download, upload, ping);
+
   document.getElementById('results-section').style.display = 'block';
+}
+
+// ===== RECOMMENDATIONS =====
+function renderRecommendations(download, upload, ping) {
+  const lang = window.currentLang || 'ar';
+  const recList = document.getElementById('rec-list');
+  if (!recList) return;
+
+  const items = [
+    { ar: '📧 البريد الإلكتروني', en: '📧 Email', need: 1, type: 'dl' },
+    { ar: '🌐 تصفح الويب', en: '🌐 Web Browsing', need: 3, type: 'dl' },
+    { ar: '📺 YouTube HD', en: '📺 YouTube HD', need: 5, type: 'dl' },
+    { ar: '🎬 Netflix 4K', en: '🎬 Netflix 4K', need: 25, type: 'dl' },
+    { ar: '🎮 الألعاب أونلاين', en: '🎮 Online Gaming', need: 50, type: 'ping' },
+    { ar: '📹 مكالمات فيديو', en: '📹 Video Calls', need: 5, type: 'ul' },
+    { ar: '☁️ رفع ملفات كبيرة', en: '☁️ Large Uploads', need: 20, type: 'ul' },
+    { ar: '🔴 البث المباشر', en: '🔴 Live Streaming', need: 10, type: 'ul' },
+  ];
+
+  recList.innerHTML = items.map(item => {
+    let ok, partial;
+    if (item.type === 'dl') {
+      ok = download >= item.need;
+      partial = download >= item.need * 0.5;
+    } else if (item.type === 'ul') {
+      ok = upload >= item.need;
+      partial = upload >= item.need * 0.5;
+    } else {
+      ok = ping <= item.need;
+      partial = ping <= item.need * 2;
+    }
+
+    const cls = ok ? 'ok' : partial ? 'warn' : 'bad';
+    const icon = cls === 'ok' ? '✓' : cls === 'warn' ? '~' : '✗';
+    return `<span class="speed-rec-item ${cls}">${icon} ${item[lang]}</span>`;
+  }).join('');
 }
 
 // ===== HISTORY =====
@@ -309,10 +381,11 @@ function shareResults() {
   const dl = document.getElementById('res-download')?.textContent;
   const ul = document.getElementById('res-upload')?.textContent;
   const ping = document.getElementById('res-ping')?.textContent;
+  const jitter = document.getElementById('res-jitter')?.textContent;
   const lang = window.currentLang || 'ar';
   const text = lang === 'ar'
-    ? `نتائج اختبار سرعة الإنترنت:\n⬇️ تحميل: ${dl} Mbps\n⬆️ رفع: ${ul} Mbps\n📶 Ping: ${ping} ms\nجرّب أنت: ${window.location.href}`
-    : `Internet Speed Test Results:\n⬇️ Download: ${dl} Mbps\n⬆️ Upload: ${ul} Mbps\n📶 Ping: ${ping} ms\nTest yours: ${window.location.href}`;
+    ? `🔥 نتائج اختبار سرعة الإنترنت:\n⬇️ تحميل: ${dl} Mbps\n⬆️ رفع: ${ul} Mbps\n📶 Ping: ${ping} ms\n📡 Jitter: ${jitter} ms\n\nجرّب أنت: ${window.location.href}`
+    : `🔥 Internet Speed Test Results:\n⬇️ Download: ${dl} Mbps\n⬆️ Upload: ${ul} Mbps\n📶 Ping: ${ping} ms\n📡 Jitter: ${jitter} ms\n\nTest yours: ${window.location.href}`;
 
   if (navigator.share) {
     navigator.share({ title: 'Speed Test Results', text }).catch(() => {});
