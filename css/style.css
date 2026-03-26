@@ -1308,6 +1308,10 @@ mark {
   cursor: pointer;
   transition: all var(--transition);
   background: var(--glass-bg);
+  position: relative;
+}
+.upload-area input[type="file"] {
+  display: none;
 }
 .upload-area:hover, .upload-area.drag-over {
   border-color: var(--accent-primary);

@@ -134,11 +134,26 @@ ${slidesHtml}
 }
 
 function pptxSlideToHtml(xmlContent, slideNum) {
-  // Extract text from XML
-  const titleMatch = xmlContent.match(/<p:sp[^>]*>.*?<p:ph[^>]*type="title"[^>]*\/>.*?<a:t>(.*?)<\/a:t>/s);
-  const texts = [...xmlContent.matchAll(/<a:t>(.*?)<\/a:t>/gs)].map(m =>
-    m[1].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"')
-  );
+  // Extract all text nodes from the XML, decode HTML entities.
+  // Use DOMParser for safe entity decoding, avoiding double-escaping issues.
+  const decodeEntities = (function() {
+    const el = document.createElement('textarea');
+    return function(text) {
+      el.innerHTML = text;
+      return el.value;
+    };
+  })();
+
+  const texts = [...xmlContent.matchAll(/<a:t>(.*?)<\/a:t>/gs)]
+    .map(m => decodeEntities(m[1]))
+    .filter(t => t.trim());
+
+  if (texts.length === 0) {
+    return `<div class="slide">
+      <div class="slide-title" style="color:#999">${currentLang === 'ar' ? 'شريحة' : 'Slide'} ${slideNum}</div>
+      <div class="slide-number">${slideNum}</div>
+    </div>`;
+  }
 
   const title = texts[0] || `Slide ${slideNum}`;
   const content = texts.slice(1).join('<br>');

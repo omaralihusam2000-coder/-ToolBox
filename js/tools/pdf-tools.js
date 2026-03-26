@@ -45,30 +45,71 @@ async function convertPdfToWord(file) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let fullText = '';
     const totalPages = pdf.numPages;
+    const pageTexts = [];
 
     for (let i = 1; i <= totalPages; i++) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
-      const pageText = content.items.map(item => item.str).join(' ');
-      fullText += pageText + '\n\n--- ' + (currentLang === 'ar' ? 'صفحة' : 'Page') + ' ' + i + ' ---\n\n';
+
+      // Group text items by their Y position to reconstruct lines.
+      // pdf.js transform array: [scaleX, skewX, skewY, scaleY, translateX, translateY]
+      const LINE_Y_THRESHOLD = 5; // min Y-difference (points) to consider a new line
+      const lines = [];
+      let currentLine = '';
+      let lastY = null;
+
+      for (const item of content.items) {
+        const y = Math.round(item.transform[5]); // translateY = vertical position
+        if (lastY !== null && Math.abs(y - lastY) > LINE_Y_THRESHOLD) {
+          // New line
+          if (currentLine.trim()) lines.push(currentLine.trim());
+          currentLine = item.str;
+        } else {
+          currentLine += (currentLine && item.str ? ' ' : '') + item.str;
+        }
+        lastY = y;
+      }
+      if (currentLine.trim()) lines.push(currentLine.trim());
+
+      pageTexts.push(lines.join('\n'));
     }
 
-    // Create a simple .txt file (Word-compatible)
-    // For a proper .docx, we'd use docx library
-    if (window.docx) {
+    const fullText = pageTexts.join('\n\n--- ' + (currentLang === 'ar' ? 'صفحة' : 'Page') + ' ---\n\n');
+
+    // Create a proper .docx if the docx library is loaded
+    if (window.docx && window.docx.Document) {
       await createDocxFromText(fullText, file.name);
     } else {
-      // Fallback: create HTML file that Word can open
+      // Fallback: create a well-encoded HTML file that Word can open
       const htmlContent = `<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><title>${file.name}</title>
-<style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;line-height:1.8;direction:auto;}</style>
+<html dir="auto">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>${file.name}</title>
+<style>
+  body {
+    font-family: 'Arial', 'Tahoma', 'Noto Sans Arabic', sans-serif;
+    max-width: 800px;
+    margin: 40px auto;
+    line-height: 2;
+    direction: auto;
+    font-size: 14pt;
+    color: #222;
+  }
+  p { margin-bottom: 12px; }
+  .page-break { page-break-after: always; border-top: 1px solid #ccc; margin: 24px 0; padding-top: 12px; color: #999; font-size: 10pt; }
+</style>
 </head>
-<body>${fullText.replace(/\n/g, '<br>')}</body>
+<body>
+${pageTexts.map((text, i) =>
+  text.split('\n').map(line => `<p>${line}</p>`).join('\n') +
+  (i < pageTexts.length - 1 ? `\n<div class="page-break">${currentLang === 'ar' ? 'صفحة' : 'Page'} ${i + 1}</div>` : '')
+).join('\n')}
+</body>
 </html>`;
-      const blob = new Blob([htmlContent], { type: 'application/msword' });
+      const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword;charset=UTF-8' });
       downloadBlob(blob, file.name.replace('.pdf', '.doc'));
     }
 
@@ -87,20 +128,36 @@ async function convertPdfToWord(file) {
 
 async function createDocxFromText(text, originalName) {
   const { Document, Packer, Paragraph, TextRun } = window.docx;
-  const paragraphs = text.split('\n').map(line => new Paragraph({
-    children: [new TextRun({ text: line, size: 24, font: 'Arial' })],
-    spacing: { after: 200 }
-  }));
+
+  const lines = text.split('\n');
+  const children = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      children.push(new Paragraph({ spacing: { after: 100 } }));
+      continue;
+    }
+    children.push(new Paragraph({
+      children: [new TextRun({
+        text: trimmed,
+        size: 24,
+        font: 'Arial'
+      })],
+      spacing: { after: 200, line: 360 },
+      bidirectional: true
+    }));
+  }
 
   const doc = new Document({
-    sections: [{ properties: {}, children: paragraphs }],
-    styles: {
-      paragraphStyles: [{
-        id: 'Normal',
-        name: 'Normal',
-        run: { font: 'Arial', size: 24 }
-      }]
-    }
+    sections: [{
+      properties: {
+        page: {
+          margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 }
+        }
+      },
+      children: children
+    }]
   });
 
   const blob = await Packer.toBlob(doc);

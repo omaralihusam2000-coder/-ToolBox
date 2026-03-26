@@ -3,8 +3,8 @@
  * Provides offline caching and PWA support
  */
 
-const CACHE_NAME = 'toolbox-v3';
-const STATIC_CACHE = 'toolbox-static-v3';
+const CACHE_NAME = 'toolbox-v4';
+const STATIC_CACHE = 'toolbox-static-v4';
 
 // Core files to cache for offline use
 const CORE_ASSETS = [
