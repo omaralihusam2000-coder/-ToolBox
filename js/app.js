@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   applyLang(currentLang);
   applyTheme(currentTheme);
   initPWA();
+  initParticles();
 
   if (document.getElementById('tools-grid-main')) {
     renderCategoryTabs();
@@ -80,6 +81,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   initSearch();
+  setTimeout(() => {
+    initRipples();
+    applyCardStagger();
+    initScrollAnimations();
+  }, 100);
 });
 
 // ===== LANGUAGE =====
@@ -123,6 +129,9 @@ function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   const btn = document.getElementById('theme-btn');
   if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+  // Sync mobile nav theme icon
+  const mobileIcon = document.getElementById('mobile-theme-icon');
+  if (mobileIcon) mobileIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 
 function toggleTheme() {
@@ -200,7 +209,7 @@ function toolCardHTML(t) {
       <span class="tool-icon">${t.icon}</span>
       <div class="tool-name">${t.name[currentLang]}</div>
       <div class="tool-desc">${t.desc[currentLang]}</div>
-      ${count > 0 ? `<div style="font-size:0.7rem;color:var(--text-muted);margin-top:6px">${count} ${currentLang === 'ar' ? 'استخدام' : 'uses'}</div>` : ''}
+      ${count > 0 ? `<div class="tool-uses">🔢 ${count.toLocaleString()} ${currentLang === 'ar' ? 'استخدام' : 'uses'}</div>` : ''}
       <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event,'${t.id}')" title="${currentLang === 'ar' ? 'مفضلة' : 'Favorite'}">
         ${isFav ? '❤️' : '🤍'}
       </button>
@@ -227,6 +236,8 @@ function renderAllTools(cat = 'all') {
   if (!grid) return;
   const list = cat === 'all' ? TOOLS : TOOLS.filter(t => t.cat === cat);
   grid.innerHTML = list.map(toolCardHTML).join('');
+  applyCardStagger();
+  setTimeout(initRipples, 50);
 }
 
 // ===== FAVORITES =====
@@ -359,6 +370,9 @@ function initToolPage(toolId) {
   initRating(toolId);
   applyLang(currentLang);
   applyTheme(currentTheme);
+  // Init particle background and ripple effects on tool pages too
+  initParticles();
+  setTimeout(initRipples, 150);
 }
 
 // ===== SHARE =====
@@ -572,6 +586,99 @@ function initDragDrop(areaId, inputId, onFiles) {
   });
 }
 
+// ===== RIPPLE EFFECT =====
+function addRipple(e) {
+  const btn = e.currentTarget;
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height) * 1.5;
+  const x = e.clientX - rect.left - size / 2;
+  const y = e.clientY - rect.top - size / 2;
+
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple-wave';
+  ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px`;
+  btn.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 620);
+}
+
+function initRipples() {
+  document.querySelectorAll('.btn-red, .btn-blue, .cat-tab, .share-btn, .rating-btn').forEach(btn => {
+    if (!btn.classList.contains('ripple-container')) {
+      btn.classList.add('ripple-container');
+      btn.addEventListener('click', addRipple);
+    }
+  });
+}
+
+// ===== PARTICLE BACKGROUND =====
+function initParticles() {
+  // Auto-create container if not present (tool pages)
+  let container = document.getElementById('particles-bg');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'particles-bg';
+    container.className = 'particles-bg';
+    document.body.insertBefore(container, document.body.firstChild);
+  }
+
+  // Avoid duplicate particles
+  if (container.children.length > 0) return;
+
+  // Respect reduced motion
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const count = 18;
+  const colors = ['rgba(230,57,70,0.35)', 'rgba(255,214,10,0.25)', 'rgba(67,97,238,0.3)'];
+
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = 2 + Math.random() * 4;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const duration = 12 + Math.random() * 20;
+    const delay = Math.random() * -20;
+    const x = Math.random() * 100;
+    const y = Math.random() * 100;
+
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${x}%; top:${y}%;
+      background:${color};
+      box-shadow: 0 0 ${size * 2}px ${color};
+      animation-duration:${duration}s;
+      animation-delay:${delay}s;
+      opacity:0.6;
+    `;
+    container.appendChild(p);
+  }
+}
+
+// ===== INTERSECTION OBSERVER (scroll animations) =====
+function initScrollAnimations() {
+  if (!('IntersectionObserver' in window)) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+}
+
+// Apply staggered animation delay to tool cards (first 12 to avoid thrashing)
+function applyCardStagger() {
+  const grids = document.querySelectorAll('.tools-grid, .popular-grid');
+  grids.forEach(grid => {
+    Array.from(grid.children).slice(0, 12).forEach((card, i) => {
+      card.style.animationDelay = `${i * 0.05}s`;
+    });
+  });
+}
+
 // ===== EXPOSE GLOBALS =====
 window.toggleLang = toggleLang;
 window.toggleTheme = toggleTheme;
@@ -587,5 +694,6 @@ window.downloadBlob = downloadBlob;
 window.copyText = copyText;
 window.initDragDrop = initDragDrop;
 window.handleNewsletter = handleNewsletter;
+window.initRipples = initRipples;
 window.TOOLS = TOOLS;
 window.currentLang = currentLang;

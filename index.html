@@ -14,10 +14,13 @@
   <title>ToolBox - أدوات مجانية أونلاين</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body dir="rtl">
+
+<!-- Particle Background -->
+<div class="particles-bg" id="particles-bg"></div>
 
 <!-- PWA Banner -->
 <div id="pwa-banner" class="pwa-banner">
@@ -54,9 +57,9 @@
 <!-- Hero -->
 <section class="hero">
   <h1>
-    <span data-ar="أدواتك المجانية" data-en="Your Free Online"></span>
+    <span class="hero-title-main">🔧 ToolBox</span>
     <br>
-    <span class="highlight-red" data-ar="كلها في مكان واحد" data-en="Tools All In One Place"></span>
+    <span data-ar="أدواتك المجانية كلها في مكان واحد" data-en="Your Free Online Tools All In One Place"></span>
     <span class="highlight-yellow"> ⚡</span>
   </h1>
   <p data-ar="30+ أداة مجانية تعمل مباشرة في المتصفح - بدون تسجيل، بدون رفع لسيرفر" data-en="30+ free tools that work directly in your browser - no registration, no server upload"></p>
@@ -137,6 +140,26 @@
   </div>
 
 </main>
+
+<!-- Mobile Bottom Navigation -->
+<nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+  <a href="." class="mobile-nav-item active" id="nav-home">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label" data-ar="الرئيسية" data-en="Home">الرئيسية</span>
+  </a>
+  <button class="mobile-nav-item" id="nav-search-btn" onclick="document.getElementById('search-input').focus(); document.getElementById('search-input').scrollIntoView({behavior:'smooth'})">
+    <span class="nav-icon">🔍</span>
+    <span class="nav-label" data-ar="بحث" data-en="Search">بحث</span>
+  </button>
+  <a href="#favorites-section" class="mobile-nav-item" id="nav-favorites">
+    <span class="nav-icon">❤️</span>
+    <span class="nav-label" data-ar="المفضلة" data-en="Favorites">المفضلة</span>
+  </a>
+  <button class="mobile-nav-item" onclick="toggleTheme()">
+    <span class="nav-icon" id="mobile-theme-icon">🌙</span>
+    <span class="nav-label" data-ar="الثيم" data-en="Theme">الثيم</span>
+  </button>
+</nav>
 
 <!-- Footer -->
 <footer class="footer">
