@@ -65,7 +65,14 @@ async function compressImages(files, quality) {
   if (resultSection) resultSection.style.display = 'block';
 
   if (resultList) {
-    resultList.innerHTML = results.map(r => {
+    window._compressedBlobs = {};
+    window._compressedNames = {};
+    results.forEach((r, i) => {
+      window._compressedBlobs[i] = r.compressed;
+      window._compressedNames[i] = r.original.name.replace(/\.[^.]+$/, '') + '_compressed.jpg';
+    });
+
+    resultList.innerHTML = results.map((r, i) => {
       const savings = Math.round((1 - r.compressed.size / r.original.size) * 100);
       return `
         <div class="file-item">
@@ -73,12 +80,9 @@ async function compressImages(files, quality) {
           <span class="file-name">${r.original.name}</span>
           <span class="file-size" style="color:var(--accent-yellow)">${formatFileSize(r.compressed.size)}</span>
           <span class="chip green" style="font-size:0.7rem">${savings > 0 ? '-' + savings + '%' : 'No change'}</span>
-          <button class="btn-red" style="padding:4px 12px;font-size:0.75rem" onclick="downloadBlob(window._compressedBlobs['${r.original.name}'], '${r.original.name.replace(/\.[^.]+$/, '')}_compressed.jpg')">⬇</button>
+          <button class="btn-red" style="padding:4px 12px;font-size:0.75rem" onclick="downloadBlob(window._compressedBlobs[${i}], window._compressedNames[${i}])">⬇</button>
         </div>`;
     }).join('');
-
-    window._compressedBlobs = {};
-    results.forEach(r => { window._compressedBlobs[r.original.name] = r.compressed; });
   }
 
   const totalSavings = results.reduce((acc, r) => acc + (r.original.size - r.compressed.size), 0);
