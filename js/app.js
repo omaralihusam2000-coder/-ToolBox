@@ -1,66 +1,74 @@
 /**
- * ToolBox - Main App Logic
- * Handles: Language, Theme, Search, Favorites, History, Counters, PWA
+ * ToolBox - Main App Logic v3.0
+ * Features: Language, Theme, Search, Favorites, History, Popular, PWA, Particles, Toast
  */
 
 // ===== TOOL DATA =====
 const TOOLS = [
   // File/Document Tools
-  { id: 'pdf-to-word', name: { ar: 'PDF إلى Word', en: 'PDF to Word' }, desc: { ar: 'تحويل PDF إلى Word', en: 'Convert PDF to Word' }, icon: '📄', cat: 'files', url: 'tools/pdf-to-word.html' },
-  { id: 'word-to-pdf', name: { ar: 'Word إلى PDF', en: 'Word to PDF' }, desc: { ar: 'تحويل Word إلى PDF', en: 'Convert Word to PDF' }, icon: '📝', cat: 'files', url: 'tools/word-to-pdf.html' },
-  { id: 'pdf-merger', name: { ar: 'دمج PDF', en: 'PDF Merger' }, desc: { ar: 'دمج ملفات PDF', en: 'Merge PDF files' }, icon: '🔗', cat: 'files', url: 'tools/pdf-merger.html' },
-  { id: 'pdf-splitter', name: { ar: 'تقسيم PDF', en: 'PDF Splitter' }, desc: { ar: 'تقسيم PDF إلى صفحات', en: 'Split PDF pages' }, icon: '✂️', cat: 'files', url: 'tools/pdf-splitter.html' },
-  { id: 'pptx-to-pdf', name: { ar: 'PowerPoint إلى PDF', en: 'PowerPoint to PDF' }, desc: { ar: 'تحويل PPTX إلى PDF', en: 'Convert PPTX to PDF' }, icon: '📊', cat: 'files', url: 'tools/pptx-to-pdf.html' },
-  { id: 'image-compressor', name: { ar: 'ضغط الصور', en: 'Image Compressor' }, desc: { ar: 'تصغير حجم الصور', en: 'Reduce image size' }, icon: '🖼️', cat: 'files', url: 'tools/image-compressor.html' },
-  { id: 'image-converter', name: { ar: 'تحويل صيغة الصور', en: 'Image Converter' }, desc: { ar: 'PNG ↔ JPG ↔ WEBP', en: 'PNG ↔ JPG ↔ WEBP' }, icon: '🔄', cat: 'files', url: 'tools/image-converter.html' },
-  { id: 'image-resizer', name: { ar: 'تغيير حجم الصور', en: 'Image Resizer' }, desc: { ar: 'تغيير أبعاد الصورة', en: 'Resize images' }, icon: '📐', cat: 'files', url: 'tools/image-resizer.html' },
+  { id: 'pdf-to-word',    name: { ar: 'PDF إلى Word',         en: 'PDF to Word'          }, desc: { ar: 'تحويل PDF إلى Word',        en: 'Convert PDF to Word'       }, icon: '📄', cat: 'files', url: 'tools/pdf-to-word.html'    },
+  { id: 'word-to-pdf',    name: { ar: 'Word إلى PDF',         en: 'Word to PDF'          }, desc: { ar: 'تحويل Word إلى PDF',        en: 'Convert Word to PDF'       }, icon: '📝', cat: 'files', url: 'tools/word-to-pdf.html'    },
+  { id: 'pdf-merger',     name: { ar: 'دمج PDF',              en: 'PDF Merger'           }, desc: { ar: 'دمج ملفات PDF',             en: 'Merge PDF files'           }, icon: '🔗', cat: 'files', url: 'tools/pdf-merger.html'     },
+  { id: 'pdf-splitter',   name: { ar: 'تقسيم PDF',            en: 'PDF Splitter'         }, desc: { ar: 'تقسيم PDF إلى صفحات',      en: 'Split PDF pages'           }, icon: '✂️', cat: 'files', url: 'tools/pdf-splitter.html'   },
+  { id: 'pptx-to-pdf',    name: { ar: 'PowerPoint إلى PDF',  en: 'PowerPoint to PDF'    }, desc: { ar: 'تحويل PPTX إلى PDF',       en: 'Convert PPTX to PDF'       }, icon: '📊', cat: 'files', url: 'tools/pptx-to-pdf.html'    },
+  { id: 'image-compressor',name:{ ar: 'ضغط الصور',           en: 'Image Compressor'     }, desc: { ar: 'تصغير حجم الصور',          en: 'Reduce image size'         }, icon: '🖼️', cat: 'files', url: 'tools/image-compressor.html'},
+  { id: 'image-converter', name:{ ar: 'تحويل صيغة الصور',   en: 'Image Converter'      }, desc: { ar: 'PNG ↔ JPG ↔ WEBP',         en: 'PNG ↔ JPG ↔ WEBP'         }, icon: '🔄', cat: 'files', url: 'tools/image-converter.html' },
+  { id: 'image-resizer',   name:{ ar: 'تغيير حجم الصور',    en: 'Image Resizer'        }, desc: { ar: 'تغيير أبعاد الصورة',       en: 'Resize images'             }, icon: '📐', cat: 'files', url: 'tools/image-resizer.html'   },
   // Text Tools
-  { id: 'word-counter', name: { ar: 'عداد الكلمات', en: 'Word Counter' }, desc: { ar: 'عد الكلمات والأحرف', en: 'Count words & chars' }, icon: '🔤', cat: 'text', url: 'tools/word-counter.html' },
-  { id: 'case-converter', name: { ar: 'تحويل الأحرف', en: 'Case Converter' }, desc: { ar: 'كبير ↔ صغير', en: 'UPPER ↔ lower' }, icon: 'Aa', cat: 'text', url: 'tools/case-converter.html' },
-  { id: 'remove-diacritics', name: { ar: 'إزالة التشكيل', en: 'Remove Diacritics' }, desc: { ar: 'إزالة تشكيل النص العربي', en: 'Remove Arabic vowels' }, icon: '🇸🇦', cat: 'text', url: 'tools/remove-diacritics.html' },
-  { id: 'lorem-ipsum', name: { ar: 'نص عشوائي', en: 'Lorem Ipsum' }, desc: { ar: 'توليد نص عشوائي', en: 'Generate placeholder text' }, icon: '📃', cat: 'text', url: 'tools/lorem-ipsum.html' },
-  { id: 'base64', name: { ar: 'Base64', en: 'Base64' }, desc: { ar: 'تشفير وفك تشفير Base64', en: 'Encode/decode Base64' }, icon: '🔐', cat: 'text', url: 'tools/base64.html' },
-  { id: 'url-encoder', name: { ar: 'تشفير URL', en: 'URL Encoder' }, desc: { ar: 'تشفير وفك تشفير URL', en: 'Encode/decode URLs' }, icon: '🌐', cat: 'text', url: 'tools/url-encoder.html' },
-  { id: 'number-converter', name: { ar: 'محوّل الأرقام العربية', en: 'Arabic Number Converter' }, desc: { ar: '١٢٣ ↔ 123 تحويل الأرقام', en: 'Arabic ↔ Western numerals' }, icon: '🔢', cat: 'text', url: 'tools/number-converter.html' },
+  { id: 'word-counter',   name: { ar: 'عداد الكلمات',        en: 'Word Counter'         }, desc: { ar: 'عد الكلمات والأحرف',        en: 'Count words & chars'       }, icon: '🔤', cat: 'text', url: 'tools/word-counter.html'    },
+  { id: 'case-converter',  name: { ar: 'تحويل الأحرف',       en: 'Case Converter'       }, desc: { ar: 'كبير ↔ صغير',              en: 'UPPER ↔ lower'             }, icon: 'Aa', cat: 'text', url: 'tools/case-converter.html'  },
+  { id: 'remove-diacritics',name:{ ar: 'إزالة التشكيل',     en: 'Remove Diacritics'    }, desc: { ar: 'إزالة تشكيل النص العربي',  en: 'Remove Arabic vowels'      }, icon: '🇸🇦', cat: 'text', url: 'tools/remove-diacritics.html'},
+  { id: 'lorem-ipsum',     name: { ar: 'نص عشوائي',         en: 'Lorem Ipsum'          }, desc: { ar: 'توليد نص عشوائي',          en: 'Generate placeholder text' }, icon: '📃', cat: 'text', url: 'tools/lorem-ipsum.html'     },
+  { id: 'base64',          name: { ar: 'Base64',             en: 'Base64'               }, desc: { ar: 'تشفير وفك تشفير Base64',   en: 'Encode/decode Base64'      }, icon: '🔐', cat: 'text', url: 'tools/base64.html'          },
+  { id: 'url-encoder',     name: { ar: 'تشفير URL',          en: 'URL Encoder'          }, desc: { ar: 'تشفير وفك تشفير URL',      en: 'Encode/decode URLs'        }, icon: '🌐', cat: 'text', url: 'tools/url-encoder.html'     },
+  { id: 'number-converter',name: { ar: 'محوّل الأرقام العربية',en:'Arabic Number Converter'},desc:{ ar: '١٢٣ ↔ 123',              en: 'Arabic ↔ Western numerals' }, icon: '🔢', cat: 'text', url: 'tools/number-converter.html'},
+  { id: 'json-formatter',  name: { ar: 'منسّق JSON',         en: 'JSON Formatter'       }, desc: { ar: 'تنسيق وتحقق JSON',         en: 'Format & validate JSON'    }, icon: '{ }', cat: 'text', url: 'tools/json-formatter.html'  },
+  { id: 'markdown-preview',name: { ar: 'معاينة Markdown',   en: 'Markdown Preview'     }, desc: { ar: 'كتابة ومعاينة Markdown',   en: 'Live Markdown preview'     }, icon: '📋', cat: 'text', url: 'tools/markdown-preview.html' },
+  { id: 'minifier',        name: { ar: 'ضاغط الكود',         en: 'Code Minifier'        }, desc: { ar: 'ضغط CSS/JS',               en: 'Minify CSS & JS'           }, icon: '⚙️', cat: 'text', url: 'tools/minifier.html'        },
+  { id: 'regex-tester',    name: { ar: 'محقق Regex',         en: 'Regex Tester'         }, desc: { ar: 'اختبار التعبيرات النمطية', en: 'Test regular expressions'  }, icon: '🧪', cat: 'text', url: 'tools/regex-tester.html'    },
+  { id: 'text-to-speech',  name: { ar: 'نص إلى صوت',        en: 'Text to Speech'       }, desc: { ar: 'تحويل النص إلى كلام',      en: 'Convert text to audio'     }, icon: '🔊', cat: 'text', url: 'tools/text-to-speech.html'  },
   // Calculators
-  { id: 'age-calculator', name: { ar: 'حاسبة العمر', en: 'Age Calculator' }, desc: { ar: 'احسب عمرك بدقة', en: 'Calculate exact age' }, icon: '🎂', cat: 'calc', url: 'tools/age-calculator.html' },
-  { id: 'bmi-calculator', name: { ar: 'حاسبة BMI', en: 'BMI Calculator' }, desc: { ar: 'مؤشر كتلة الجسم', en: 'Body Mass Index' }, icon: '⚖️', cat: 'calc', url: 'tools/bmi-calculator.html' },
-  { id: 'currency-converter', name: { ar: 'تحويل العملات', en: 'Currency Converter' }, desc: { ar: 'دولار ↔ دينار عراقي', en: 'USD ↔ IQD & more' }, icon: '💱', cat: 'calc', url: 'tools/currency-converter.html' },
-  { id: 'percentage-calculator', name: { ar: 'حاسبة النسبة', en: 'Percentage Calculator' }, desc: { ar: 'حسابات النسب المئوية', en: 'Percentage calculations' }, icon: '%', cat: 'calc', url: 'tools/percentage-calculator.html' },
-  { id: 'loan-calculator', name: { ar: 'حاسبة القروض', en: 'Loan Calculator' }, desc: { ar: 'احسب أقساطك الشهرية', en: 'Monthly payment calc' }, icon: '🏦', cat: 'calc', url: 'tools/loan-calculator.html' },
-  { id: 'gpa-calculator', name: { ar: 'حاسبة المعدل', en: 'GPA Calculator' }, desc: { ar: 'حساب المعدل الدراسي', en: 'Calculate GPA & CGPA' }, icon: '🎓', cat: 'calc', url: 'tools/gpa-calculator.html' },
-  { id: 'timezone-converter', name: { ar: 'محوّل المناطق الزمنية', en: 'Timezone Converter' }, desc: { ar: 'تحويل الوقت بين المناطق', en: 'Convert time zones' }, icon: '🕐', cat: 'calc', url: 'tools/timezone-converter.html' },
-  { id: 'screen-ppi', name: { ar: 'حاسبة PPI للشاشة', en: 'Screen PPI Calculator' }, desc: { ar: 'احسب كثافة البكسل', en: 'Pixels per inch calc' }, icon: '📱', cat: 'calc', url: 'tools/screen-ppi.html' },
+  { id: 'age-calculator',  name: { ar: 'حاسبة العمر',        en: 'Age Calculator'       }, desc: { ar: 'احسب عمرك بدقة',           en: 'Calculate exact age'       }, icon: '🎂', cat: 'calc', url: 'tools/age-calculator.html'  },
+  { id: 'bmi-calculator',  name: { ar: 'حاسبة BMI',          en: 'BMI Calculator'       }, desc: { ar: 'مؤشر كتلة الجسم',          en: 'Body Mass Index'           }, icon: '⚖️', cat: 'calc', url: 'tools/bmi-calculator.html'  },
+  { id: 'currency-converter',name:{ar:'تحويل العملات',       en: 'Currency Converter'   }, desc: { ar: 'دولار ↔ دينار عراقي',      en: 'USD ↔ IQD & more'         }, icon: '💱', cat: 'calc', url: 'tools/currency-converter.html'},
+  { id: 'percentage-calculator',name:{ar:'حاسبة النسبة',    en: 'Percentage Calculator'}, desc: { ar: 'حسابات النسب المئوية',      en: 'Percentage calculations'   }, icon: '%', cat: 'calc', url: 'tools/percentage-calculator.html'},
+  { id: 'loan-calculator',  name: { ar: 'حاسبة القروض',      en: 'Loan Calculator'      }, desc: { ar: 'احسب أقساطك الشهرية',       en: 'Monthly payment calc'      }, icon: '🏦', cat: 'calc', url: 'tools/loan-calculator.html' },
+  { id: 'gpa-calculator',   name: { ar: 'حاسبة المعدل',      en: 'GPA Calculator'       }, desc: { ar: 'حساب المعدل الدراسي',       en: 'Calculate GPA & CGPA'      }, icon: '🎓', cat: 'calc', url: 'tools/gpa-calculator.html'  },
+  { id: 'timezone-converter',name:{ ar: 'محوّل المناطق الزمنية',en:'Timezone Converter' }, desc: { ar: 'تحويل الوقت بين المناطق',  en: 'Convert time zones'        }, icon: '🕐', cat: 'calc', url: 'tools/timezone-converter.html'},
+  { id: 'screen-ppi',       name: { ar: 'حاسبة PPI للشاشة', en: 'Screen PPI Calculator'}, desc: { ar: 'احسب كثافة البكسل',         en: 'Pixels per inch calc'      }, icon: '📱', cat: 'calc', url: 'tools/screen-ppi.html'      },
   // Design Tools
-  { id: 'color-picker', name: { ar: 'منتقي الألوان', en: 'Color Picker' }, desc: { ar: 'HEX, RGB, HSL', en: 'HEX, RGB, HSL values' }, icon: '🎨', cat: 'design', url: 'tools/color-picker.html' },
-  { id: 'qr-generator', name: { ar: 'مولد QR Code', en: 'QR Generator' }, desc: { ar: 'إنشاء باركود QR', en: 'Generate QR codes' }, icon: '📷', cat: 'design', url: 'tools/qr-generator.html' },
-  { id: 'gradient-generator', name: { ar: 'مولد التدرجات', en: 'Gradient Generator' }, desc: { ar: 'إنشاء تدرجات CSS', en: 'CSS gradient creator' }, icon: '🌈', cat: 'design', url: 'tools/gradient-generator.html' },
-  // Dev Tools
-  { id: 'my-ip', name: { ar: 'عنوان IP', en: 'My IP Address' }, desc: { ar: 'اعرف IP الخاص بك', en: 'Show your IP info' }, icon: '🖥️', cat: 'dev', url: 'tools/my-ip.html' },
-  { id: 'password-generator', name: { ar: 'مولد كلمات المرور', en: 'Password Generator' }, desc: { ar: 'إنشاء باسوورد قوي', en: 'Generate strong passwords' }, icon: '🔑', cat: 'dev', url: 'tools/password-generator.html' },
-  { id: 'markdown-preview', name: { ar: 'معاينة Markdown', en: 'Markdown Preview' }, desc: { ar: 'كتابة ومعاينة Markdown', en: 'Live Markdown preview' }, icon: '📋', cat: 'dev', url: 'tools/markdown-preview.html' },
-  { id: 'speed-test', name: { ar: 'اختبار سرعة الإنترنت', en: 'Internet Speed Test' }, desc: { ar: 'فحص سرعة تحميل ورفع', en: 'Test download & upload speed' }, icon: '⚡', cat: 'dev', url: 'tools/speed-test.html' },
+  { id: 'color-picker',     name: { ar: 'منتقي الألوان',     en: 'Color Picker'         }, desc: { ar: 'HEX, RGB, HSL',             en: 'HEX, RGB, HSL values'     }, icon: '🎨', cat: 'design', url: 'tools/color-picker.html'    },
+  { id: 'qr-generator',     name: { ar: 'مولد QR Code',      en: 'QR Generator'         }, desc: { ar: 'إنشاء باركود QR',           en: 'Generate QR codes'         }, icon: '📷', cat: 'design', url: 'tools/qr-generator.html'    },
+  { id: 'gradient-generator',name:{ ar: 'مولد التدرجات',     en: 'Gradient Generator'   }, desc: { ar: 'إنشاء تدرجات CSS',          en: 'CSS gradient creator'      }, icon: '🌈', cat: 'design', url: 'tools/gradient-generator.html'},
+  { id: 'favicon-generator', name:{ ar: 'مولد الأيقونات',    en: 'Favicon Generator'    }, desc: { ar: 'إنشاء أيقونات الموقع',      en: 'Create website favicons'   }, icon: '⭐', cat: 'design', url: 'tools/favicon-generator.html'},
+  // Developer Tools
+  { id: 'my-ip',             name: { ar: 'عنوان IP',          en: 'My IP Address'       }, desc: { ar: 'اعرف IP الخاص بك',          en: 'Show your IP info'         }, icon: '🖥️', cat: 'dev', url: 'tools/my-ip.html'            },
+  { id: 'password-generator',name: { ar: 'مولد كلمات المرور',en: 'Password Generator'  }, desc: { ar: 'إنشاء باسوورد قوي',         en: 'Generate strong passwords' }, icon: '🔑', cat: 'dev', url: 'tools/password-generator.html'},
+  { id: 'speed-test',        name: { ar: 'اختبار سرعة الإنترنت',en:'Internet Speed Test' }, desc: { ar: 'فحص سرعة تحميل ورفع',     en: 'Test download & upload'    }, icon: '⚡', cat: 'dev', url: 'tools/speed-test.html'       },
 ];
 
+// Tools added recently (show "New" badge)
+const NEW_TOOLS = ['json-formatter', 'regex-tester', 'text-to-speech', 'favicon-generator', 'minifier'];
+
 const CATEGORIES = {
-  all: { ar: 'الكل', en: 'All', icon: '🔧' },
-  files: { ar: 'ملفات', en: 'Files', icon: '📁' },
-  text: { ar: 'نصوص', en: 'Text', icon: '🔤' },
-  calc: { ar: 'حاسبات', en: 'Calculators', icon: '🔢' },
-  design: { ar: 'تصميم', en: 'Design', icon: '🎨' },
-  dev: { ar: 'مطورين', en: 'Developer', icon: '💻' },
+  all:    { ar: 'الكل',        en: 'All',         icon: '🔧' },
+  files:  { ar: 'ملفات',      en: 'Files',       icon: '📁' },
+  text:   { ar: 'نصوص',       en: 'Text',        icon: '🔤' },
+  calc:   { ar: 'حاسبات',     en: 'Calculators', icon: '🔢' },
+  design: { ar: 'تصميم',      en: 'Design',      icon: '🎨' },
+  dev:    { ar: 'مطورين',     en: 'Developer',   icon: '💻' },
 };
 
-// ===== BASE PATH (handles GitHub Pages subdir deployment) =====
+// ===== BASE PATH =====
 const BASE_PATH = window.location.pathname.includes('/tools/') ? '../' : '';
 
 // ===== STATE =====
-let currentLang = localStorage.getItem('tb_lang') || 'ar';
-let currentTheme = localStorage.getItem('tb_theme') || 'dark';
-let favorites = JSON.parse(localStorage.getItem('tb_favorites') || '[]');
-let history = JSON.parse(localStorage.getItem('tb_history') || '[]');
-let usageCounts = JSON.parse(localStorage.getItem('tb_usage') || '{}');
-let currentCat = 'all';
+let currentLang  = localStorage.getItem('tb_lang')      || 'ar';
+let currentTheme = localStorage.getItem('tb_theme')     || 'dark';
+let favorites    = JSON.parse(localStorage.getItem('tb_favorites') || '[]');
+let history      = JSON.parse(localStorage.getItem('tb_history')   || '[]');
+let usageCounts  = JSON.parse(localStorage.getItem('tb_usage')     || '{}');
+let currentCat   = 'all';
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
@@ -78,9 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initSearch();
     updateHeroStats();
     simulateLiveUsers();
+  } else {
+    initSearch();
   }
 
-  initSearch();
   setTimeout(() => {
     initRipples();
     applyCardStagger();
@@ -97,11 +106,9 @@ function applyLang(lang) {
   document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
   document.body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
 
-  // Update lang toggle button
   const langBtn = document.getElementById('lang-btn');
   if (langBtn) langBtn.textContent = lang === 'ar' ? 'EN' : 'عربي';
 
-  // Translate all elements with data-ar / data-en
   document.querySelectorAll('[data-ar]').forEach(el => {
     el.textContent = lang === 'ar' ? el.dataset.ar : (el.dataset.en || el.dataset.ar);
   });
@@ -129,7 +136,6 @@ function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   const btn = document.getElementById('theme-btn');
   if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
-  // Sync mobile nav theme icon
   const mobileIcon = document.getElementById('mobile-theme-icon');
   if (mobileIcon) mobileIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
 }
@@ -140,76 +146,88 @@ function toggleTheme() {
 
 // ===== SEARCH =====
 function initSearch() {
-  const searchInput = document.getElementById('search-input');
+  const searchInput   = document.getElementById('search-input');
   const searchResults = document.getElementById('search-results');
-  if (!searchInput || !searchResults) return;
+  if (!searchInput) return;
 
+  let debounceTimer;
   searchInput.addEventListener('input', (e) => {
-    const q = e.target.value.trim().toLowerCase();
-    if (!q) { searchResults.classList.remove('active'); return; }
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      const q = e.target.value.trim().toLowerCase();
+      if (searchResults) {
+        if (!q) { searchResults.classList.remove('active'); }
+        else {
+          const results = TOOLS.filter(t =>
+            t.name[currentLang].toLowerCase().includes(q) ||
+            t.name.ar.toLowerCase().includes(q) ||
+            t.name.en.toLowerCase().includes(q) ||
+            t.desc[currentLang].toLowerCase().includes(q)
+          ).slice(0, 8);
 
-    const results = TOOLS.filter(t =>
-      t.name[currentLang].toLowerCase().includes(q) ||
-      t.name['ar'].toLowerCase().includes(q) ||
-      t.name['en'].toLowerCase().includes(q) ||
-      t.desc[currentLang].toLowerCase().includes(q)
-    ).slice(0, 8);
+          searchResults.innerHTML = results.length
+            ? results.map(t => `
+              <a href="${BASE_PATH}${t.url}" class="search-result-item" onclick="trackToolUse('${t.id}')">
+                <span class="item-icon">${t.icon}</span>
+                <div>
+                  <div class="item-name">${t.name[currentLang]}</div>
+                  <div class="item-cat">${CATEGORIES[t.cat][currentLang]}</div>
+                </div>
+              </a>`)
+              .join('')
+            : `<div class="search-result-item"><div class="item-name" style="color:var(--text-muted)">${currentLang === 'ar' ? 'لا نتائج' : 'No results'}</div></div>`;
 
-    searchResults.innerHTML = results.length ? results.map(t => `
-      <a href="${BASE_PATH}${t.url}" class="search-result-item" onclick="trackToolUse('${t.id}')">
-        <span class="item-icon">${t.icon}</span>
-        <div>
-          <div class="item-name">${t.name[currentLang]}</div>
-          <div class="item-cat">${CATEGORIES[t.cat][currentLang]}</div>
-        </div>
-      </a>
-    `).join('') : `<div class="search-result-item"><div class="item-name" style="color:var(--text-muted)">${currentLang === 'ar' ? 'لا نتائج' : 'No results'}</div></div>`;
-
-    searchResults.classList.add('active');
+          searchResults.classList.add('active');
+        }
+      }
+      filterHomepageTools(q);
+    }, 120);
   });
 
-  document.addEventListener('click', (e) => {
-    if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-      searchResults.classList.remove('active');
-    }
-  });
-
-  // Filter homepage tools
-  searchInput.addEventListener('input', (e) => {
-    const q = e.target.value.trim().toLowerCase();
-    filterHomepageTools(q);
-  });
+  if (searchResults) {
+    document.addEventListener('click', (e) => {
+      if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+        searchResults.classList.remove('active');
+      }
+    });
+  }
 }
 
 function filterHomepageTools(q) {
   const grid = document.getElementById('tools-grid-main');
   if (!grid) return;
-  if (!q) {
-    renderAllTools(currentCat);
-    return;
-  }
+  if (!q) { renderAllTools(currentCat); return; }
   const filtered = TOOLS.filter(t =>
     t.name[currentLang].toLowerCase().includes(q) ||
-    t.name['ar'].toLowerCase().includes(q) ||
-    t.name['en'].toLowerCase().includes(q)
+    t.name.ar.toLowerCase().includes(q) ||
+    t.name.en.toLowerCase().includes(q) ||
+    t.desc[currentLang].toLowerCase().includes(q)
   );
-  grid.innerHTML = filtered.length ? filtered.map(toolCardHTML).join('') : `
-    <div class="empty-state" style="grid-column:1/-1">
-      <span class="icon">🔍</span>
-      <p>${currentLang === 'ar' ? 'لا توجد أدوات مطابقة' : 'No matching tools'}</p>
-    </div>`;
+  grid.innerHTML = filtered.length
+    ? filtered.map(toolCardHTML).join('')
+    : `<div class="empty-state" style="grid-column:1/-1">
+        <span class="icon">🔍</span>
+        <p>${currentLang === 'ar' ? 'لا توجد أدوات مطابقة' : 'No matching tools'}</p>
+       </div>`;
+  applyCardStagger();
 }
 
 // ===== RENDER TOOLS =====
 function toolCardHTML(t) {
-  const isFav = favorites.includes(t.id);
-  const count = usageCounts[t.id] || 0;
+  const isFav   = favorites.includes(t.id);
+  const isNew   = NEW_TOOLS.includes(t.id);
+  const count   = usageCounts[t.id] || 0;
+  const catName = CATEGORIES[t.cat][currentLang];
   return `
-    <a href="${BASE_PATH}${t.url}" class="tool-card" onclick="trackToolUse('${t.id}')">
+    <a href="${BASE_PATH}${t.url}" class="tool-card ripple-container animate-on-scroll" onclick="trackToolUse('${t.id}')">
       <span class="tool-icon">${t.icon}</span>
       <div class="tool-name">${t.name[currentLang]}</div>
       <div class="tool-desc">${t.desc[currentLang]}</div>
-      ${count > 0 ? `<div class="tool-uses">🔢 ${count.toLocaleString()} ${currentLang === 'ar' ? 'استخدام' : 'uses'}</div>` : ''}
+      <div class="tool-meta">
+        <span class="tool-cat-badge">${catName}</span>
+        ${isNew ? `<span class="tool-new-badge">${currentLang === 'ar' ? 'جديد' : 'New'}</span>` : ''}
+      </div>
+      ${count > 0 ? `<div class="tool-uses">▶ ${count.toLocaleString()} ${currentLang === 'ar' ? 'استخدام' : 'uses'}</div>` : ''}
       <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event,'${t.id}')" title="${currentLang === 'ar' ? 'مفضلة' : 'Favorite'}">
         ${isFav ? '❤️' : '🤍'}
       </button>
@@ -219,10 +237,12 @@ function toolCardHTML(t) {
 function renderCategoryTabs() {
   const wrap = document.getElementById('cat-tabs');
   if (!wrap) return;
-  wrap.innerHTML = Object.entries(CATEGORIES).map(([k, v]) => `
-    <button class="cat-tab ${k === currentCat ? 'active' : ''}" onclick="filterCat('${k}')">
-      ${v.icon} ${v[currentLang]}
-    </button>`).join('');
+  wrap.innerHTML = Object.entries(CATEGORIES).map(([k, v]) => {
+    const count = k === 'all' ? TOOLS.length : TOOLS.filter(t => t.cat === k).length;
+    return `<button class="cat-tab ${k === currentCat ? 'active' : ''}" onclick="filterCat('${k}')">
+      ${v.icon} ${v[currentLang]} <span class="cat-count">${count}</span>
+    </button>`;
+  }).join('');
 }
 
 function filterCat(cat) {
@@ -238,6 +258,7 @@ function renderAllTools(cat = 'all') {
   grid.innerHTML = list.map(toolCardHTML).join('');
   applyCardStagger();
   setTimeout(initRipples, 50);
+  setTimeout(initScrollAnimations, 60);
 }
 
 // ===== FAVORITES =====
@@ -260,10 +281,7 @@ function toggleFav(e, id) {
 function renderFavorites() {
   const wrap = document.getElementById('favorites-section');
   if (!wrap) return;
-  if (favorites.length === 0) {
-    wrap.style.display = 'none';
-    return;
-  }
+  if (favorites.length === 0) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
   const grid = wrap.querySelector('.tools-grid');
   if (!grid) return;
@@ -273,11 +291,8 @@ function renderFavorites() {
 
 // ===== HISTORY =====
 function trackToolUse(id) {
-  // Update usage count
   usageCounts[id] = (usageCounts[id] || 0) + 1;
   localStorage.setItem('tb_usage', JSON.stringify(usageCounts));
-
-  // Update history
   history = history.filter(h => h !== id);
   history.unshift(id);
   history = history.slice(0, 10);
@@ -303,14 +318,13 @@ function renderPopular() {
     .map(t => ({ ...t, count: usageCounts[t.id] || 0 }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 6);
-
   const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣'];
   grid.innerHTML = sorted.map((t, i) => `
-    <a href="${BASE_PATH}${t.url}" class="popular-card" onclick="trackToolUse('${t.id}')">
+    <a href="${BASE_PATH}${t.url}" class="popular-card animate-on-scroll delay-${i+1}" onclick="trackToolUse('${t.id}')">
       <span class="popular-rank">${medals[i]}</span>
       <div class="popular-info">
         <div class="name">${t.icon} ${t.name[currentLang]}</div>
-        <div class="count">${t.count} ${currentLang === 'ar' ? 'استخدام' : 'uses'}</div>
+        <div class="count">${t.count.toLocaleString()} ${currentLang === 'ar' ? 'استخدام' : 'uses'}</div>
       </div>
     </a>`).join('');
 }
@@ -319,18 +333,29 @@ function renderPopular() {
 function updateHeroStats() {
   const totalUses = Object.values(usageCounts).reduce((a, b) => a + b, 0) + 150432;
   const el = document.getElementById('total-uses');
-  if (el) el.textContent = totalUses.toLocaleString();
+  if (el) animateCounter(el, totalUses);
 
   const toolsEl = document.getElementById('tools-count');
-  if (toolsEl) toolsEl.textContent = TOOLS.length;
+  if (toolsEl) animateCounter(toolsEl, TOOLS.length);
+}
+
+function animateCounter(el, target) {
+  const start = 0;
+  const duration = 1000;
+  const startTime = performance.now();
+  const update = (now) => {
+    const progress = Math.min((now - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.floor(start + (target - start) * eased).toLocaleString();
+    if (progress < 1) requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
 }
 
 function simulateLiveUsers() {
   const el = document.getElementById('live-users');
   if (!el) return;
-  const update = () => {
-    el.textContent = Math.floor(20 + Math.random() * 60);
-  };
+  const update = () => { el.textContent = Math.floor(20 + Math.random() * 60); };
   update();
   setInterval(update, 5000);
 }
@@ -338,11 +363,9 @@ function simulateLiveUsers() {
 // ===== TOOL PAGE UTILITIES =====
 function initToolPage(toolId) {
   trackToolUse(toolId);
-
   const tool = TOOLS.find(t => t.id === toolId);
   if (!tool) return;
 
-  // Set usage count display
   const usageEl = document.getElementById('tool-usage-count');
   if (usageEl) usageEl.textContent = (usageCounts[toolId] || 0).toLocaleString();
 
@@ -352,41 +375,43 @@ function initToolPage(toolId) {
     setInterval(() => { liveEl.textContent = Math.floor(3 + Math.random() * 25); }, 8000);
   }
 
-  // Fav button on tool page
   const favBtn = document.getElementById('tool-fav-btn');
   if (favBtn) {
     const isFav = favorites.includes(toolId);
     favBtn.textContent = isFav ? '❤️' : '🤍';
     favBtn.onclick = () => {
       const idx = favorites.indexOf(toolId);
-      if (idx === -1) { favorites.push(toolId); favBtn.textContent = '❤️'; showToast(currentLang === 'ar' ? '❤️ أُضيف للمفضلة' : 'Added to favorites', 'success'); }
-      else { favorites.splice(idx, 1); favBtn.textContent = '🤍'; showToast(currentLang === 'ar' ? 'أُزيل من المفضلة' : 'Removed from favorites', 'info'); }
+      if (idx === -1) {
+        favorites.push(toolId);
+        favBtn.textContent = '❤️';
+        showToast(currentLang === 'ar' ? '❤️ أُضيف للمفضلة' : 'Added to favorites', 'success');
+      } else {
+        favorites.splice(idx, 1);
+        favBtn.textContent = '🤍';
+        showToast(currentLang === 'ar' ? 'أُزيل من المفضلة' : 'Removed from favorites', 'info');
+      }
       localStorage.setItem('tb_favorites', JSON.stringify(favorites));
     };
   }
 
-  // Share buttons
   initShareButtons(tool);
   initRating(toolId);
   applyLang(currentLang);
   applyTheme(currentTheme);
-  // Init particle background and ripple effects on tool pages too
   initParticles();
   setTimeout(initRipples, 150);
 }
 
 // ===== SHARE =====
 function initShareButtons(tool) {
-  const url = encodeURIComponent(window.location.href);
+  const url  = encodeURIComponent(window.location.href);
   const text = encodeURIComponent((currentLang === 'ar' ? 'جرّب هذه الأداة المجانية: ' : 'Try this free tool: ') + tool.name[currentLang]);
-
   const btns = {
-    'share-facebook': `https://www.facebook.com/sharer/sharer.php?u=${url}`,
-    'share-telegram': `https://t.me/share/url?url=${url}&text=${text}`,
-    'share-whatsapp': `https://wa.me/?text=${text}%20${url}`,
-    'share-twitter': `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+    'share-facebook':  `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+    'share-telegram':  `https://t.me/share/url?url=${url}&text=${text}`,
+    'share-whatsapp':  `https://wa.me/?text=${text}%20${url}`,
+    'share-twitter':   `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
   };
-
   Object.entries(btns).forEach(([id, link]) => {
     const btn = document.getElementById(id);
     if (btn) btn.onclick = () => window.open(link, '_blank', 'width=600,height=400');
@@ -395,268 +420,147 @@ function initShareButtons(tool) {
 
 // ===== RATING =====
 function initRating(toolId) {
-  const ratings = JSON.parse(localStorage.getItem('tb_ratings') || '{}');
+  const ratings    = JSON.parse(localStorage.getItem('tb_ratings') || '{}');
   const toolRating = ratings[toolId] || { likes: 0, dislikes: 0 };
+  const likeBtn    = document.getElementById('tool-like');
+  const dislikeBtn = document.getElementById('tool-dislike');
 
-  const updateRatingUI = () => {
-    const total = toolRating.likes + toolRating.dislikes;
-    const pct = total > 0 ? Math.round((toolRating.likes / total) * 100) : 0;
-    const bar = document.getElementById('rating-bar');
-    const text = document.getElementById('rating-text');
-    if (bar) bar.style.width = pct + '%';
-    if (text) text.textContent = total > 0
-      ? `${pct}% ${currentLang === 'ar' ? 'وجدوها مفيدة' : 'found this helpful'} (${total} ${currentLang === 'ar' ? 'تقييم' : 'ratings'})`
-      : (currentLang === 'ar' ? 'كن أول من يقيّم هذه الأداة' : 'Be the first to rate this tool');
-  };
+  if (likeBtn) {
+    likeBtn.querySelector('.count') && (likeBtn.querySelector('.count').textContent = toolRating.likes);
+    likeBtn.onclick = () => {
+      toolRating.likes++;
+      ratings[toolId] = toolRating;
+      localStorage.setItem('tb_ratings', JSON.stringify(ratings));
+      if (likeBtn.querySelector('.count')) likeBtn.querySelector('.count').textContent = toolRating.likes;
+      likeBtn.classList.add('liked');
+      showToast(currentLang === 'ar' ? '👍 شكراً لتقييمك!' : '👍 Thanks for rating!', 'success');
+    };
+  }
+  if (dislikeBtn) {
+    dislikeBtn.querySelector('.count') && (dislikeBtn.querySelector('.count').textContent = toolRating.dislikes);
+    dislikeBtn.onclick = () => {
+      toolRating.dislikes++;
+      ratings[toolId] = toolRating;
+      localStorage.setItem('tb_ratings', JSON.stringify(ratings));
+      if (dislikeBtn.querySelector('.count')) dislikeBtn.querySelector('.count').textContent = toolRating.dislikes;
+      dislikeBtn.classList.add('disliked');
+    };
+  }
+}
 
-  updateRatingUI();
-
-  const likeBtn = document.getElementById('rate-like');
-  const dislikeBtn = document.getElementById('rate-dislike');
-
-  if (likeBtn) likeBtn.onclick = () => {
-    toolRating.likes++;
-    ratings[toolId] = toolRating;
-    localStorage.setItem('tb_ratings', JSON.stringify(ratings));
-    likeBtn.classList.add('voted');
-    dislikeBtn?.classList.remove('voted');
-    updateRatingUI();
-    showToast(currentLang === 'ar' ? '👍 شكراً على تقييمك!' : '👍 Thanks for your feedback!', 'success');
-  };
-
-  if (dislikeBtn) dislikeBtn.onclick = () => {
-    toolRating.dislikes++;
-    ratings[toolId] = toolRating;
-    localStorage.setItem('tb_ratings', JSON.stringify(ratings));
-    dislikeBtn.classList.add('voted');
-    likeBtn?.classList.remove('voted');
-    updateRatingUI();
-    showToast(currentLang === 'ar' ? '👎 شكراً، سنعمل على التحسين' : '👎 Thanks, we\'ll improve!', 'info');
-  };
+// ===== COPY =====
+function copyToClipboard(text, msg) {
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(msg || (currentLang === 'ar' ? '✅ تم النسخ!' : '✅ Copied!'), 'success');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast(msg || (currentLang === 'ar' ? '✅ تم النسخ!' : '✅ Copied!'), 'success');
+  });
 }
 
 // ===== TOAST =====
-function showToast(msg, type = 'info') {
-  let container = document.getElementById('toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toast-container';
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-  }
-
+function showToast(msg, type = 'info', duration = 3000) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
   toast.textContent = msg;
   container.appendChild(toast);
-
   setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateX(20px)';
-    toast.style.transition = '0.3s ease';
+    toast.classList.add('fade-out');
     setTimeout(() => toast.remove(), 300);
-  }, 3000);
+  }, duration);
 }
 
 // ===== PWA =====
 let deferredPrompt = null;
-
 function initPWA() {
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
     const banner = document.getElementById('pwa-banner');
-    if (banner && !localStorage.getItem('pwa_dismissed')) {
-      banner.classList.add('show');
-    }
+    if (banner && !sessionStorage.getItem('pwa-dismissed')) banner.classList.add('show');
   });
 
   const installBtn = document.getElementById('pwa-install-btn');
   if (installBtn) {
-    installBtn.onclick = () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-      }
-      const banner = document.getElementById('pwa-banner');
-      if (banner) banner.classList.remove('show');
+    installBtn.onclick = async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') showToast(currentLang === 'ar' ? '📱 تم التثبيت!' : '📱 Installed!', 'success');
+      deferredPrompt = null;
+      document.getElementById('pwa-banner')?.classList.remove('show');
     };
   }
 
   const dismissBtn = document.getElementById('pwa-dismiss');
   if (dismissBtn) {
     dismissBtn.onclick = () => {
-      const banner = document.getElementById('pwa-banner');
-      if (banner) banner.classList.remove('show');
-      localStorage.setItem('pwa_dismissed', '1');
+      document.getElementById('pwa-banner')?.classList.remove('show');
+      sessionStorage.setItem('pwa-dismissed', '1');
     };
   }
-
-  // Register service worker
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register(BASE_PATH + 'sw.js').catch(() => {});
-    });
-  }
 }
 
-// ===== NEWSLETTER =====
-function handleNewsletter(e) {
-  e.preventDefault();
-  const input = document.getElementById('newsletter-email');
-  if (!input || !input.value.includes('@')) {
-    showToast(currentLang === 'ar' ? 'الرجاء إدخال بريد إلكتروني صحيح' : 'Please enter a valid email', 'error');
-    return;
-  }
-  const emails = JSON.parse(localStorage.getItem('tb_newsletter') || '[]');
-  if (!emails.includes(input.value)) {
-    emails.push(input.value);
-    localStorage.setItem('tb_newsletter', JSON.stringify(emails));
-  }
-  showToast(currentLang === 'ar' ? '✅ تم الاشتراك بنجاح!' : '✅ Subscribed successfully!', 'success');
-  input.value = '';
-}
-
-// ===== LOADING =====
-function showLoading(msg = '') {
-  let overlay = document.getElementById('loading-overlay');
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = 'loading-overlay';
-    overlay.className = 'loading-overlay';
-    overlay.innerHTML = `<div class="spinner"></div><div class="loading-text">${msg}</div>`;
-    document.body.appendChild(overlay);
-  } else {
-    overlay.querySelector('.loading-text').textContent = msg;
-  }
-  overlay.classList.add('active');
-}
-
-function hideLoading() {
-  const overlay = document.getElementById('loading-overlay');
-  if (overlay) overlay.classList.remove('active');
-}
-
-// ===== FILE UTILS =====
-function formatFileSize(bytes) {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-function downloadBlob(blob, filename) {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(a.href);
-}
-
-// ===== COPY TO CLIPBOARD =====
-function copyText(text, btn) {
-  navigator.clipboard.writeText(text).then(() => {
-    showToast(currentLang === 'ar' ? '✅ تم النسخ!' : '✅ Copied!', 'success');
-    if (btn) {
-      const orig = btn.textContent;
-      btn.textContent = currentLang === 'ar' ? '✓ تم' : '✓ Done';
-      setTimeout(() => { btn.textContent = orig; }, 2000);
-    }
-  });
-}
-
-// ===== DRAG AND DROP =====
-function initDragDrop(areaId, inputId, onFiles) {
-  const area = document.getElementById(areaId);
-  const input = document.getElementById(inputId);
-  if (!area || !input) return;
-
-  area.addEventListener('click', () => input.click());
-  input.addEventListener('change', () => onFiles(Array.from(input.files)));
-
-  area.addEventListener('dragover', (e) => { e.preventDefault(); area.classList.add('drag-over'); });
-  area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
-  area.addEventListener('drop', (e) => {
-    e.preventDefault();
-    area.classList.remove('drag-over');
-    onFiles(Array.from(e.dataTransfer.files));
-  });
-}
-
-// ===== RIPPLE EFFECT =====
-function addRipple(e) {
-  const btn = e.currentTarget;
-  const rect = btn.getBoundingClientRect();
-  const size = Math.max(rect.width, rect.height) * 1.5;
-  const x = e.clientX - rect.left - size / 2;
-  const y = e.clientY - rect.top - size / 2;
-
-  const ripple = document.createElement('span');
-  ripple.className = 'ripple-wave';
-  ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px`;
-  btn.appendChild(ripple);
-  setTimeout(() => ripple.remove(), 620);
-}
-
-function initRipples() {
-  document.querySelectorAll('.btn-red, .btn-blue, .cat-tab, .share-btn, .rating-btn').forEach(btn => {
-    if (!btn.classList.contains('ripple-container')) {
-      btn.classList.add('ripple-container');
-      btn.addEventListener('click', addRipple);
-    }
-  });
-}
-
-// ===== PARTICLE BACKGROUND =====
+// ===== PARTICLES =====
 function initParticles() {
-  // Auto-create container if not present (tool pages)
-  let container = document.getElementById('particles-bg');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'particles-bg';
-    container.className = 'particles-bg';
-    document.body.insertBefore(container, document.body.firstChild);
-  }
-
-  // Avoid duplicate particles
-  if (container.children.length > 0) return;
-
-  // Respect reduced motion
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-  const count = 18;
-  const colors = ['rgba(230,57,70,0.35)', 'rgba(255,214,10,0.25)', 'rgba(67,97,238,0.3)'];
-
+  const container = document.getElementById('particles-bg');
+  if (!container) return;
+  container.innerHTML = '';
+  const count = window.innerWidth < 768 ? 8 : 15;
+  const colors = ['rgba(110,86,255,', 'rgba(230,57,70,', 'rgba(251,191,36,', 'rgba(6,182,212,'];
   for (let i = 0; i < count; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
     const size = 2 + Math.random() * 4;
     const color = colors[Math.floor(Math.random() * colors.length)];
-    const duration = 12 + Math.random() * 20;
-    const delay = Math.random() * -20;
-    const x = Math.random() * 100;
-    const y = Math.random() * 100;
-
     p.style.cssText = `
       width:${size}px; height:${size}px;
-      left:${x}%; top:${y}%;
-      background:${color};
-      box-shadow: 0 0 ${size * 2}px ${color};
-      animation-duration:${duration}s;
-      animation-delay:${delay}s;
-      opacity:0.6;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      background:${color}${0.3 + Math.random()*0.3});
+      animation-duration:${12 + Math.random()*18}s;
+      animation-delay:${Math.random()*10}s;
     `;
     container.appendChild(p);
   }
 }
 
-// ===== INTERSECTION OBSERVER (scroll animations) =====
-function initScrollAnimations() {
-  if (!('IntersectionObserver' in window)) return;
+// ===== RIPPLES =====
+function initRipples() {
+  document.querySelectorAll('.ripple-container').forEach(el => {
+    if (el.dataset.rippleInit) return;
+    el.dataset.rippleInit = '1';
+    el.addEventListener('click', function(e) {
+      const rect = this.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const size = Math.max(rect.width, rect.height) * 1.5;
+      const wave = document.createElement('span');
+      wave.className = 'ripple-wave';
+      wave.style.cssText = `width:${size}px;height:${size}px;left:${x - size/2}px;top:${y - size/2}px`;
+      this.appendChild(wave);
+      setTimeout(() => wave.remove(), 700);
+    });
+  });
+}
 
+// ===== CARD STAGGER =====
+function applyCardStagger() {
+  document.querySelectorAll('.tools-grid .tool-card, .popular-grid .popular-card').forEach((el, i) => {
+    el.style.transitionDelay = `${Math.min(i * 0.04, 0.5)}s`;
+  });
+}
+
+// ===== SCROLL ANIMATIONS =====
+function initScrollAnimations() {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -664,36 +568,7 @@ function initScrollAnimations() {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12 });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
 
   document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
 }
-
-// Apply staggered animation delay to tool cards (first 12 to avoid thrashing)
-function applyCardStagger() {
-  const grids = document.querySelectorAll('.tools-grid, .popular-grid');
-  grids.forEach(grid => {
-    Array.from(grid.children).slice(0, 12).forEach((card, i) => {
-      card.style.animationDelay = `${i * 0.05}s`;
-    });
-  });
-}
-
-// ===== EXPOSE GLOBALS =====
-window.toggleLang = toggleLang;
-window.toggleTheme = toggleTheme;
-window.toggleFav = toggleFav;
-window.filterCat = filterCat;
-window.trackToolUse = trackToolUse;
-window.initToolPage = initToolPage;
-window.showToast = showToast;
-window.showLoading = showLoading;
-window.hideLoading = hideLoading;
-window.formatFileSize = formatFileSize;
-window.downloadBlob = downloadBlob;
-window.copyText = copyText;
-window.initDragDrop = initDragDrop;
-window.handleNewsletter = handleNewsletter;
-window.initRipples = initRipples;
-window.TOOLS = TOOLS;
-window.currentLang = currentLang;

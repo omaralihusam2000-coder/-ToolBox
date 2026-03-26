@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ToolBox - أدوات مجانية أونلاين | تحويل PDF, ضغط صور, حاسبات, اختبار سرعة الإنترنت, محوّل أرقام عربية">
+  <meta name="description" content="ToolBox - 35+ أداة مجانية أونلاين | تحويل PDF, ضغط صور, حاسبات, اختبار سرعة الإنترنت, مطوّر ويب">
   <meta name="keywords" content="أدوات مجانية, تحويل PDF, ضغط صور, حاسبة, QR code, اختبار سرعة, free online tools">
   <meta property="og:title" content="ToolBox - أدوات مجانية أونلاين">
-  <meta property="og:description" content="30+ أداة مجانية: تحويل PDF, معالجة صور, حاسبات, اختبار سرعة الإنترنت, أدوات تصميم">
+  <meta property="og:description" content="35+ أداة مجانية: تحويل PDF, معالجة صور, حاسبات, اختبار سرعة, أدوات تصميم ومطورين">
   <meta property="og:type" content="website">
-  <meta name="theme-color" content="#e63946">
+  <meta name="theme-color" content="#6e56ff">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
   <title>ToolBox - أدوات مجانية أونلاين</title>
@@ -40,10 +40,11 @@
 
     <div class="search-bar">
       <span class="search-icon">🔍</span>
-      <input type="text" id="search-input" 
-        data-ar-placeholder="ابحث عن أداة..." 
-        data-en-placeholder="Search for a tool..." 
-        placeholder="ابحث عن أداة...">
+      <input type="text" id="search-input"
+        data-ar-placeholder="ابحث عن أداة..."
+        data-en-placeholder="Search for a tool..."
+        placeholder="ابحث عن أداة..."
+        autocomplete="off">
       <div class="search-results" id="search-results"></div>
     </div>
 
@@ -56,13 +57,16 @@
 
 <!-- Hero -->
 <section class="hero">
+  <div class="hero-badge">
+    <span>🚀</span>
+    <span data-ar="35+ أداة مجانية بدون تسجيل" data-en="35+ Free Tools — No Sign-Up Required"></span>
+  </div>
   <h1>
     <span class="hero-title-main">🔧 ToolBox</span>
     <br>
     <span data-ar="أدواتك المجانية كلها في مكان واحد" data-en="Your Free Online Tools All In One Place"></span>
-    <span class="highlight-yellow"> ⚡</span>
   </h1>
-  <p data-ar="30+ أداة مجانية تعمل مباشرة في المتصفح - بدون تسجيل، بدون رفع لسيرفر" data-en="30+ free tools that work directly in your browser - no registration, no server upload"></p>
+  <p data-ar="تعمل مباشرة في المتصفح — بدون تسجيل، بدون رفع لسيرفر، مجاناً للأبد" data-en="Works directly in your browser — no registration, no server upload, always free."></p>
 
   <div class="live-users">
     <span class="live-dot"></span>
@@ -77,7 +81,7 @@
       <span class="label" data-ar="إجمالي الاستخدامات" data-en="Total Uses"></span>
     </div>
     <div class="hero-stat">
-      <span class="number" id="tools-count">30</span>
+      <span class="number" id="tools-count">35</span>
       <span class="label" data-ar="أداة مجانية" data-en="Free Tools"></span>
     </div>
     <div class="hero-stat">
@@ -88,9 +92,8 @@
 </section>
 
 <!-- Ad Banner -->
-<div class="ad-banner" style="max-width:1400px;margin:16px auto;width:calc(100% - 40px)">
+<div class="ad-banner" style="max-width:1400px;margin:16px auto;width:calc(100% - 48px)">
   📢 <span data-ar="مساحة إعلانية - Google AdSense" data-en="Ad Space - Google AdSense"></span>
-  <!-- Google AdSense: ca-pub-XXXXXXXXXXXXXXXX -->
 </div>
 
 <!-- Main Content -->
@@ -107,15 +110,15 @@
   <!-- Recent History (hidden if empty) -->
   <section class="section" id="history-section" style="display:none">
     <div class="section-header">
-      <h2 class="section-title"><span class="icon">🕐</span> <span data-ar="الأدوات الأخيرة" data-en="Recent Tools"></span></h2>
+      <h2 class="section-title"><span class="icon">🕐</span> <span data-ar="الأدوات الأخيرة" data-en="Recently Used"></span></h2>
     </div>
     <div class="tools-grid"></div>
   </section>
 
   <!-- Most Popular -->
-  <section class="section">
+  <section class="section animate-on-scroll">
     <div class="section-header">
-      <h2 class="section-title"><span class="icon">🔥</span> <span data-ar="الأكثر استخداماً اليوم" data-en="Most Popular Today"></span></h2>
+      <h2 class="section-title"><span class="icon">🔥</span> <span data-ar="الأكثر استخداماً" data-en="Most Popular"></span></h2>
     </div>
     <div class="popular-grid" id="popular-grid"></div>
   </section>
@@ -133,10 +136,9 @@
     <div class="tools-grid" id="tools-grid-main"></div>
   </section>
 
-  <!-- Ad Between Sections -->
+  <!-- Mid Ad -->
   <div class="ad-banner">
     📢 <span data-ar="مساحة إعلانية" data-en="Ad Space"></span>
-    <!-- Google AdSense -->
   </div>
 
 </main>
@@ -147,7 +149,8 @@
     <span class="nav-icon">🏠</span>
     <span class="nav-label" data-ar="الرئيسية" data-en="Home">الرئيسية</span>
   </a>
-  <button class="mobile-nav-item" id="nav-search-btn" onclick="document.getElementById('search-input').focus(); document.getElementById('search-input').scrollIntoView({behavior:'smooth'})">
+  <button class="mobile-nav-item" id="nav-search-btn"
+    onclick="document.getElementById('search-input').focus(); document.getElementById('search-input').scrollIntoView({behavior:'smooth'})">
     <span class="nav-icon">🔍</span>
     <span class="nav-label" data-ar="بحث" data-en="Search">بحث</span>
   </button>
@@ -166,8 +169,9 @@
   <div class="footer-grid">
 
     <div class="footer-col">
-      <h4 data-ar="ToolBox" data-en="ToolBox">ToolBox</h4>
-      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px" data-ar="أدوات مجانية أونلاين تعمل مباشرة في المتصفح بدون تسجيل" data-en="Free online tools that work directly in your browser without registration."></p>
+      <h4>ToolBox</h4>
+      <p data-ar="أدوات مجانية أونلاين تعمل مباشرة في المتصفح بدون تسجيل — للجميع مجاناً."
+         data-en="Free online tools that work directly in your browser without registration — for everyone, always free."></p>
       <div class="social-links">
         <a href="#" class="social-link" title="Facebook">f</a>
         <a href="#" class="social-link" title="Telegram">✈</a>
@@ -178,44 +182,46 @@
     <div class="footer-col">
       <h4 data-ar="أدوات الملفات" data-en="File Tools">أدوات الملفات</h4>
       <ul>
-        <li><a href="tools/pdf-to-word.html" data-ar="PDF إلى Word" data-en="PDF to Word">PDF إلى Word</a></li>
-        <li><a href="tools/word-to-pdf.html" data-ar="Word إلى PDF" data-en="Word to PDF">Word إلى PDF</a></li>
-        <li><a href="tools/pdf-merger.html" data-ar="دمج PDF" data-en="PDF Merger">دمج PDF</a></li>
-        <li><a href="tools/image-compressor.html" data-ar="ضغط الصور" data-en="Image Compressor">ضغط الصور</a></li>
+        <li><a href="tools/pdf-to-word.html"      data-ar="PDF إلى Word"        data-en="PDF to Word">PDF إلى Word</a></li>
+        <li><a href="tools/word-to-pdf.html"      data-ar="Word إلى PDF"        data-en="Word to PDF">Word إلى PDF</a></li>
+        <li><a href="tools/pdf-merger.html"       data-ar="دمج PDF"             data-en="PDF Merger">دمج PDF</a></li>
+        <li><a href="tools/image-compressor.html" data-ar="ضغط الصور"           data-en="Image Compressor">ضغط الصور</a></li>
       </ul>
     </div>
 
     <div class="footer-col">
-      <h4 data-ar="أدوات أخرى" data-en="More Tools">أدوات أخرى</h4>
+      <h4 data-ar="أدوات النصوص" data-en="Text Tools">أدوات النصوص</h4>
       <ul>
-        <li><a href="tools/qr-generator.html" data-ar="مولد QR Code" data-en="QR Generator">مولد QR Code</a></li>
-        <li><a href="tools/password-generator.html" data-ar="مولد كلمات المرور" data-en="Password Generator">مولد كلمات المرور</a></li>
-        <li><a href="tools/word-counter.html" data-ar="عداد الكلمات" data-en="Word Counter">عداد الكلمات</a></li>
-        <li><a href="tools/age-calculator.html" data-ar="حاسبة العمر" data-en="Age Calculator">حاسبة العمر</a></li>
+        <li><a href="tools/word-counter.html"     data-ar="عداد الكلمات"        data-en="Word Counter">عداد الكلمات</a></li>
+        <li><a href="tools/base64.html"           data-ar="Base64"              data-en="Base64">Base64</a></li>
+        <li><a href="tools/url-encoder.html"      data-ar="تشفير URL"           data-en="URL Encoder">تشفير URL</a></li>
+        <li><a href="tools/regex-tester.html"     data-ar="محقق Regex"          data-en="Regex Tester">Regex Tester</a></li>
       </ul>
     </div>
 
     <div class="footer-col">
-      <h4 data-ar="أدوات جديدة" data-en="New Tools">أدوات جديدة</h4>
+      <h4 data-ar="حاسبات" data-en="Calculators">حاسبات</h4>
       <ul>
-        <li><a href="tools/speed-test.html" data-ar="اختبار سرعة الإنترنت" data-en="Internet Speed Test">اختبار سرعة الإنترنت</a></li>
-        <li><a href="tools/gpa-calculator.html" data-ar="حاسبة المعدل الدراسي" data-en="GPA Calculator">حاسبة المعدل الدراسي</a></li>
-        <li><a href="tools/timezone-converter.html" data-ar="محوّل المناطق الزمنية" data-en="Timezone Converter">محوّل المناطق الزمنية</a></li>
-        <li><a href="tools/number-converter.html" data-ar="محوّل الأرقام العربية" data-en="Number Converter">محوّل الأرقام العربية</a></li>
+        <li><a href="tools/age-calculator.html"   data-ar="حاسبة العمر"         data-en="Age Calculator">حاسبة العمر</a></li>
+        <li><a href="tools/gpa-calculator.html"   data-ar="حاسبة المعدل"        data-en="GPA Calculator">حاسبة المعدل</a></li>
+        <li><a href="tools/currency-converter.html" data-ar="تحويل العملات"     data-en="Currency Converter">تحويل العملات</a></li>
+        <li><a href="tools/loan-calculator.html"  data-ar="حاسبة القروض"        data-en="Loan Calculator">حاسبة القروض</a></li>
       </ul>
     </div>
 
     <div class="footer-col">
       <h4 data-ar="روابط" data-en="Links">روابط</h4>
       <ul>
-        <li><a href="suggest.html" data-ar="💡 اقترح أداة" data-en="💡 Suggest a Tool">💡 اقترح أداة</a></li>
-        <li><a href="tools/screen-ppi.html" data-ar="حاسبة PPI" data-en="Screen PPI">حاسبة PPI</a></li>
+        <li><a href="suggest.html"                data-ar="💡 اقترح أداة"       data-en="💡 Suggest a Tool">💡 اقترح أداة</a></li>
+        <li><a href="tools/qr-generator.html"     data-ar="مولد QR Code"        data-en="QR Generator">مولد QR Code</a></li>
+        <li><a href="tools/password-generator.html" data-ar="مولد كلمات المرور" data-en="Password Generator">مولد كلمات المرور</a></li>
+        <li><a href="tools/speed-test.html"       data-ar="اختبار سرعة الإنترنت" data-en="Speed Test">اختبار السرعة</a></li>
       </ul>
     </div>
 
   </div>
 
-  <!-- Ad in footer -->
+  <!-- Footer Ad -->
   <div class="ad-banner" style="margin:0 auto 24px;max-width:1400px">
     📢 <span data-ar="مساحة إعلانية - Footer" data-en="Ad Space - Footer"></span>
   </div>
