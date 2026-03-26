@@ -12,6 +12,9 @@
 // Scoped to merger tool only – never leak to other tools
 let _mergerFiles = [];
 
+// Maximum page numbers to display in the range preview
+const RANGE_PREVIEW_MAX_PAGES = 10;
+
 // ============================================================
 // SHARED HELPERS
 // ============================================================
@@ -788,8 +791,8 @@ async function initPdfSplitter() {
           } else {
             rangePreview.style.color = 'var(--accent-yellow)';
             rangePreview.textContent = window.currentLang === 'ar'
-              ? `✅ ${parsedPages.length} صفحة ستُستخرج: ${parsedPages.slice(0, 10).join(', ')}${parsedPages.length > 10 ? '...' : ''}`
-              : `✅ ${parsedPages.length} pages: ${parsedPages.slice(0, 10).join(', ')}${parsedPages.length > 10 ? '...' : ''}`;
+              ? `✅ ${parsedPages.length} صفحة ستُستخرج: ${parsedPages.slice(0, RANGE_PREVIEW_MAX_PAGES).join(', ')}${parsedPages.length > RANGE_PREVIEW_MAX_PAGES ? '...' : ''}`
+              : `✅ ${parsedPages.length} pages: ${parsedPages.slice(0, RANGE_PREVIEW_MAX_PAGES).join(', ')}${parsedPages.length > RANGE_PREVIEW_MAX_PAGES ? '...' : ''}`;
           }
         });
       }

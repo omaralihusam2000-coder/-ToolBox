@@ -3,6 +3,8 @@
  * Uses: pptxgenjs (reading via zip), html2pdf
  */
 
+const PPTX_PREVIEW_MAX_SLIDES = 20;
+
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -54,6 +56,10 @@ function showPptxFileInfo(file) {
 }
 
 async function showPptxPreview(file) {
+  const decodeEntities = (() => {
+    const el = document.createElement('textarea');
+    return (text) => { el.innerHTML = text; return el.value; };
+  })();
   try {
     const arrayBuffer = await file.arrayBuffer();
     const zip = await JSZip.loadAsync(arrayBuffer);
@@ -69,14 +75,10 @@ async function showPptxPreview(file) {
     grid.innerHTML = '';
     const lang = window.currentLang || 'ar';
 
-    for (let i = 0; i < Math.min(slideFiles.length, 20); i++) {
+    for (let i = 0; i < Math.min(slideFiles.length, PPTX_PREVIEW_MAX_SLIDES); i++) {
       const xmlContent = await zip.files[slideFiles[i]].async('text');
       const texts = [...xmlContent.matchAll(/<a:t>(.*?)<\/a:t>/gs)]
-        .map(m => m[1]
-          .replace(/&amp;/g, '&')
-          .replace(/&lt;/g, '<')
-          .replace(/&gt;/g, '>')
-          .replace(/&quot;/g, '"'))
+        .map(m => decodeEntities(m[1]))
         .filter(t => t.trim());
       const title = texts[0] || (lang === 'ar' ? `شريحة ${i + 1}` : `Slide ${i + 1}`);
       const card = document.createElement('div');
@@ -90,10 +92,10 @@ async function showPptxPreview(file) {
       grid.appendChild(card);
     }
 
-    if (slideFiles.length > 20) {
+    if (slideFiles.length > PPTX_PREVIEW_MAX_SLIDES) {
       const more = document.createElement('div');
       more.style.cssText = 'text-align:center;font-size:0.75rem;color:var(--text-muted);padding:8px;grid-column:1/-1';
-      more.textContent = lang === 'ar' ? `+ ${slideFiles.length - 20} شريحة أخرى` : `+ ${slideFiles.length - 20} more slides`;
+      more.textContent = lang === 'ar' ? `+ ${slideFiles.length - PPTX_PREVIEW_MAX_SLIDES} شريحة أخرى` : `+ ${slideFiles.length - PPTX_PREVIEW_MAX_SLIDES} more slides`;
       grid.appendChild(more);
     }
   } catch (e) {
