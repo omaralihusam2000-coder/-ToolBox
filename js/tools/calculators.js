@@ -356,3 +356,267 @@ window.calculateLoan = calculateLoan;
 window.initPercentageCalculator = initPercentageCalculator;
 window.initAgeCalculator = initAgeCalculator;
 window.initBmiCalculator = initBmiCalculator;
+
+// ===== GPA CALCULATOR =====
+
+// Grading systems: maps score/grade → GPA points
+const GRADING_SYSTEMS = {
+  iraq100: {
+    // Iraqi 100-point scale → 4.0 GPA equivalent
+    toGPA: (grade) => {
+      const g = parseFloat(grade);
+      if (isNaN(g)) return null;
+      if (g >= 90) return 4.0;
+      if (g >= 80) return 3.0;
+      if (g >= 70) return 2.0;
+      if (g >= 60) return 1.0;
+      return 0;
+    },
+    label: (grade, lang) => {
+      const g = parseFloat(grade);
+      if (isNaN(g)) return '';
+      if (g >= 90) return lang === 'ar' ? 'امتياز' : 'Excellent';
+      if (g >= 80) return lang === 'ar' ? 'جيد جداً' : 'Very Good';
+      if (g >= 70) return lang === 'ar' ? 'جيد' : 'Good';
+      if (g >= 60) return lang === 'ar' ? 'مقبول' : 'Acceptable';
+      return lang === 'ar' ? 'راسب' : 'Fail';
+    },
+    max: 100,
+    placeholder: '85',
+  },
+  gpa4: {
+    toGPA: (grade) => {
+      const g = parseFloat(grade);
+      if (isNaN(g) || g < 0 || g > 4) return null;
+      return g;
+    },
+    label: (grade, lang) => {
+      const g = parseFloat(grade);
+      if (isNaN(g)) return '';
+      if (g >= 3.7) return 'A';
+      if (g >= 3.3) return 'A-';
+      if (g >= 3.0) return 'B+';
+      if (g >= 2.7) return 'B';
+      if (g >= 2.3) return 'B-';
+      if (g >= 2.0) return 'C+';
+      if (g >= 1.7) return 'C';
+      if (g >= 1.0) return 'D';
+      return 'F';
+    },
+    max: 4,
+    placeholder: '3.5',
+  },
+  gpa5: {
+    toGPA: (grade) => {
+      const g = parseFloat(grade);
+      if (isNaN(g) || g < 0 || g > 5) return null;
+      return (g / 5) * 4; // normalize to 4.0
+    },
+    label: (grade, lang) => {
+      const g = parseFloat(grade);
+      if (isNaN(g)) return '';
+      if (g >= 4.5) return 'A';
+      if (g >= 3.5) return 'B';
+      if (g >= 2.5) return 'C';
+      if (g >= 1.5) return 'D';
+      return 'F';
+    },
+    max: 5,
+    placeholder: '4.0',
+  },
+};
+
+let subjectCount = 0;
+
+function initGPACalculator() {
+  initToolPage('gpa-calculator');
+  renderGradeReference();
+  // Add 4 subjects by default
+  for (let i = 0; i < 4; i++) addSubject();
+}
+
+function getGradingSystem() {
+  const sel = document.getElementById('grading-system');
+  return GRADING_SYSTEMS[sel ? sel.value : 'iraq100'];
+}
+
+function addSubject() {
+  const list = document.getElementById('subjects-list');
+  if (!list) return;
+  subjectCount++;
+  const id = subjectCount;
+  const lang = window.currentLang || 'ar';
+  const sys = getGradingSystem();
+
+  const row = document.createElement('div');
+  row.className = 'subject-row';
+  row.id = 'subject-row-' + id;
+  row.innerHTML = `
+    <input type="text" class="form-control subject-name" placeholder="${lang === 'ar' ? 'اسم المادة' : 'Subject name'}" value="">
+    <input type="number" class="form-control subject-credits" placeholder="3" min="0.5" step="0.5" value="3">
+    <input type="number" class="form-control subject-grade" placeholder="${sys.placeholder}" min="0" max="${sys.max}" step="0.5">
+    <button class="remove-row-btn" onclick="removeSubject(${id})">✕</button>`;
+  list.appendChild(row);
+}
+
+function removeSubject(id) {
+  const row = document.getElementById('subject-row-' + id);
+  if (row) row.remove();
+}
+
+function calculateGPA() {
+  const lang = window.currentLang || 'ar';
+  const sys = getGradingSystem();
+  const rows = document.querySelectorAll('.subject-row');
+
+  let totalCredits = 0;
+  let weightedSum = 0;
+  let totalScore = 0;
+  let subjectData = [];
+  let hasError = false;
+
+  rows.forEach(row => {
+    const nameEl = row.querySelector('.subject-name');
+    const credEl = row.querySelector('.subject-credits');
+    const gradeEl = row.querySelector('.subject-grade');
+    if (!credEl || !gradeEl) return;
+
+    const credits = parseFloat(credEl.value);
+    const grade = gradeEl.value;
+    if (!grade || isNaN(credits) || credits <= 0) return;
+
+    const gpaPoints = sys.toGPA(grade);
+    if (gpaPoints === null) { hasError = true; return; }
+
+    const gradeLabel = sys.label(grade, lang);
+    const name = nameEl ? nameEl.value || (lang === 'ar' ? 'مادة' : 'Subject') : '';
+
+    weightedSum += gpaPoints * credits;
+    totalScore += parseFloat(grade) * credits;
+    totalCredits += credits;
+    subjectData.push({ name, credits, grade, gpaPoints, gradeLabel });
+  });
+
+  if (hasError) { showToast(lang === 'ar' ? 'بعض الدرجات غير صحيحة' : 'Some grades are invalid', 'error'); return; }
+  if (totalCredits === 0) { showToast(lang === 'ar' ? 'أضف مواد وأدخل الدرجات' : 'Add subjects and enter grades', 'error'); return; }
+
+  const semGPA = weightedSum / totalCredits;
+  const avgScore = totalScore / totalCredits;
+  const maxScore = getGradingSystem().max;
+  const pct = (avgScore / maxScore) * 100;
+
+  // Display
+  document.getElementById('gpa-semester').textContent = semGPA.toFixed(2);
+  document.getElementById('gpa-percent').textContent = pct.toFixed(1) + '%';
+  document.getElementById('gpa-total-credits').textContent = totalCredits;
+
+  // Grade badge
+  const badge = document.getElementById('gpa-semester-grade');
+  if (badge) {
+    let cls, label;
+    if (semGPA >= 3.5) { cls = 'gpa-a'; label = lang === 'ar' ? 'امتياز 🌟' : 'Excellent 🌟'; }
+    else if (semGPA >= 2.5) { cls = 'gpa-b'; label = lang === 'ar' ? 'جيد جداً' : 'Very Good'; }
+    else if (semGPA >= 1.5) { cls = 'gpa-c'; label = lang === 'ar' ? 'جيد' : 'Good'; }
+    else { cls = 'gpa-d'; label = lang === 'ar' ? 'مقبول / راسب' : 'Acceptable / Fail'; }
+    badge.className = 'grade-badge ' + cls;
+    badge.textContent = label;
+  }
+
+  // Breakdown
+  const brkEl = document.getElementById('gpa-subjects-breakdown');
+  if (brkEl) {
+    brkEl.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:0.9rem">
+        <thead>
+          <tr style="background:var(--bg-primary)">
+            <th style="padding:8px;border:1px solid var(--border-color);text-align:start">${lang === 'ar' ? 'المادة' : 'Subject'}</th>
+            <th style="padding:8px;border:1px solid var(--border-color);text-align:center">${lang === 'ar' ? 'الوحدات' : 'Credits'}</th>
+            <th style="padding:8px;border:1px solid var(--border-color);text-align:center">${lang === 'ar' ? 'الدرجة' : 'Grade'}</th>
+            <th style="padding:8px;border:1px solid var(--border-color);text-align:center">${lang === 'ar' ? 'التقدير' : 'Letter'}</th>
+            <th style="padding:8px;border:1px solid var(--border-color);text-align:center">GPA</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${subjectData.map(s => `
+            <tr>
+              <td style="padding:8px;border:1px solid var(--border-color)">${s.name}</td>
+              <td style="padding:8px;border:1px solid var(--border-color);text-align:center">${s.credits}</td>
+              <td style="padding:8px;border:1px solid var(--border-color);text-align:center;font-weight:700;color:var(--accent-yellow)">${s.grade}</td>
+              <td style="padding:8px;border:1px solid var(--border-color);text-align:center">${s.gradeLabel}</td>
+              <td style="padding:8px;border:1px solid var(--border-color);text-align:center;font-weight:700">${s.gpaPoints.toFixed(2)}</td>
+            </tr>`).join('')}
+          <tr style="background:var(--bg-primary);font-weight:700">
+            <td style="padding:8px;border:1px solid var(--border-color)">${lang === 'ar' ? 'المجموع / المعدل' : 'Total / GPA'}</td>
+            <td style="padding:8px;border:1px solid var(--border-color);text-align:center">${totalCredits}</td>
+            <td style="padding:8px;border:1px solid var(--border-color);text-align:center;color:var(--accent-yellow)">${avgScore.toFixed(1)}</td>
+            <td colspan="2" style="padding:8px;border:1px solid var(--border-color);text-align:center;color:var(--accent-red)">${semGPA.toFixed(2)}</td>
+          </tr>
+        </tbody>
+      </table>`;
+  }
+
+  document.getElementById('gpa-result-box').style.display = 'block';
+}
+
+function calculateCGPA() {
+  const lang = window.currentLang || 'ar';
+  const currentCGPA = parseFloat(document.getElementById('current-cgpa')?.value);
+  const totalCreditsEarned = parseFloat(document.getElementById('total-credits-earned')?.value);
+
+  if (isNaN(currentCGPA) || isNaN(totalCreditsEarned) || totalCreditsEarned < 0) {
+    showToast(lang === 'ar' ? 'أدخل المعدل الحالي والوحدات' : 'Enter current GPA and credits', 'error');
+    return;
+  }
+
+  // Get current semester GPA
+  const semGPAEl = document.getElementById('gpa-semester');
+  const semCreditsEl = document.getElementById('gpa-total-credits');
+  if (!semGPAEl || !semCreditsEl || semGPAEl.textContent === '0.00') {
+    showToast(lang === 'ar' ? 'احسب المعدل الفصلي أولاً' : 'Calculate semester GPA first', 'error');
+    return;
+  }
+
+  const semGPA = parseFloat(semGPAEl.textContent);
+  const semCredits = parseFloat(semCreditsEl.textContent);
+  const newCGPA = ((currentCGPA * totalCreditsEarned) + (semGPA * semCredits)) / (totalCreditsEarned + semCredits);
+
+  const resultEl = document.getElementById('new-cgpa');
+  if (resultEl) resultEl.textContent = newCGPA.toFixed(2);
+  document.getElementById('cgpa-result').style.display = 'block';
+}
+
+function renderGradeReference() {
+  const lang = window.currentLang || 'ar';
+  const sel = document.getElementById('grading-system');
+  const refEl = document.getElementById('grade-reference');
+  if (!refEl) return;
+
+  const system = sel ? sel.value : 'iraq100';
+  const refs = {
+    iraq100: lang === 'ar'
+      ? '90-100: امتياز (4.0) | 80-89: جيد جداً (3.0) | 70-79: جيد (2.0) | 60-69: مقبول (1.0) | <60: راسب'
+      : '90-100: Excellent (4.0) | 80-89: Very Good (3.0) | 70-79: Good (2.0) | 60-69: Pass (1.0) | <60: Fail',
+    gpa4:  'A=4.0 | A-=3.7 | B+=3.3 | B=3.0 | B-=2.7 | C+=2.3 | C=2.0 | D=1.0 | F=0',
+    gpa5:  'A=5.0 | B=4.0 | C=3.0 | D=2.0 | F=0-1',
+  };
+  refEl.textContent = refs[system] || '';
+
+  // Update grade input placeholders and max values to match the selected system
+  const sys = GRADING_SYSTEMS[system];
+  document.querySelectorAll('.subject-grade').forEach(el => {
+    el.placeholder = sys.placeholder;
+    el.max = sys.max;
+  });
+
+  // Update the current-cgpa max: Iraqi 100 normalises to 4.0, so max is 4 for that too
+  const cgpaMax = system === 'gpa5' ? 5 : 4;
+  const cgpaEl = document.getElementById('current-cgpa');
+  if (cgpaEl) { cgpaEl.max = cgpaMax; cgpaEl.placeholder = system === 'gpa5' ? '4.0' : '3.5'; }
+}
+
+window.initGPACalculator = initGPACalculator;
+window.addSubject = addSubject;
+window.removeSubject = removeSubject;
+window.calculateGPA = calculateGPA;
+window.calculateCGPA = calculateCGPA;
+window.renderGradeReference = renderGradeReference;

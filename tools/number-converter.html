@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="محوّل الأرقام العربية والإنجليزية مجاناً - ToolBox">
+  <meta property="og:title" content="محوّل الأرقام العربية | ToolBox">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#e63946">
+  <title>محوّل الأرقام العربية | ToolBox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body dir="rtl">
+<header class="header">
+  <div class="header-inner">
+    <a href=".." class="logo"><div class="logo-icon">🔧</div><span class="logo-text">Tool<span>Box</span></span></a>
+    <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="search-input" placeholder="ابحث عن أداة..." data-ar-placeholder="ابحث عن أداة..." data-en-placeholder="Search tools..."><div class="search-results" id="search-results"></div></div>
+    <div class="header-actions">
+      <button class="btn-icon" id="theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+</header>
+<div class="tool-page">
+  <div class="tool-hero">
+    <div class="tool-hero-inner">
+      <div class="breadcrumb">
+        <a href=".." data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+        <span>›</span>
+        <span data-ar="أدوات النصوص" data-en="Text Tools">أدوات النصوص</span>
+        <span>›</span>
+        <span data-ar="محوّل الأرقام العربية" data-en="Arabic Number Converter">محوّل الأرقام العربية</span>
+      </div>
+      <div class="tool-title-area">
+        <span class="tool-big-icon">🔢</span>
+        <div>
+          <h1 data-ar="محوّل الأرقام العربية والإنجليزية" data-en="Arabic ↔ English Number Converter">محوّل الأرقام العربية والإنجليزية</h1>
+          <p data-ar="تحويل بين الأرقام العربية ١٢٣ والأرقام الإنجليزية 123" data-en="Convert between Arabic-Indic numerals ١٢٣ and Western numerals 123">تحويل بين الأرقام العربية ١٢٣ والأرقام الإنجليزية 123</p>
+        </div>
+      </div>
+      <div class="tool-meta">
+        <div class="tool-stat-badge">📊 <span data-ar="الاستخدامات:" data-en="Uses:">الاستخدامات:</span> <span class="val" id="tool-usage-count">0</span></div>
+        <div class="tool-stat-badge">👥 <span class="val" id="tool-live-users">--</span> <span data-ar="الآن" data-en="online">الآن</span></div>
+        <button class="btn-icon" id="tool-fav-btn" title="مفضلة">🤍</button>
+      </div>
+    </div>
+  </div>
+  <div class="tool-workspace">
+    <div class="ad-banner" style="margin-bottom:20px">📢 <span data-ar="مساحة إعلانية - Google AdSense" data-en="Ad Space - Google AdSense">مساحة إعلانية</span></div>
+
+    <!-- Input -->
+    <div class="tool-box">
+      <h3 data-ar="✍️ أدخل النص" data-en="✍️ Enter Text">✍️ أدخل النص</h3>
+      <div class="form-group">
+        <label data-ar="النص المراد تحويله (يدعم أرقاماً وكلمات)" data-en="Text to convert (supports numbers and words)">النص المراد تحويله</label>
+        <textarea id="num-input" class="form-control" rows="4"
+          style="font-size:1.3rem;letter-spacing:1px"
+          placeholder="مثال: ١٢٣٤٥ أو 12345 أو نص مختلط..."
+          oninput="autoConvert()"></textarea>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn-red" onclick="convertToWestern()" data-ar="تحويل إلى أرقام غربية  (١٢٣ → 123)" data-en="To Western (١٢٣ → 123)">تحويل إلى أرقام غربية (١٢٣ → 123)</button>
+        <button class="btn-outline" onclick="convertToArabicIndic()" data-ar="تحويل إلى أرقام عربية (123 → ١٢٣)" data-en="To Arabic-Indic (123 → ١٢٣)">تحويل إلى أرقام عربية (123 → ١٢٣)</button>
+        <button class="btn-outline" style="color:var(--text-muted)" onclick="clearAll()" data-ar="مسح" data-en="Clear">مسح</button>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="tool-box" id="output-box" style="display:none">
+      <h3 data-ar="✅ النتيجة" data-en="✅ Result">✅ النتيجة</h3>
+      <div id="num-output" style="font-size:1.4rem;font-weight:700;color:var(--accent-yellow);
+        background:var(--bg-primary);border:1px solid var(--border-color);border-radius:var(--radius-sm);
+        padding:16px;min-height:56px;word-break:break-all;line-height:1.8;direction:ltr;text-align:left"></div>
+      <div style="margin-top:12px;display:flex;gap:12px">
+        <button class="btn-outline" onclick="copyOutput()" data-ar="📋 نسخ النتيجة" data-en="📋 Copy Result">📋 نسخ النتيجة</button>
+        <button class="btn-outline" onclick="swapText()" data-ar="🔄 تبديل الاتجاه" data-en="🔄 Swap">🔄 تبديل الاتجاه</button>
+      </div>
+    </div>
+
+    <!-- Reference Table -->
+    <div class="tool-box">
+      <h3 data-ar="📖 جدول الأرقام المرجعي" data-en="📖 Number Reference Table">📖 جدول الأرقام المرجعي</h3>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:1rem">
+          <thead>
+            <tr>
+              <th style="padding:10px;background:var(--bg-primary);border:1px solid var(--border-color);text-align:center" data-ar="غربي" data-en="Western">غربي</th>
+              <th style="padding:10px;background:var(--bg-primary);border:1px solid var(--border-color);text-align:center" data-ar="عربي-هندي" data-en="Arabic-Indic">عربي-هندي</th>
+              <th style="padding:10px;background:var(--bg-primary);border:1px solid var(--border-color);text-align:center" data-ar="فارسي" data-en="Persian">فارسي</th>
+            </tr>
+          </thead>
+          <tbody id="num-ref-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="share-section">
+      <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>
+      <div class="share-btns">
+        <button class="share-btn facebook" id="share-facebook">f Facebook</button>
+        <button class="share-btn telegram" id="share-telegram">✈ Telegram</button>
+        <button class="share-btn whatsapp" id="share-whatsapp">📱 WhatsApp</button>
+        <button class="share-btn twitter" id="share-twitter">𝕏 Twitter</button>
+      </div>
+    </div>
+    <div class="rating-section">
+      <h4 data-ar="⭐ هل كانت هذه الأداة مفيدة؟" data-en="⭐ Was this tool helpful?">⭐ هل كانت هذه الأداة مفيدة؟</h4>
+      <div class="rating-btns">
+        <button class="rating-btn like" id="rate-like">👍 <span data-ar="نعم" data-en="Yes">نعم</span></button>
+        <button class="rating-btn dislike" id="rate-dislike">👎 <span data-ar="لا" data-en="No">لا</span></button>
+      </div>
+      <div class="rating-bar-wrap"><div class="rating-bar" id="rating-bar" style="width:0%"></div></div>
+      <p class="rating-text" id="rating-text"></p>
+    </div>
+    <div class="ad-banner" style="margin-top:20px">📢 <span data-ar="مساحة إعلانية" data-en="Ad Space">مساحة إعلانية</span></div>
+  </div>
+</div>
+<div id="toast-container" class="toast-container"></div>
+<div id="loading-overlay" class="loading-overlay"><div class="spinner"></div><div class="loading-text"></div></div>
+<script src="../js/app.js"></script>
+<script src="../js/tools/converters.js"></script>
+<script>initNumberConverter();</script>
+</body>
+</html>
