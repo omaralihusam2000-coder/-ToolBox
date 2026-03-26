@@ -6,40 +6,40 @@
 // ===== TOOL DATA =====
 const TOOLS = [
   // File/Document Tools
-  { id: 'pdf-to-word', name: { ar: 'PDF إلى Word', en: 'PDF to Word' }, desc: { ar: 'تحويل PDF إلى Word', en: 'Convert PDF to Word' }, icon: '📄', cat: 'files', url: '/tools/pdf-to-word.html' },
-  { id: 'word-to-pdf', name: { ar: 'Word إلى PDF', en: 'Word to PDF' }, desc: { ar: 'تحويل Word إلى PDF', en: 'Convert Word to PDF' }, icon: '📝', cat: 'files', url: '/tools/word-to-pdf.html' },
-  { id: 'pdf-merger', name: { ar: 'دمج PDF', en: 'PDF Merger' }, desc: { ar: 'دمج ملفات PDF', en: 'Merge PDF files' }, icon: '🔗', cat: 'files', url: '/tools/pdf-merger.html' },
-  { id: 'pdf-splitter', name: { ar: 'تقسيم PDF', en: 'PDF Splitter' }, desc: { ar: 'تقسيم PDF إلى صفحات', en: 'Split PDF pages' }, icon: '✂️', cat: 'files', url: '/tools/pdf-splitter.html' },
-  { id: 'pptx-to-pdf', name: { ar: 'PowerPoint إلى PDF', en: 'PowerPoint to PDF' }, desc: { ar: 'تحويل PPTX إلى PDF', en: 'Convert PPTX to PDF' }, icon: '📊', cat: 'files', url: '/tools/pptx-to-pdf.html' },
-  { id: 'image-compressor', name: { ar: 'ضغط الصور', en: 'Image Compressor' }, desc: { ar: 'تصغير حجم الصور', en: 'Reduce image size' }, icon: '🖼️', cat: 'files', url: '/tools/image-compressor.html' },
-  { id: 'image-converter', name: { ar: 'تحويل صيغة الصور', en: 'Image Converter' }, desc: { ar: 'PNG ↔ JPG ↔ WEBP', en: 'PNG ↔ JPG ↔ WEBP' }, icon: '🔄', cat: 'files', url: '/tools/image-converter.html' },
-  { id: 'image-resizer', name: { ar: 'تغيير حجم الصور', en: 'Image Resizer' }, desc: { ar: 'تغيير أبعاد الصورة', en: 'Resize images' }, icon: '📐', cat: 'files', url: '/tools/image-resizer.html' },
+  { id: 'pdf-to-word', name: { ar: 'PDF إلى Word', en: 'PDF to Word' }, desc: { ar: 'تحويل PDF إلى Word', en: 'Convert PDF to Word' }, icon: '📄', cat: 'files', url: 'tools/pdf-to-word.html' },
+  { id: 'word-to-pdf', name: { ar: 'Word إلى PDF', en: 'Word to PDF' }, desc: { ar: 'تحويل Word إلى PDF', en: 'Convert Word to PDF' }, icon: '📝', cat: 'files', url: 'tools/word-to-pdf.html' },
+  { id: 'pdf-merger', name: { ar: 'دمج PDF', en: 'PDF Merger' }, desc: { ar: 'دمج ملفات PDF', en: 'Merge PDF files' }, icon: '🔗', cat: 'files', url: 'tools/pdf-merger.html' },
+  { id: 'pdf-splitter', name: { ar: 'تقسيم PDF', en: 'PDF Splitter' }, desc: { ar: 'تقسيم PDF إلى صفحات', en: 'Split PDF pages' }, icon: '✂️', cat: 'files', url: 'tools/pdf-splitter.html' },
+  { id: 'pptx-to-pdf', name: { ar: 'PowerPoint إلى PDF', en: 'PowerPoint to PDF' }, desc: { ar: 'تحويل PPTX إلى PDF', en: 'Convert PPTX to PDF' }, icon: '📊', cat: 'files', url: 'tools/pptx-to-pdf.html' },
+  { id: 'image-compressor', name: { ar: 'ضغط الصور', en: 'Image Compressor' }, desc: { ar: 'تصغير حجم الصور', en: 'Reduce image size' }, icon: '🖼️', cat: 'files', url: 'tools/image-compressor.html' },
+  { id: 'image-converter', name: { ar: 'تحويل صيغة الصور', en: 'Image Converter' }, desc: { ar: 'PNG ↔ JPG ↔ WEBP', en: 'PNG ↔ JPG ↔ WEBP' }, icon: '🔄', cat: 'files', url: 'tools/image-converter.html' },
+  { id: 'image-resizer', name: { ar: 'تغيير حجم الصور', en: 'Image Resizer' }, desc: { ar: 'تغيير أبعاد الصورة', en: 'Resize images' }, icon: '📐', cat: 'files', url: 'tools/image-resizer.html' },
   // Text Tools
-  { id: 'word-counter', name: { ar: 'عداد الكلمات', en: 'Word Counter' }, desc: { ar: 'عد الكلمات والأحرف', en: 'Count words & chars' }, icon: '🔤', cat: 'text', url: '/tools/word-counter.html' },
-  { id: 'case-converter', name: { ar: 'تحويل الأحرف', en: 'Case Converter' }, desc: { ar: 'كبير ↔ صغير', en: 'UPPER ↔ lower' }, icon: 'Aa', cat: 'text', url: '/tools/case-converter.html' },
-  { id: 'remove-diacritics', name: { ar: 'إزالة التشكيل', en: 'Remove Diacritics' }, desc: { ar: 'إزالة تشكيل النص العربي', en: 'Remove Arabic vowels' }, icon: '🇸🇦', cat: 'text', url: '/tools/remove-diacritics.html' },
-  { id: 'lorem-ipsum', name: { ar: 'نص عشوائي', en: 'Lorem Ipsum' }, desc: { ar: 'توليد نص عشوائي', en: 'Generate placeholder text' }, icon: '📃', cat: 'text', url: '/tools/lorem-ipsum.html' },
-  { id: 'text-to-speech', name: { ar: 'نص إلى صوت', en: 'Text to Speech' }, desc: { ar: 'تحويل النص إلى كلام', en: 'Convert text to audio' }, icon: '🔊', cat: 'text', url: '/tools/text-to-speech.html' },
-  { id: 'base64', name: { ar: 'Base64', en: 'Base64' }, desc: { ar: 'تشفير وفك تشفير Base64', en: 'Encode/decode Base64' }, icon: '🔐', cat: 'text', url: '/tools/base64.html' },
-  { id: 'url-encoder', name: { ar: 'تشفير URL', en: 'URL Encoder' }, desc: { ar: 'تشفير وفك تشفير URL', en: 'Encode/decode URLs' }, icon: '🌐', cat: 'text', url: '/tools/url-encoder.html' },
+  { id: 'word-counter', name: { ar: 'عداد الكلمات', en: 'Word Counter' }, desc: { ar: 'عد الكلمات والأحرف', en: 'Count words & chars' }, icon: '🔤', cat: 'text', url: 'tools/word-counter.html' },
+  { id: 'case-converter', name: { ar: 'تحويل الأحرف', en: 'Case Converter' }, desc: { ar: 'كبير ↔ صغير', en: 'UPPER ↔ lower' }, icon: 'Aa', cat: 'text', url: 'tools/case-converter.html' },
+  { id: 'remove-diacritics', name: { ar: 'إزالة التشكيل', en: 'Remove Diacritics' }, desc: { ar: 'إزالة تشكيل النص العربي', en: 'Remove Arabic vowels' }, icon: '🇸🇦', cat: 'text', url: 'tools/remove-diacritics.html' },
+  { id: 'lorem-ipsum', name: { ar: 'نص عشوائي', en: 'Lorem Ipsum' }, desc: { ar: 'توليد نص عشوائي', en: 'Generate placeholder text' }, icon: '📃', cat: 'text', url: 'tools/lorem-ipsum.html' },
+  { id: 'text-to-speech', name: { ar: 'نص إلى صوت', en: 'Text to Speech' }, desc: { ar: 'تحويل النص إلى كلام', en: 'Convert text to audio' }, icon: '🔊', cat: 'text', url: 'tools/text-to-speech.html' },
+  { id: 'base64', name: { ar: 'Base64', en: 'Base64' }, desc: { ar: 'تشفير وفك تشفير Base64', en: 'Encode/decode Base64' }, icon: '🔐', cat: 'text', url: 'tools/base64.html' },
+  { id: 'url-encoder', name: { ar: 'تشفير URL', en: 'URL Encoder' }, desc: { ar: 'تشفير وفك تشفير URL', en: 'Encode/decode URLs' }, icon: '🌐', cat: 'text', url: 'tools/url-encoder.html' },
   // Calculators
-  { id: 'age-calculator', name: { ar: 'حاسبة العمر', en: 'Age Calculator' }, desc: { ar: 'احسب عمرك بدقة', en: 'Calculate exact age' }, icon: '🎂', cat: 'calc', url: '/tools/age-calculator.html' },
-  { id: 'bmi-calculator', name: { ar: 'حاسبة BMI', en: 'BMI Calculator' }, desc: { ar: 'مؤشر كتلة الجسم', en: 'Body Mass Index' }, icon: '⚖️', cat: 'calc', url: '/tools/bmi-calculator.html' },
-  { id: 'currency-converter', name: { ar: 'تحويل العملات', en: 'Currency Converter' }, desc: { ar: 'دولار ↔ دينار عراقي', en: 'USD ↔ IQD & more' }, icon: '💱', cat: 'calc', url: '/tools/currency-converter.html' },
-  { id: 'percentage-calculator', name: { ar: 'حاسبة النسبة', en: 'Percentage Calculator' }, desc: { ar: 'حسابات النسب المئوية', en: 'Percentage calculations' }, icon: '%', cat: 'calc', url: '/tools/percentage-calculator.html' },
-  { id: 'loan-calculator', name: { ar: 'حاسبة القروض', en: 'Loan Calculator' }, desc: { ar: 'احسب أقساطك الشهرية', en: 'Monthly payment calc' }, icon: '🏦', cat: 'calc', url: '/tools/loan-calculator.html' },
+  { id: 'age-calculator', name: { ar: 'حاسبة العمر', en: 'Age Calculator' }, desc: { ar: 'احسب عمرك بدقة', en: 'Calculate exact age' }, icon: '🎂', cat: 'calc', url: 'tools/age-calculator.html' },
+  { id: 'bmi-calculator', name: { ar: 'حاسبة BMI', en: 'BMI Calculator' }, desc: { ar: 'مؤشر كتلة الجسم', en: 'Body Mass Index' }, icon: '⚖️', cat: 'calc', url: 'tools/bmi-calculator.html' },
+  { id: 'currency-converter', name: { ar: 'تحويل العملات', en: 'Currency Converter' }, desc: { ar: 'دولار ↔ دينار عراقي', en: 'USD ↔ IQD & more' }, icon: '💱', cat: 'calc', url: 'tools/currency-converter.html' },
+  { id: 'percentage-calculator', name: { ar: 'حاسبة النسبة', en: 'Percentage Calculator' }, desc: { ar: 'حسابات النسب المئوية', en: 'Percentage calculations' }, icon: '%', cat: 'calc', url: 'tools/percentage-calculator.html' },
+  { id: 'loan-calculator', name: { ar: 'حاسبة القروض', en: 'Loan Calculator' }, desc: { ar: 'احسب أقساطك الشهرية', en: 'Monthly payment calc' }, icon: '🏦', cat: 'calc', url: 'tools/loan-calculator.html' },
   // Design Tools
-  { id: 'color-picker', name: { ar: 'منتقي الألوان', en: 'Color Picker' }, desc: { ar: 'HEX, RGB, HSL', en: 'HEX, RGB, HSL values' }, icon: '🎨', cat: 'design', url: '/tools/color-picker.html' },
-  { id: 'qr-generator', name: { ar: 'مولد QR Code', en: 'QR Generator' }, desc: { ar: 'إنشاء باركود QR', en: 'Generate QR codes' }, icon: '📱', cat: 'design', url: '/tools/qr-generator.html' },
-  { id: 'favicon-generator', name: { ar: 'مولد Favicon', en: 'Favicon Generator' }, desc: { ar: 'إنشاء أيقونة موقع', en: 'Generate favicons' }, icon: '⭐', cat: 'design', url: '/tools/favicon-generator.html' },
-  { id: 'gradient-generator', name: { ar: 'مولد التدرجات', en: 'Gradient Generator' }, desc: { ar: 'إنشاء تدرجات CSS', en: 'CSS gradient creator' }, icon: '🌈', cat: 'design', url: '/tools/gradient-generator.html' },
+  { id: 'color-picker', name: { ar: 'منتقي الألوان', en: 'Color Picker' }, desc: { ar: 'HEX, RGB, HSL', en: 'HEX, RGB, HSL values' }, icon: '🎨', cat: 'design', url: 'tools/color-picker.html' },
+  { id: 'qr-generator', name: { ar: 'مولد QR Code', en: 'QR Generator' }, desc: { ar: 'إنشاء باركود QR', en: 'Generate QR codes' }, icon: '📱', cat: 'design', url: 'tools/qr-generator.html' },
+  { id: 'favicon-generator', name: { ar: 'مولد Favicon', en: 'Favicon Generator' }, desc: { ar: 'إنشاء أيقونة موقع', en: 'Generate favicons' }, icon: '⭐', cat: 'design', url: 'tools/favicon-generator.html' },
+  { id: 'gradient-generator', name: { ar: 'مولد التدرجات', en: 'Gradient Generator' }, desc: { ar: 'إنشاء تدرجات CSS', en: 'CSS gradient creator' }, icon: '🌈', cat: 'design', url: 'tools/gradient-generator.html' },
   // Dev Tools
-  { id: 'my-ip', name: { ar: 'عنوان IP', en: 'My IP Address' }, desc: { ar: 'اعرف IP الخاص بك', en: 'Show your IP info' }, icon: '🖥️', cat: 'dev', url: '/tools/my-ip.html' },
-  { id: 'password-generator', name: { ar: 'مولد كلمات المرور', en: 'Password Generator' }, desc: { ar: 'إنشاء باسوورد قوي', en: 'Generate strong passwords' }, icon: '🔑', cat: 'dev', url: '/tools/password-generator.html' },
-  { id: 'json-formatter', name: { ar: 'منسق JSON', en: 'JSON Formatter' }, desc: { ar: 'تنسيق وتجميل JSON', en: 'Format & beautify JSON' }, icon: '{ }', cat: 'dev', url: '/tools/json-formatter.html' },
-  { id: 'minifier', name: { ar: 'ضاغط الكود', en: 'Code Minifier' }, desc: { ar: 'تصغير HTML/CSS/JS', en: 'Minify web code' }, icon: '⚡', cat: 'dev', url: '/tools/minifier.html' },
-  { id: 'regex-tester', name: { ar: 'اختبار Regex', en: 'Regex Tester' }, desc: { ar: 'اختبار التعبيرات النمطية', en: 'Test regular expressions' }, icon: '🔍', cat: 'dev', url: '/tools/regex-tester.html' },
-  { id: 'markdown-preview', name: { ar: 'معاينة Markdown', en: 'Markdown Preview' }, desc: { ar: 'كتابة ومعاينة Markdown', en: 'Live Markdown preview' }, icon: '📋', cat: 'dev', url: '/tools/markdown-preview.html' },
+  { id: 'my-ip', name: { ar: 'عنوان IP', en: 'My IP Address' }, desc: { ar: 'اعرف IP الخاص بك', en: 'Show your IP info' }, icon: '🖥️', cat: 'dev', url: 'tools/my-ip.html' },
+  { id: 'password-generator', name: { ar: 'مولد كلمات المرور', en: 'Password Generator' }, desc: { ar: 'إنشاء باسوورد قوي', en: 'Generate strong passwords' }, icon: '🔑', cat: 'dev', url: 'tools/password-generator.html' },
+  { id: 'json-formatter', name: { ar: 'منسق JSON', en: 'JSON Formatter' }, desc: { ar: 'تنسيق وتجميل JSON', en: 'Format & beautify JSON' }, icon: '{ }', cat: 'dev', url: 'tools/json-formatter.html' },
+  { id: 'minifier', name: { ar: 'ضاغط الكود', en: 'Code Minifier' }, desc: { ar: 'تصغير HTML/CSS/JS', en: 'Minify web code' }, icon: '⚡', cat: 'dev', url: 'tools/minifier.html' },
+  { id: 'regex-tester', name: { ar: 'اختبار Regex', en: 'Regex Tester' }, desc: { ar: 'اختبار التعبيرات النمطية', en: 'Test regular expressions' }, icon: '🔍', cat: 'dev', url: 'tools/regex-tester.html' },
+  { id: 'markdown-preview', name: { ar: 'معاينة Markdown', en: 'Markdown Preview' }, desc: { ar: 'كتابة ومعاينة Markdown', en: 'Live Markdown preview' }, icon: '📋', cat: 'dev', url: 'tools/markdown-preview.html' },
 ];
 
 const CATEGORIES = {
@@ -50,6 +50,9 @@ const CATEGORIES = {
   design: { ar: 'تصميم', en: 'Design', icon: '🎨' },
   dev: { ar: 'مطورين', en: 'Developer', icon: '💻' },
 };
+
+// ===== BASE PATH (handles GitHub Pages subdir deployment) =====
+const BASE_PATH = window.location.pathname.includes('/tools/') ? '../' : '';
 
 // ===== STATE =====
 let currentLang = localStorage.getItem('tb_lang') || 'ar';
@@ -143,7 +146,7 @@ function initSearch() {
     ).slice(0, 8);
 
     searchResults.innerHTML = results.length ? results.map(t => `
-      <a href="${t.url}" class="search-result-item" onclick="trackToolUse('${t.id}')">
+      <a href="${BASE_PATH}${t.url}" class="search-result-item" onclick="trackToolUse('${t.id}')">
         <span class="item-icon">${t.icon}</span>
         <div>
           <div class="item-name">${t.name[currentLang]}</div>
@@ -192,7 +195,7 @@ function toolCardHTML(t) {
   const isFav = favorites.includes(t.id);
   const count = usageCounts[t.id] || 0;
   return `
-    <a href="${t.url}" class="tool-card" onclick="trackToolUse('${t.id}')">
+    <a href="${BASE_PATH}${t.url}" class="tool-card" onclick="trackToolUse('${t.id}')">
       <span class="tool-icon">${t.icon}</span>
       <div class="tool-name">${t.name[currentLang]}</div>
       <div class="tool-desc">${t.desc[currentLang]}</div>
@@ -291,7 +294,7 @@ function renderPopular() {
 
   const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣'];
   grid.innerHTML = sorted.map((t, i) => `
-    <a href="${t.url}" class="popular-card" onclick="trackToolUse('${t.id}')">
+    <a href="${BASE_PATH}${t.url}" class="popular-card" onclick="trackToolUse('${t.id}')">
       <span class="popular-rank">${medals[i]}</span>
       <div class="popular-info">
         <div class="name">${t.icon} ${t.name[currentLang]}</div>
