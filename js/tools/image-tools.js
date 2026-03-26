@@ -2,6 +2,14 @@
  * Image Tools: Compressor, Converter, Resizer
  */
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 // ===== IMAGE COMPRESSOR =====
 function initImageCompressor() {
   initToolPage('image-compressor');
@@ -38,7 +46,7 @@ function renderImageList(files, listId) {
   list.innerHTML = files.map((f, i) => `
     <div class="file-item">
       <span class="file-icon">🖼️</span>
-      <span class="file-name">${f.name}</span>
+      <span class="file-name">${escapeHtml(f.name)}</span>
       <span class="file-size">${formatFileSize(f.size)}</span>
     </div>
   `).join('');
@@ -46,6 +54,17 @@ function renderImageList(files, listId) {
 
 async function compressImages(files, quality) {
   showLoading(currentLang === 'ar' ? 'جاري ضغط الصور...' : 'Compressing images...');
+
+  const allPng = files.every(f => f.type === 'image/png');
+  if (allPng) {
+    showToast(
+      currentLang === 'ar'
+        ? 'ℹ️ PNG لا تتأثر بمنزلق الجودة (بدون خسارة)'
+        : 'ℹ️ PNG files are lossless — quality slider has no effect',
+      'info'
+    );
+  }
+
   const results = [];
 
   for (const file of files) {
@@ -54,10 +73,20 @@ async function compressImages(files, quality) {
       results.push({ original: file, compressed });
     } catch (e) {
       console.error('Compress error:', e);
+      showToast(
+        currentLang === 'ar'
+          ? `❌ فشل ضغط: ${escapeHtml(file.name)}`
+          : `❌ Failed to compress: ${escapeHtml(file.name)}`,
+        'error'
+      );
     }
   }
 
   hideLoading();
+
+  if (!results.length) {
+    return;
+  }
 
   // Show results
   const resultSection = document.getElementById('result-section');
@@ -78,7 +107,7 @@ async function compressImages(files, quality) {
       return `
         <div class="file-item">
           <span class="file-icon">✅</span>
-          <span class="file-name">${r.original.name}</span>
+          <span class="file-name">${escapeHtml(r.original.name)}</span>
           <span class="file-size" style="color:var(--accent-yellow)">${formatFileSize(r.compressed.size)}</span>
           <span class="chip green" style="font-size:0.7rem">${savings > 0 ? '-' + savings + '%' : 'No change'}</span>
           <button class="btn-red" style="padding:4px 12px;font-size:0.75rem" onclick="downloadBlob(window._compressedBlobs[${i}], window._compressedNames[${i}])">⬇</button>
@@ -147,7 +176,7 @@ function showConverterPreview(file) {
   const reader = new FileReader();
   reader.onload = (e) => {
     preview.innerHTML = `<img src="${e.target.result}" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border-color)">
-    <p style="margin-top:8px;font-size:0.85rem;color:var(--text-muted)">${file.name} — ${formatFileSize(file.size)}</p>`;
+    <p style="margin-top:8px;font-size:0.85rem;color:var(--text-muted)">${escapeHtml(file.name)} — ${formatFileSize(file.size)}</p>`;
     document.getElementById('upload-area').style.display = 'none';
     preview.style.display = 'block';
   };
@@ -156,6 +185,16 @@ function showConverterPreview(file) {
 
 async function convertImage(file, format, quality) {
   showLoading(currentLang === 'ar' ? 'جاري التحويل...' : 'Converting...');
+
+  if (format === 'gif') {
+    showToast(
+      currentLang === 'ar'
+        ? '⚠️ GIF المحوّلة ستكون ثابتة (غير متحركة)'
+        : '⚠️ Converted GIF will be static (not animated)',
+      'info'
+    );
+  }
+
   try {
     const result = await new Promise((resolve, reject) => {
       const reader = new FileReader();
