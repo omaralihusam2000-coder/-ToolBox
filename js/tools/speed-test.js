@@ -324,12 +324,19 @@ function renderRecommendations(download, upload, ping) {
   ];
 
   recList.innerHTML = items.map(item => {
-    let ok;
-    if (item.type === 'dl') ok = download >= item.need;
-    else if (item.type === 'ul') ok = upload >= item.need;
-    else ok = ping <= item.need;
+    let ok, partial;
+    if (item.type === 'dl') {
+      ok = download >= item.need;
+      partial = download >= item.need * 0.5;
+    } else if (item.type === 'ul') {
+      ok = upload >= item.need;
+      partial = upload >= item.need * 0.5;
+    } else {
+      ok = ping <= item.need;
+      partial = ping <= item.need * 2;
+    }
 
-    const cls = ok ? 'ok' : (item.type === 'dl' ? download >= item.need * 0.5 : item.type === 'ul' ? upload >= item.need * 0.5 : ping <= item.need * 2) ? 'warn' : 'bad';
+    const cls = ok ? 'ok' : partial ? 'warn' : 'bad';
     const icon = cls === 'ok' ? '✓' : cls === 'warn' ? '~' : '✗';
     return `<span class="speed-rec-item ${cls}">${icon} ${item[lang]}</span>`;
   }).join('');

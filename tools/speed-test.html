@@ -249,6 +249,7 @@
             <line class="gauge-tick" x1="240" y1="65" x2="234" y2="68" />
             <text class="gauge-tick-label" x="248" y="60">200</text>
             <line class="gauge-tick" x1="260" y1="140" x2="254" y2="140" />
+            <!-- Arc path length ≈ π × radius (120) = 377, used for stroke-dasharray animation -->
             <path class="gauge-fill" id="gauge-fill" d="M 20 140 A 120 120 0 0 1 260 140"
               stroke-dasharray="377" stroke-dashoffset="377" />
           </svg>
@@ -290,7 +291,7 @@
           <div class="res-unit">Mbps</div>
           <div class="res-label" data-ar="سرعة التحميل" data-en="Download Speed">سرعة التحميل</div>
         </div>
-        <div class="speed-result-card highlight">
+        <div class="speed-result-card">
           <div class="res-icon">⬆️</div>
           <div class="res-val" id="res-upload">-</div>
           <div class="res-unit">Mbps</div>
