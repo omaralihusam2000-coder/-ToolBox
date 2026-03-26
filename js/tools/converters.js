@@ -81,7 +81,10 @@ function swapText() {
   if (!input || !out) return;
   const tmp = input.value;
   input.value = out.textContent;
-  showNumOutput(tmp);
+  out.textContent = tmp;
+  // Trigger auto-convert on the new input value
+  if (input.value) autoConvert();
+  else document.getElementById('output-box').style.display = 'none';
 }
 
 function clearAll() {
@@ -145,19 +148,29 @@ const WORLD_CLOCK_CITIES = [
   { id: 'America/Los_Angeles', flag: '🇺🇸', ar: 'لوس أنجلوس',   en: 'Los Angeles'  },
 ];
 
+let _worldClockInterval = null;
+
 function initTimezoneConverter() {
   initToolPage('timezone-converter');
   populateTZSelects();
   setDefaultDateTime();
   renderWorldClock();
-  setInterval(renderWorldClock, 60000);
+  if (_worldClockInterval) clearInterval(_worldClockInterval);
+  _worldClockInterval = setInterval(renderWorldClock, 60000);
 }
+
+window.addEventListener('pagehide', () => {
+  if (_worldClockInterval) { clearInterval(_worldClockInterval); _worldClockInterval = null; }
+});
 
 function populateTZSelects() {
   const lang = window.currentLang || 'ar';
   const fromEl = document.getElementById('tz-from');
   const toEl = document.getElementById('tz-to');
   if (!fromEl || !toEl) return;
+
+  const prevFrom = fromEl.value;
+  const prevTo = toEl.value;
 
   const opts = TIMEZONES.map(tz =>
     `<option value="${tz.id}">${tz.label[lang]}</option>`
@@ -167,8 +180,8 @@ function populateTZSelects() {
   toEl.innerHTML = opts;
 
   // Default: Baghdad → London
-  fromEl.value = 'Asia/Baghdad';
-  toEl.value = 'Europe/London';
+  fromEl.value = prevFrom || 'Asia/Baghdad';
+  toEl.value = prevTo || 'Europe/London';
 }
 
 function setDefaultDateTime() {

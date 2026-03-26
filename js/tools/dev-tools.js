@@ -2,6 +2,26 @@
  * Developer Tools: IP, Password, JSON Formatter, Minifier, Regex, Markdown
  */
 
+// ===== HTML ESCAPE HELPER =====
+function escapeHTML(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function buildHighlighted(text, regex) {
+  let result = '';
+  let lastIndex = 0;
+  let m;
+  const r = new RegExp(regex.source, regex.flags.includes('g') ? regex.flags : regex.flags + 'g');
+  while ((m = r.exec(text)) !== null) {
+    result += escapeHTML(text.slice(lastIndex, m.index));
+    result += `<mark>${escapeHTML(m[0])}</mark>`;
+    lastIndex = r.lastIndex;
+    if (m[0].length === 0) r.lastIndex++;
+  }
+  result += escapeHTML(text.slice(lastIndex));
+  return result;
+}
+
 // ===== MY IP ADDRESS =====
 async function initMyIp() {
   initToolPage('my-ip');
@@ -14,9 +34,15 @@ async function fetchIPInfo() {
 
   container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted)">⏳ ${currentLang === 'ar' ? 'جاري التحميل...' : 'Loading...'}</div>`;
 
+  const fetchWithTimeout = (url, options = {}, timeoutMs = 8000) => {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
+  };
+
   try {
     // Use ipapi.co for IP info
-    const resp = await fetch('https://ipapi.co/json/');
+    const resp = await fetchWithTimeout('https://ipapi.co/json/');
     const data = await resp.json();
 
     container.innerHTML = `
@@ -40,7 +66,7 @@ async function fetchIPInfo() {
   } catch (e) {
     // Fallback to another API
     try {
-      const resp2 = await fetch('https://api.ipify.org?format=json');
+      const resp2 = await fetchWithTimeout('https://api.ipify.org?format=json');
       const data2 = await resp2.json();
       container.innerHTML = `<div style="text-align:center;padding:24px">
         <div style="font-size:2.5rem;font-weight:900;color:var(--accent-yellow)">${data2.ip}</div>
@@ -91,6 +117,30 @@ function generatePassword() {
   crypto.getRandomValues(array);
   for (let i = 0; i < length; i++) {
     password += charset[array[i] % charset.length];
+  }
+
+  // Guarantee at least one character from each selected type
+  const guaranteed = [];
+  const lowerChars = 'abcdefghijklmnopqrstuvwxyz';
+  const upperChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numChars = '0123456789';
+  const symChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+  const rand4 = new Uint32Array(4);
+  crypto.getRandomValues(rand4);
+  if (useLower) guaranteed.push(lowerChars[rand4[0] % lowerChars.length]);
+  if (useUpper) guaranteed.push(upperChars[rand4[1] % upperChars.length]);
+  if (useNumbers) guaranteed.push(numChars[rand4[2] % numChars.length]);
+  if (useSymbols) guaranteed.push(symChars[rand4[3] % symChars.length]);
+
+  // Place guaranteed characters at random positions
+  if (guaranteed.length > 0) {
+    const passArr = password.split('');
+    const positions = new Uint32Array(guaranteed.length);
+    crypto.getRandomValues(positions);
+    guaranteed.forEach((ch, i) => {
+      passArr[positions[i] % length] = ch;
+    });
+    password = passArr.join('');
   }
 
   document.getElementById('pwd-output').textContent = password;
@@ -229,9 +279,12 @@ function minifyHTML(html) {
 
 function minifyJS(js) {
   return js
-    .replace(/\/\/[^\n]*/g, '')
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/\s+/g, ' ')
+    .replace(/`[^`\\]*(?:\\[\s\S][^`\\]*)*`/g, s => s) // keep template literals
+    .replace(/"(?:[^"\\]|\\.)*"/g, s => s) // keep double-quoted strings
+    .replace(/'(?:[^'\\]|\\.)*'/g, s => s) // keep single-quoted strings
+    .replace(/\/\/[^\n]*/g, '') // remove line comments
+    .replace(/\/\*[\s\S]*?\*\//g, '') // remove block comments
+    .replace(/\s+/g, ' ') // collapse all whitespace
     .replace(/\s*([=+\-*/<>!&|,;:{}()[\]])\s*/g, '$1')
     .trim();
 }
@@ -252,12 +305,10 @@ function testRegex() {
   if (!pattern) { showToast(currentLang === 'ar' ? 'أدخل النمط' : 'Enter a pattern', 'error'); return; }
 
   try {
-    const regex = new RegExp(pattern, flags);
+    const regex = new RegExp(pattern, flags.includes('g') ? flags : flags + 'g');
     const matches = [...text.matchAll(new RegExp(pattern, flags.includes('g') ? flags : flags + 'g'))];
 
-    const highlighted = text.replace(new RegExp(pattern, flags.includes('g') ? flags : flags + 'g'), (m) =>
-      `<mark>${m}</mark>`
-    );
+    const highlighted = buildHighlighted(text, regex);
 
     const outputEl = document.getElementById('regex-output');
     if (outputEl) outputEl.innerHTML = highlighted;
@@ -275,7 +326,7 @@ function testRegex() {
       detailsEl.innerHTML = matches.slice(0, 10).map((m, i) => `
         <div style="background:var(--bg-primary);border:1px solid var(--border-color);border-radius:var(--radius-sm);padding:8px 12px;font-family:monospace;font-size:0.85rem">
           <span style="color:var(--text-muted)">[${i + 1}]</span>
-          <mark style="margin:0 8px">${m[0]}</mark>
+          <mark style="margin:0 8px">${escapeHTML(m[0])}</mark>
           <span style="color:var(--text-muted)">${currentLang === 'ar' ? 'الموضع:' : 'at:'} ${m.index}</span>
         </div>`).join('');
       detailsEl.style.display = 'block';
