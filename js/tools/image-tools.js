@@ -69,7 +69,8 @@ async function compressImages(files, quality) {
     window._compressedNames = {};
     results.forEach((r, i) => {
       window._compressedBlobs[i] = r.compressed;
-      window._compressedNames[i] = r.original.name.replace(/\.[^.]+$/, '') + '_compressed.jpg';
+      const ext = r.original.type === 'image/png' ? 'png' : 'jpg';
+      window._compressedNames[i] = r.original.name.replace(/\.[^.]+$/, '') + '_compressed.' + ext;
     });
 
     resultList.innerHTML = results.map((r, i) => {
@@ -99,11 +100,17 @@ function compressSingleImage(file, quality) {
         canvas.width = img.width;
         canvas.height = img.height;
         const ctx = canvas.getContext('2d');
+        const isPng = file.type === 'image/png';
+        if (!isPng) {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
         ctx.drawImage(img, 0, 0);
+        const mimeType = isPng ? 'image/png' : 'image/jpeg';
         canvas.toBlob((blob) => {
           if (blob) resolve(blob);
           else reject(new Error('Compression failed'));
-        }, 'image/jpeg', quality);
+        }, mimeType, isPng ? undefined : quality);
       };
       img.onerror = reject;
       img.src = e.target.result;
