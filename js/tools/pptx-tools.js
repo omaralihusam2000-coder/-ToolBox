@@ -3,6 +3,8 @@
  * Uses: pptxgenjs (reading via zip), html2pdf
  */
 
+const PPTX_PREVIEW_MAX_SLIDES = 20;
+
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -26,10 +28,13 @@ async function initPptxToPdf() {
     if (!pptxFile) { showToast(currentLang === 'ar' ? 'اختر ملف PPTX أولاً' : 'Select a PPTX file first', 'error'); return; }
     const btn = document.getElementById('convert-btn');
     if (btn) btn.disabled = true;
+    const progressWrap = document.getElementById('pptx-progress-wrap');
+    if (progressWrap) progressWrap.style.display = 'block';
     try {
       await convertPptxToPdf(pptxFile);
     } finally {
       if (btn) btn.disabled = false;
+      if (progressWrap) progressWrap.style.display = 'none';
     }
   };
 }
@@ -47,12 +52,67 @@ function showPptxFileInfo(file) {
   `;
   const btn = document.getElementById('convert-btn');
   if (btn) btn.disabled = false;
+  showPptxPreview(file);
+}
+
+async function showPptxPreview(file) {
+  const decodeEntities = (() => {
+    const el = document.createElement('textarea');
+    return (text) => { el.innerHTML = text; return el.value; };
+  })();
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const zip = await JSZip.loadAsync(arrayBuffer);
+    const slideFiles = Object.keys(zip.files)
+      .filter(name => name.match(/ppt\/slides\/slide\d+\.xml$/))
+      .sort((a, b) => parseInt(a.match(/slide(\d+)/)[1]) - parseInt(b.match(/slide(\d+)/)[1]));
+
+    const previewSection = document.getElementById('slides-preview-section');
+    const grid = document.getElementById('slides-preview-grid');
+    if (!grid || !previewSection || slideFiles.length === 0) return;
+
+    previewSection.style.display = 'block';
+    grid.innerHTML = '';
+    const lang = window.currentLang || 'ar';
+
+    for (let i = 0; i < Math.min(slideFiles.length, PPTX_PREVIEW_MAX_SLIDES); i++) {
+      const xmlContent = await zip.files[slideFiles[i]].async('text');
+      const texts = [...xmlContent.matchAll(/<a:t>(.*?)<\/a:t>/gs)]
+        .map(m => decodeEntities(m[1]))
+        .filter(t => t.trim());
+      const title = texts[0] || (lang === 'ar' ? `شريحة ${i + 1}` : `Slide ${i + 1}`);
+      const card = document.createElement('div');
+      card.style.cssText = 'background:var(--bg-primary);border:1px solid var(--border-color);border-radius:6px;padding:8px;font-size:0.7rem;text-align:center;overflow:hidden;cursor:default';
+      card.innerHTML = `
+        <div style="background:var(--bg-secondary);border-radius:4px;padding:6px;min-height:50px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;overflow:hidden">
+          <span style="font-size:0.65rem;color:var(--text-secondary);word-break:break-word;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${escapeHtml(title.slice(0, 60))}</span>
+        </div>
+        <span style="color:var(--text-muted)">${lang === 'ar' ? `شريحة ${i + 1}` : `Slide ${i + 1}`}</span>
+      `;
+      grid.appendChild(card);
+    }
+
+    if (slideFiles.length > PPTX_PREVIEW_MAX_SLIDES) {
+      const more = document.createElement('div');
+      more.style.cssText = 'text-align:center;font-size:0.75rem;color:var(--text-muted);padding:8px;grid-column:1/-1';
+      more.textContent = lang === 'ar' ? `+ ${slideFiles.length - PPTX_PREVIEW_MAX_SLIDES} شريحة أخرى` : `+ ${slideFiles.length - PPTX_PREVIEW_MAX_SLIDES} more slides`;
+      grid.appendChild(more);
+    }
+  } catch (e) {
+    console.warn('Preview failed:', e);
+  }
 }
 
 async function convertPptxToPdf(file) {
   showLoading(currentLang === 'ar' ? 'جاري معالجة الملف...' : 'Processing file...');
   let container = null;
   try {
+    // Read quality setting
+    const qualityEl = document.querySelector('input[name="pptx-quality"]:checked');
+    const qualityVal = qualityEl ? qualityEl.value : 'high';
+    const imgQuality = qualityVal === 'high' ? 0.95 : qualityVal === 'medium' ? 0.75 : 0.5;
+    const canvasScale = qualityVal === 'high' ? 1.5 : qualityVal === 'medium' ? 1.2 : 1.0;
+
     // Use JSZip to read pptx (which is a zip file)
     const arrayBuffer = await file.arrayBuffer();
     const zip = await JSZip.loadAsync(arrayBuffer);
@@ -77,8 +137,21 @@ async function convertPptxToPdf(file) {
       return numA - numB;
     });
 
+    hideLoading();
+
     let slidesHtml = '';
     for (let i = 0; i < slideFiles.length; i++) {
+      // Update progress bar
+      const pct = Math.round(((i + 1) / slideFiles.length) * 100);
+      const bar = document.getElementById('pptx-progress-bar');
+      const pctEl = document.getElementById('pptx-progress-pct');
+      const labelEl = document.getElementById('pptx-progress-label');
+      if (bar) bar.style.width = pct + '%';
+      if (pctEl) pctEl.textContent = pct + '%';
+      if (labelEl) labelEl.textContent = (window.currentLang === 'ar')
+        ? `معالجة شريحة ${i + 1} من ${slideFiles.length}...`
+        : `Processing slide ${i + 1} of ${slideFiles.length}...`;
+
       const xmlContent = await zip.files[slideFiles[i]].async('text');
       const slideHtml = pptxSlideToHtml(xmlContent, i + 1);
       slidesHtml += slideHtml;
@@ -140,19 +213,28 @@ ${slidesHtml}
     const opt = {
       margin: 0,
       filename: file.name.replace(/\.(pptx|ppt)$/i, '.pdf'),
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 1.5, useCORS: true, width: 960, height: 540 },
+      image: { type: 'jpeg', quality: imgQuality },
+      html2canvas: { scale: canvasScale, useCORS: true, width: 960, height: 540 },
       jsPDF: { unit: 'px', format: [960, 540], orientation: 'landscape' }
     };
 
     await html2pdf().set(opt).from(container).save();
 
-    hideLoading();
     showToast(currentLang === 'ar' ? `✅ تم تحويل ${slideFiles.length} شرائح` : `✅ Converted ${slideFiles.length} slides`, 'success');
     document.getElementById('result-section').style.display = 'block';
     document.getElementById('result-info').textContent = currentLang === 'ar'
       ? `تم تحويل ${slideFiles.length} شرائح بنجاح`
       : `Successfully converted ${slideFiles.length} slides`;
+
+    // Show stats
+    const statsEl = document.getElementById('pptx-result-stats');
+    if (statsEl) {
+      const textContent = slidesHtml.replace(/<[^>]*>/g, ' ');
+      const totalWords = textContent.split(/\s+/).filter(w => w.length > 0).length;
+      document.getElementById('pptx-stat-slides').textContent = slideFiles.length;
+      document.getElementById('pptx-stat-text').textContent = totalWords.toLocaleString();
+      statsEl.style.display = 'block';
+    }
 
   } catch (err) {
     hideLoading();

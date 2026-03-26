@@ -72,12 +72,29 @@
         <label data-ar="نطاق الصفحات (مثال: 1-3, 5, 7-9)" data-en="Page range (e.g. 1-3, 5, 7-9)">نطاق الصفحات</label>
         <input class="form-control" id="page-range" placeholder="1-3, 5, 7-9">
       </div>
-      <button class="btn-red" style="width:100%;padding:14px;font-size:1.05rem" id="split-btn" disabled
+      <!-- معاينة الصفحات المختارة -->
+      <div id="range-preview" style="display:none;margin-top:8px;padding:8px 12px;background:var(--bg-primary);border-radius:var(--radius-sm);font-size:0.85rem;color:var(--accent-yellow)"></div>
+      <!-- اسم ملف المخرج -->
+      <div class="form-group" style="margin-bottom:0;margin-top:16px">
+        <label data-ar="اسم ملف المخرج (للنطاق المخصص)" data-en="Output filename (for custom range)" style="font-weight:600;margin-bottom:6px;display:block">اسم الملف المخرج</label>
+        <div style="display:flex;align-items:center;gap:4px">
+          <input class="form-control" id="split-output-name" placeholder="split-pages" style="direction:ltr">
+          <span style="color:var(--text-muted);white-space:nowrap">.pdf</span>
+        </div>
+      </div>
+      <button class="btn-red" style="width:100%;padding:14px;font-size:1.05rem;margin-top:16px" id="split-btn" disabled
         data-ar="✂️ تقسيم PDF" data-en="✂️ Split PDF">✂️ تقسيم PDF</button>
     </div>
     <div class="tool-box" id="result-section" style="display:none">
       <h3 data-ar="✅ تم بنجاح!" data-en="✅ Done!">✅ تم بنجاح!</h3>
       <p id="result-info" style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:12px"></p>
+      <!-- إحصائيات التقسيم -->
+      <div id="split-result-stats" style="display:none;margin-top:12px">
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="stat-card"><div class="num" id="split-stat-pages">-</div><div class="lbl" data-ar="صفحة مستخرجة" data-en="Pages extracted">صفحة مستخرجة</div></div>
+          <div class="stat-card"><div class="num" id="split-stat-from">-</div><div class="lbl" data-ar="من إجمالي" data-en="of total">من إجمالي</div></div>
+        </div>
+      </div>
     </div>
     <div class="share-section">
       <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>

@@ -12,6 +12,9 @@
 // Scoped to merger tool only – never leak to other tools
 let _mergerFiles = [];
 
+// Maximum page numbers to display in the range preview
+const RANGE_PREVIEW_MAX_PAGES = 10;
+
 // ============================================================
 // SHARED HELPERS
 // ============================================================
@@ -154,16 +157,34 @@ async function initPdfToWord() {
       }
       // Prevent double-click
       convertBtn.disabled = true;
+      const fmt = document.querySelector('input[name="output-format"]:checked')?.value || 'docx';
+      const progressWrap = document.getElementById('progress-wrap');
+      if (progressWrap) progressWrap.style.display = 'block';
       try {
-        await convertPdfToWord(pdfFile);
+        await convertPdfToWord(pdfFile, fmt);
       } finally {
         convertBtn.disabled = false;
+        if (progressWrap) progressWrap.style.display = 'none';
       }
     };
   }
 }
 
-async function convertPdfToWord(file) {
+function updatePdfProgress(current, total, label) {
+  const pct = Math.round((current / total) * 100);
+  const bar = document.getElementById('progress-bar');
+  const pctEl = document.getElementById('progress-pct');
+  const labelEl = document.getElementById('progress-label');
+  const pagesEl = document.getElementById('progress-pages');
+  if (bar) bar.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (labelEl && label) labelEl.textContent = label;
+  if (pagesEl) pagesEl.textContent = (window.currentLang === 'ar'
+    ? `صفحة ${current} من ${total}`
+    : `Page ${current} of ${total}`);
+}
+
+async function convertPdfToWord(file, outputFormat = 'docx') {
   showLoading(currentLang === 'ar' ? 'جاري تحميل الملف...' : 'Loading file...');
   try {
     // Validate file size (max 50 MB)
@@ -188,8 +209,10 @@ async function convertPdfToWord(file) {
     const totalPages = pdf.numPages;
     const pages = [];
 
+    hideLoading();
+
     for (let i = 1; i <= totalPages; i++) {
-      showLoading(
+      updatePdfProgress(i, totalPages,
         currentLang === 'ar'
           ? `جاري معالجة الصفحة ${i} من ${totalPages}...`
           : `Processing page ${i} of ${totalPages}...`
@@ -213,21 +236,30 @@ async function convertPdfToWord(file) {
     const pagesWithText   = pages.filter(p => p.text.trim()).length;
     const pagesWithImages = pages.filter(p => p.image).length;
 
-    // Try DOCX first, fall back to HTML-doc
-    let usedDocx = false;
-    if (window.docx && window.docx.Document && window.docx.Packer) {
-      try {
-        await createDocxFromPages(pages, file.name);
-        usedDocx = true;
-      } catch (docxErr) {
-        console.warn('DOCX creation failed, falling back to HTML:', docxErr);
+    if (outputFormat === 'txt') {
+      // Export as plain text
+      const allText = pages.map(p => {
+        const pageLabel = currentLang === 'ar' ? `--- صفحة ${p.pageNum} ---` : `--- Page ${p.pageNum} ---`;
+        return `${pageLabel}\n${p.text}`;
+      }).join('\n\n');
+      const txtBlob = new Blob(['\ufeff' + allText], { type: 'text/plain;charset=utf-8' });
+      downloadBlob(txtBlob, file.name.replace(/\.pdf$/i, '.txt'));
+    } else {
+      // Try DOCX first, fall back to HTML-doc
+      let usedDocx = false;
+      if (window.docx && window.docx.Document && window.docx.Packer) {
+        try {
+          await createDocxFromPages(pages, file.name);
+          usedDocx = true;
+        } catch (docxErr) {
+          console.warn('DOCX creation failed, falling back to HTML:', docxErr);
+        }
+      }
+      if (!usedDocx) {
+        createHtmlDocFromPages(pages, file.name);
       }
     }
-    if (!usedDocx) {
-      createHtmlDocFromPages(pages, file.name);
-    }
 
-    hideLoading();
     showToast(currentLang === 'ar' ? '✅ تم التحويل بنجاح!' : '✅ Conversion successful!', 'success');
 
     const resultSection = document.getElementById('result-section');
@@ -248,6 +280,27 @@ async function convertPdfToWord(file) {
           ? `تم تحويل ${totalPages} صفحة كصور (الملف لا يحتوي نصوصاً قابلة للاستخراج)`
           : `Converted ${totalPages} pages as images (no extractable text found)`;
       }
+    }
+
+    // Show text preview (first 500 chars)
+    const previewSection = document.getElementById('pdf-preview-section');
+    const previewEl = document.getElementById('pdf-text-preview');
+    const allTextFlat = pages.map(p => p.text).join('\n').trim();
+    if (previewEl && allTextFlat) {
+      previewEl.textContent = allTextFlat.slice(0, 500) + (allTextFlat.length > 500 ? '...' : '');
+      if (previewSection) previewSection.style.display = 'block';
+    }
+
+    // Show stats
+    const statsEl = document.getElementById('pdf-stats');
+    if (statsEl) {
+      const totalText = pages.map(p => p.text).join(' ');
+      const wordCount = totalText.split(/\s+/).filter(w => w.length > 0).length;
+      const charCount = totalText.replace(/\s/g, '').length;
+      document.getElementById('stat-pages').textContent = totalPages;
+      document.getElementById('stat-words').textContent = wordCount.toLocaleString();
+      document.getElementById('stat-chars').textContent = charCount.toLocaleString();
+      statsEl.style.display = 'block';
     }
 
   } catch (err) {
@@ -410,6 +463,14 @@ async function convertWordToPdf(file) {
     if (!window.mammoth) throw new Error('mammoth.js not loaded');
     if (!window.html2pdf) throw new Error('html2pdf.js not loaded');
 
+    // Read page settings
+    const pageSizeEl = document.querySelector('input[name="page-size"]:checked');
+    const pageOrientEl = document.querySelector('input[name="page-orient"]:checked');
+    const marginEl = document.getElementById('page-margin');
+    const pageSize = pageSizeEl ? pageSizeEl.value : 'a4';
+    const pageOrient = pageOrientEl ? pageOrientEl.value : 'portrait';
+    const pageMargin = (marginEl && !isNaN(parseInt(marginEl.value))) ? parseInt(marginEl.value) : 15;
+
     const arrayBuffer = await file.arrayBuffer();
 
     // Convert DOCX → HTML via mammoth
@@ -441,11 +502,11 @@ async function convertWordToPdf(file) {
 
     const filename = file.name.replace(/\.(docx|doc)$/i, '.pdf');
     const opt = {
-      margin:      15,
+      margin:      pageMargin,
       filename:    filename,
       image:       { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      jsPDF:       { unit: 'mm', format: pageSize, orientation: pageOrient }
     };
 
     // Use outputPdf('blob') so we can detect an empty/failed result
@@ -467,6 +528,13 @@ async function convertWordToPdf(file) {
       resultInfo.textContent = currentLang === 'ar'
         ? `تم تحويل "${file.name}" إلى PDF`
         : `Converted "${file.name}" to PDF`;
+    }
+
+    // Show file size stats
+    const wordStats = document.getElementById('word-result-stats');
+    if (wordStats) {
+      document.getElementById('word-stat-size').textContent = _fmtSize(pdfBlob.size);
+      wordStats.style.display = 'block';
     }
 
   } catch (err) {
@@ -535,17 +603,45 @@ function renderMergeFileList() {
   if (!list) return;
 
   list.innerHTML = _mergerFiles.map((f, i) => `
-    <div class="file-item">
+    <div class="file-item" id="mf-${i}">
       <span class="file-icon">📄</span>
       <span class="file-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</span>
       <span class="file-size">${_fmtSize(f.size)}</span>
-      <button class="file-remove" onclick="removeMergeFile(${i})" title="Remove">✕</button>
+      <div style="display:flex;gap:4px;margin-inline-start:auto">
+        ${i > 0 ? `<button class="btn-outline" style="padding:2px 8px;font-size:0.8rem" onclick="moveMergeFile(${i},-1)" title="Move up">⬆</button>` : ''}
+        ${i < _mergerFiles.length - 1 ? `<button class="btn-outline" style="padding:2px 8px;font-size:0.8rem" onclick="moveMergeFile(${i},1)" title="Move down">⬇</button>` : ''}
+        <button class="file-remove" onclick="removeMergeFile(${i})" title="Remove">✕</button>
+      </div>
     </div>
   `).join('');
 
   const mergeBtn = document.getElementById('merge-btn');
   if (mergeBtn) mergeBtn.disabled = _mergerFiles.length < 2;
+
+  // Update summary
+  const summary = document.getElementById('merge-summary');
+  const summaryText = document.getElementById('merge-summary-text');
+  if (summary && summaryText) {
+    if (_mergerFiles.length > 0) {
+      summary.style.display = 'block';
+      const totalSize = _mergerFiles.reduce((acc, f) => acc + f.size, 0);
+      summaryText.textContent = (window.currentLang === 'ar')
+        ? `${_mergerFiles.length} ملف • الحجم الكلي: ${_fmtSize(totalSize)}`
+        : `${_mergerFiles.length} files • Total size: ${_fmtSize(totalSize)}`;
+    } else {
+      summary.style.display = 'none';
+    }
+  }
 }
+
+window.moveMergeFile = function(idx, dir) {
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= _mergerFiles.length) return;
+  const temp = _mergerFiles[idx];
+  _mergerFiles[idx] = _mergerFiles[newIdx];
+  _mergerFiles[newIdx] = temp;
+  renderMergeFileList();
+};
 
 window.removeMergeFile = function(idx) {
   if (idx < 0 || idx >= _mergerFiles.length) return;
@@ -560,21 +656,30 @@ async function mergePdfs(files) {
     const mergedPdf = await PDFDocument.create();
     let totalPageCount = 0;
 
-    for (let fi = 0; fi < files.length; fi++) {
+    // Read merge order option
+    const orderEl = document.querySelector('input[name="merge-order"]:checked');
+    const order = orderEl ? orderEl.value : 'normal';
+    const filesToMerge = order === 'reverse' ? [...files].reverse() : [...files];
+
+    // Read output filename
+    const outputNameEl = document.getElementById('merge-output-name');
+    const outputName = (outputNameEl && outputNameEl.value.trim()) ? outputNameEl.value.trim() : 'merged';
+
+    for (let fi = 0; fi < filesToMerge.length; fi++) {
       showLoading(
         currentLang === 'ar'
-          ? `جاري معالجة الملف ${fi + 1} من ${files.length}...`
-          : `Processing file ${fi + 1} of ${files.length}...`
+          ? `جاري معالجة الملف ${fi + 1} من ${filesToMerge.length}...`
+          : `Processing file ${fi + 1} of ${filesToMerge.length}...`
       );
-      const bytes = await files[fi].arrayBuffer();
+      const bytes = await filesToMerge[fi].arrayBuffer();
       let srcPdf;
       try {
         srcPdf = await PDFDocument.load(bytes);
       } catch (loadErr) {
         showToast(
           currentLang === 'ar'
-            ? `خطأ في الملف "${files[fi].name}": ${loadErr.message}`
-            : `Error in file "${files[fi].name}": ${loadErr.message}`,
+            ? `خطأ في الملف "${filesToMerge[fi].name}": ${loadErr.message}`
+            : `Error in file "${filesToMerge[fi].name}": ${loadErr.message}`,
           'error'
         );
         hideLoading();
@@ -590,7 +695,7 @@ async function mergePdfs(files) {
     if (!pdfBytes || pdfBytes.length === 0) throw new Error('Merged PDF is empty');
 
     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    downloadBlob(blob, 'merged.pdf');
+    downloadBlob(blob, outputName + '.pdf');
 
     hideLoading();
     showToast(
@@ -607,6 +712,15 @@ async function mergePdfs(files) {
       resultInfo.textContent = currentLang === 'ar'
         ? `تم دمج ${files.length} ملفات (${totalPageCount} صفحة) في ملف واحد`
         : `Merged ${files.length} files (${totalPageCount} pages) into one`;
+    }
+
+    // Show merge stats
+    const statsEl = document.getElementById('merge-result-stats');
+    if (statsEl) {
+      document.getElementById('merge-stat-files').textContent = files.length;
+      document.getElementById('merge-stat-pages').textContent = totalPageCount;
+      document.getElementById('merge-stat-size').textContent = _fmtSize(pdfBytes.byteLength);
+      statsEl.style.display = 'block';
     }
 
   } catch (err) {
@@ -656,6 +770,44 @@ async function initPdfSplitter() {
 
       const splitBtn = document.getElementById('split-btn');
       if (splitBtn) splitBtn.disabled = false;
+
+      // Hide page-range group initially (only shown for custom mode)
+      const initRangeGroup = document.getElementById('page-range')?.closest('.form-group');
+      if (initRangeGroup) initRangeGroup.style.display = 'none';
+
+      // Live preview for range input
+      const pageRangeEl = document.getElementById('page-range');
+      if (pageRangeEl) {
+        pageRangeEl.addEventListener('input', () => {
+          const rangePreview = document.getElementById('range-preview');
+          if (!rangePreview) return;
+          const val = pageRangeEl.value.trim();
+          if (!val || !totalPages) { rangePreview.style.display = 'none'; return; }
+          const parsedPages = parsePageRange(val, totalPages);
+          rangePreview.style.display = 'block';
+          if (parsedPages.length === 0) {
+            rangePreview.style.color = 'var(--accent-red)';
+            rangePreview.textContent = window.currentLang === 'ar' ? '⚠️ نطاق غير صحيح' : '⚠️ Invalid range';
+          } else {
+            rangePreview.style.color = 'var(--accent-yellow)';
+            rangePreview.textContent = window.currentLang === 'ar'
+              ? `✅ ${parsedPages.length} صفحة ستُستخرج: ${parsedPages.slice(0, RANGE_PREVIEW_MAX_PAGES).join(', ')}${parsedPages.length > RANGE_PREVIEW_MAX_PAGES ? '...' : ''}`
+              : `✅ ${parsedPages.length} pages: ${parsedPages.slice(0, RANGE_PREVIEW_MAX_PAGES).join(', ')}${parsedPages.length > RANGE_PREVIEW_MAX_PAGES ? '...' : ''}`;
+          }
+        });
+      }
+
+      // Show/hide range input based on split mode
+      document.querySelectorAll('input[name="split-mode"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+          const pageRangeGroup = document.getElementById('page-range')?.closest('.form-group');
+          if (pageRangeGroup) {
+            pageRangeGroup.style.display = radio.value === 'custom' ? 'block' : 'none';
+          }
+          const rangePreview = document.getElementById('range-preview');
+          if (rangePreview && radio.value !== 'custom') rangePreview.style.display = 'none';
+        });
+      });
 
       hideLoading();
     } catch (e) {
@@ -749,7 +901,9 @@ async function splitPdf(file, mode, totalPages) {
       copiedPages.forEach(p => newPdf.addPage(p));
 
       const pdfBytes = await newPdf.save();
-      downloadBlob(new Blob([pdfBytes], { type: 'application/pdf' }), 'split-pages.pdf');
+      const outputNameEl = document.getElementById('split-output-name');
+      const outputName = (outputNameEl && outputNameEl.value.trim()) ? outputNameEl.value.trim() : 'split-pages';
+      downloadBlob(new Blob([pdfBytes], { type: 'application/pdf' }), outputName + '.pdf');
 
       showToast(
         currentLang === 'ar'
@@ -767,6 +921,17 @@ async function splitPdf(file, mode, totalPages) {
       resultInfo.textContent = currentLang === 'ar'
         ? `اكتملت عملية التقسيم بنجاح`
         : `Split operation completed successfully`;
+    }
+
+    // Show split stats
+    const splitStats = document.getElementById('split-result-stats');
+    if (splitStats) {
+      const rangeEl2 = document.getElementById('page-range');
+      const rangeInput2 = rangeEl2 ? rangeEl2.value.trim() : '';
+      const extractedPages = mode === 'all' ? totalPages : parsePageRange(rangeInput2, totalPages).length;
+      document.getElementById('split-stat-pages').textContent = extractedPages;
+      document.getElementById('split-stat-from').textContent = totalPages;
+      splitStats.style.display = 'block';
     }
 
   } catch (err) {
