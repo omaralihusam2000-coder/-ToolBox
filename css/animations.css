@@ -1,95 +1,76 @@
-/* ToolBox - Animations CSS */
-/* All keyframes, transitions, scroll animations, and stagger utilities */
+/* ToolBox - Animations v3.0 */
 
 /* ===== KEYFRAMES ===== */
-
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes fadeInDown {
   from { opacity: 0; transform: translateY(-24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
 @keyframes slideInRight {
   from { opacity: 0; transform: translateX(40px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-
 @keyframes slideInLeft {
   from { opacity: 0; transform: translateX(-40px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-
-@keyframes slideInTop {
-  from { opacity: 0; transform: translateY(-40px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
 @keyframes shimmer {
   0%   { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
-
 @keyframes ripple {
-  0%   { transform: scale(0); opacity: 0.6; }
+  0%   { transform: scale(0); opacity: 0.5; }
   100% { transform: scale(2.5); opacity: 0; }
 }
-
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: 0.5; transform: scale(1.4); }
 }
-
 @keyframes float {
   0%, 100% { transform: translateY(0) translateX(0); }
-  25%       { transform: translateY(-20px) translateX(10px); }
-  50%       { transform: translateY(-10px) translateX(-5px); }
-  75%       { transform: translateY(-25px) translateX(5px); }
+  25%       { transform: translateY(-18px) translateX(8px); }
+  50%       { transform: translateY(-8px) translateX(-5px); }
+  75%       { transform: translateY(-22px) translateX(4px); }
 }
-
 @keyframes gradientShift {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-6px); }
 }
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(0.85); }
   to   { opacity: 1; transform: scale(1); }
 }
-
 @keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 10px rgba(230,57,70,0.3); }
-  50%       { box-shadow: 0 0 24px rgba(230,57,70,0.6), 0 0 40px rgba(230,57,70,0.2); }
+  0%, 100% { box-shadow: 0 0 10px rgba(110,86,255,0.3); }
+  50%       { box-shadow: 0 0 24px rgba(110,86,255,0.6), 0 0 40px rgba(110,86,255,0.2); }
+}
+@keyframes counterUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== SCROLL ANIMATION CLASSES ===== */
-/* Elements with these classes animate when they enter the viewport */
-
+/* ===== SCROLL ANIMATIONS ===== */
 .animate-on-scroll {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
               transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 .animate-on-scroll.visible {
   opacity: 1;
   transform: translateY(0);
@@ -106,23 +87,15 @@
 .delay-8 { animation-delay: 0.40s; transition-delay: 0.40s; }
 
 /* ===== ANIMATION UTILITIES ===== */
-.anim-fade-in     { animation: fadeIn 0.5s ease forwards; }
-.anim-fade-in-up  { animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-.anim-slide-right { animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-.anim-slide-top   { animation: slideInTop 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-.anim-scale-in    { animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.anim-fade-in     { animation: fadeIn 0.5s ease both; }
+.anim-fade-in-up  { animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.anim-slide-right { animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.anim-scale-in    { animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) both; }
 .anim-bounce      { animation: bounce 0.6s ease; }
 
-/* ===== GRADIENT TEXT ANIMATION ===== */
+/* ===== GRADIENT TEXT ===== */
 .gradient-text {
-  background: linear-gradient(
-    90deg,
-    #f1faee 0%,
-    #e63946 25%,
-    #ffd60a 50%,
-    #4361ee 75%,
-    #f1faee 100%
-  );
+  background: linear-gradient(90deg, #f0f0ff 0%, #6e56ff 30%, #fbbf24 60%, #e63946 85%, #f0f0ff 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -131,21 +104,17 @@
 }
 
 /* ===== RIPPLE EFFECT ===== */
-.ripple-container {
-  position: relative;
-  overflow: hidden;
-}
-
+.ripple-container { position: relative; overflow: hidden; }
 .ripple-wave {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255,255,255,0.2);
   pointer-events: none;
   animation: ripple 0.6s linear;
   transform-origin: center;
 }
 
-/* ===== PARTICLE ===== */
+/* ===== PARTICLES ===== */
 .particle {
   position: absolute;
   border-radius: 50%;
@@ -153,21 +122,14 @@
   animation: float linear infinite;
 }
 
-/* ===== REDUCED MOTION SUPPORT ===== */
+/* ===== REDUCED MOTION ===== */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-
-  .animate-on-scroll {
-    opacity: 1;
-    transform: none;
-  }
-
+  .animate-on-scroll { opacity: 1; transform: none; }
   .gradient-text {
     animation: none;
     background: none;
