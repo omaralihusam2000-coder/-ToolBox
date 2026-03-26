@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===== LANGUAGE =====
 function applyLang(lang) {
   currentLang = lang;
+  window.currentLang = lang;
   localStorage.setItem('tb_lang', lang);
   document.documentElement.setAttribute('lang', lang);
   document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
@@ -480,7 +481,7 @@ function initPWA() {
   // Register service worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
     });
   }
 }
