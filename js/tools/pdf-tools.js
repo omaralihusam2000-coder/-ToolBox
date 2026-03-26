@@ -130,31 +130,12 @@ async function convertWordToPdf(file) {
     // Use mammoth to convert docx to HTML
     const result = await mammoth.convertToHtml({ arrayBuffer });
 
-    // Create a styled HTML document
-    const htmlContent = `<!DOCTYPE html>
-<html dir="auto">
-<head>
-<meta charset="UTF-8">
-<style>
-  body { font-family: Arial, 'Noto Sans Arabic', sans-serif; margin: 40px; line-height: 1.8; font-size: 12pt; }
-  h1,h2,h3,h4 { color: #1a1a1a; }
-  p { margin-bottom: 10px; }
-  table { border-collapse: collapse; width: 100%; }
-  td, th { border: 1px solid #ddd; padding: 8px; }
-  img { max-width: 100%; }
-</style>
-</head>
-<body>
+    // Wrap content in a styled div; inline all CSS so it survives html2pdf's
+    // internal element creation and html2canvas rendering.
+    const styledHtml = `<div style="font-family:Arial,'Noto Sans Arabic',sans-serif;line-height:1.8;font-size:12pt;color:#1a1a1a;direction:rtl;">
+<style>h1,h2,h3,h4{color:#1a1a1a}p{margin-bottom:10px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ddd;padding:8px}img{max-width:100%}</style>
 ${result.value}
-</body>
-</html>`;
-
-    // Use html2pdf to convert to PDF
-    const element = document.createElement('div');
-    element.innerHTML = htmlContent;
-    document.body.appendChild(element);
-    element.style.position = 'absolute';
-    element.style.left = '-9999px';
+</div>`;
 
     const opt = {
       margin: 15,
@@ -164,8 +145,10 @@ ${result.value}
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    await html2pdf().set(opt).from(element).save();
-    document.body.removeChild(element);
+    // Pass the HTML string directly so html2pdf creates and sizes its own
+    // temporary element correctly — avoids the blank-page bug caused by
+    // appending a 0-width off-screen div.
+    await html2pdf().set(opt).from(styledHtml, 'string').save();
 
     hideLoading();
     showToast(currentLang === 'ar' ? '✅ تم التحويل بنجاح!' : '✅ Conversion successful!', 'success');
