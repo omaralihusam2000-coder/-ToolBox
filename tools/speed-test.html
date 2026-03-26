@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="اختبار سرعة الإنترنت مجاناً - ToolBox">
+  <meta property="og:title" content="اختبار سرعة الإنترنت | ToolBox">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#e63946">
+  <title>اختبار سرعة الإنترنت | ToolBox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .speed-gauge-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 20px;
+    }
+    .gauge-container {
+      position: relative;
+      width: 260px;
+      height: 140px;
+      margin: 0 auto 24px;
+    }
+    .gauge-svg { width: 260px; height: 140px; }
+    .gauge-track { fill: none; stroke: var(--border-color); stroke-width: 18; stroke-linecap: round; }
+    .gauge-fill { fill: none; stroke: var(--accent-red); stroke-width: 18; stroke-linecap: round;
+      transition: stroke-dashoffset 0.4s ease, stroke 0.4s ease;
+      transform-origin: center;
+    }
+    .gauge-value {
+      position: absolute;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+    .gauge-num {
+      font-size: 3rem; font-weight: 900;
+      color: var(--text-primary); line-height: 1;
+    }
+    .gauge-unit { font-size: 0.9rem; color: var(--text-muted); margin-top: 2px; }
+    .gauge-label { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
+    .speed-results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+      width: 100%;
+    }
+    .speed-result-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 20px 16px;
+      text-align: center;
+      transition: all var(--transition);
+    }
+    .speed-result-card.highlight { border-color: var(--accent-red); box-shadow: 0 0 16px rgba(230,57,70,0.15); }
+    .speed-result-card .res-icon { font-size: 1.6rem; margin-bottom: 8px; }
+    .speed-result-card .res-val { font-size: 1.6rem; font-weight: 900; color: var(--accent-yellow); line-height: 1; }
+    .speed-result-card .res-unit { font-size: 0.75rem; color: var(--text-muted); }
+    .speed-result-card .res-label { font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px; }
+    .speed-progress-wrap { width: 100%; margin: 16px 0; }
+    .speed-progress-bar {
+      height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden;
+    }
+    .speed-progress-fill {
+      height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-red), var(--accent-yellow));
+      border-radius: 3px; transition: width 0.3s ease;
+    }
+    .quality-badge {
+      display: inline-block; padding: 6px 18px; border-radius: 20px;
+      font-weight: 700; font-size: 0.9rem; margin-top: 16px;
+    }
+    .quality-excellent { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid #22c55e; }
+    .quality-good { background: rgba(72,149,239,0.15); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+    .quality-fair { background: rgba(255,209,102,0.15); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
+    .quality-poor { background: rgba(230,57,70,0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
+    .speed-history-item {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg-primary); border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 8px;
+    }
+    .speed-history-item .ts { font-size: 0.75rem; color: var(--text-muted); min-width: 90px; }
+    .speed-history-item .vals { flex: 1; display: flex; gap: 16px; flex-wrap: wrap; }
+    .speed-history-item .hval { font-size: 0.85rem; color: var(--text-secondary); }
+    .speed-history-item .hval strong { color: var(--text-primary); }
+    .test-btn-wrap { text-align: center; margin: 24px 0; }
+    .btn-start-test {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, var(--accent-red), #c1121f);
+      color: white; border: none; border-radius: 50px;
+      padding: 16px 48px; font-size: 1.1rem; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      box-shadow: 0 4px 20px rgba(230,57,70,0.4);
+      transition: all var(--transition);
+    }
+    .btn-start-test:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(230,57,70,0.5); }
+    .btn-start-test:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .phase-label {
+      font-size: 0.95rem; color: var(--text-secondary);
+      text-align: center; min-height: 24px; margin: 8px 0;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.7; }
+    }
+    .testing .gauge-container { animation: pulse-ring 1.5s ease-in-out infinite; }
+  </style>
+</head>
+<body dir="rtl">
+<header class="header">
+  <div class="header-inner">
+    <a href=".." class="logo"><div class="logo-icon">🔧</div><span class="logo-text">Tool<span>Box</span></span></a>
+    <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="search-input" placeholder="ابحث عن أداة..." data-ar-placeholder="ابحث عن أداة..." data-en-placeholder="Search tools..."><div class="search-results" id="search-results"></div></div>
+    <div class="header-actions">
+      <button class="btn-icon" id="theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+</header>
+<div class="tool-page">
+  <div class="tool-hero">
+    <div class="tool-hero-inner">
+      <div class="breadcrumb">
+        <a href=".." data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+        <span>›</span>
+        <span data-ar="أدوات المطورين" data-en="Developer Tools">أدوات المطورين</span>
+        <span>›</span>
+        <span data-ar="اختبار سرعة الإنترنت" data-en="Internet Speed Test">اختبار سرعة الإنترنت</span>
+      </div>
+      <div class="tool-title-area">
+        <span class="tool-big-icon">⚡</span>
+        <div>
+          <h1 data-ar="اختبار سرعة الإنترنت" data-en="Internet Speed Test">اختبار سرعة الإنترنت</h1>
+          <p data-ar="فحص سرعة التحميل والرفع والـ Ping بدقة عالية" data-en="Test your download, upload speed and ping accurately">فحص سرعة التحميل والرفع والـ Ping بدقة عالية</p>
+        </div>
+      </div>
+      <div class="tool-meta">
+        <div class="tool-stat-badge">📊 <span data-ar="الاستخدامات:" data-en="Uses:">الاستخدامات:</span> <span class="val" id="tool-usage-count">0</span></div>
+        <div class="tool-stat-badge">👥 <span class="val" id="tool-live-users">--</span> <span data-ar="الآن" data-en="online">الآن</span></div>
+        <button class="btn-icon" id="tool-fav-btn" title="مفضلة">🤍</button>
+      </div>
+    </div>
+  </div>
+  <div class="tool-workspace">
+    <div class="ad-banner" style="margin-bottom:20px">📢 <span data-ar="مساحة إعلانية - Google AdSense" data-en="Ad Space - Google AdSense">مساحة إعلانية</span></div>
+
+    <div class="tool-box">
+      <h3 data-ar="🌐 اختبر سرعة اتصالك" data-en="🌐 Test Your Connection Speed">🌐 اختبر سرعة اتصالك</h3>
+
+      <!-- Gauge -->
+      <div class="speed-gauge-wrap" id="gauge-wrap">
+        <div class="gauge-container" id="gauge-container">
+          <svg class="gauge-svg" viewBox="0 0 260 140">
+            <!-- Arc: starts at 9 o'clock (180°) goes clockwise to 0° -->
+            <path class="gauge-track" d="M 20 130 A 110 110 0 0 1 240 130" />
+            <path class="gauge-fill" id="gauge-fill" d="M 20 130 A 110 110 0 0 1 240 130"
+              stroke-dasharray="346" stroke-dashoffset="346" />
+          </svg>
+          <div class="gauge-value">
+            <div class="gauge-num" id="gauge-num">0</div>
+            <div class="gauge-unit">Mbps</div>
+          </div>
+        </div>
+        <div class="gauge-label" id="gauge-phase-label" data-ar="اضغط ابدأ للاختبار" data-en="Press Start to test">اضغط ابدأ للاختبار</div>
+      </div>
+
+      <!-- Phase label -->
+      <div class="phase-label" id="phase-label"></div>
+
+      <!-- Progress -->
+      <div class="speed-progress-wrap">
+        <div class="speed-progress-bar"><div class="speed-progress-fill" id="progress-fill"></div></div>
+      </div>
+
+      <!-- Start button -->
+      <div class="test-btn-wrap">
+        <button class="btn-start-test" id="start-btn" onclick="startSpeedTest()">
+          <span>⚡</span>
+          <span id="btn-label" data-ar="ابدأ الاختبار" data-en="Start Test">ابدأ الاختبار</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="tool-box" id="results-section" style="display:none">
+      <h3 data-ar="📊 نتائج الاختبار" data-en="📊 Test Results">📊 نتائج الاختبار</h3>
+      <div class="speed-results-grid">
+        <div class="speed-result-card highlight">
+          <div class="res-icon">⬇️</div>
+          <div class="res-val" id="res-download">-</div>
+          <div class="res-unit">Mbps</div>
+          <div class="res-label" data-ar="سرعة التحميل" data-en="Download Speed">سرعة التحميل</div>
+        </div>
+        <div class="speed-result-card">
+          <div class="res-icon">⬆️</div>
+          <div class="res-val" id="res-upload">-</div>
+          <div class="res-unit">Mbps</div>
+          <div class="res-label" data-ar="سرعة الرفع" data-en="Upload Speed">سرعة الرفع</div>
+        </div>
+        <div class="speed-result-card">
+          <div class="res-icon">📶</div>
+          <div class="res-val" id="res-ping">-</div>
+          <div class="res-unit">ms</div>
+          <div class="res-label" data-ar="زمن الاستجابة" data-en="Ping / Latency">زمن الاستجابة</div>
+        </div>
+        <div class="speed-result-card">
+          <div class="res-icon">📡</div>
+          <div class="res-val" id="res-jitter">-</div>
+          <div class="res-unit">ms</div>
+          <div class="res-label" data-ar="التذبذب" data-en="Jitter">التذبذب</div>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div class="quality-badge" id="quality-badge"></div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+        <button class="btn-red" onclick="startSpeedTest()" data-ar="🔄 إعادة الاختبار" data-en="🔄 Retest">🔄 إعادة الاختبار</button>
+        <button class="btn-outline" onclick="shareResults()" data-ar="📤 مشاركة النتائج" data-en="📤 Share Results">📤 مشاركة النتائج</button>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="tool-box" id="history-box" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h3 style="margin:0" data-ar="📜 سجل الاختبارات" data-en="📜 Test History">📜 سجل الاختبارات</h3>
+        <button class="btn-outline" style="font-size:0.8rem;padding:6px 14px" onclick="clearHistory()" data-ar="مسح السجل" data-en="Clear History">مسح السجل</button>
+      </div>
+      <div id="history-list"></div>
+    </div>
+
+    <div class="share-section">
+      <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>
+      <div class="share-btns">
+        <button class="share-btn facebook" id="share-facebook">f Facebook</button>
+        <button class="share-btn telegram" id="share-telegram">✈ Telegram</button>
+        <button class="share-btn whatsapp" id="share-whatsapp">📱 WhatsApp</button>
+        <button class="share-btn twitter" id="share-twitter">𝕏 Twitter</button>
+      </div>
+    </div>
+    <div class="rating-section">
+      <h4 data-ar="⭐ هل كانت هذه الأداة مفيدة؟" data-en="⭐ Was this tool helpful?">⭐ هل كانت هذه الأداة مفيدة؟</h4>
+      <div class="rating-btns">
+        <button class="rating-btn like" id="rate-like">👍 <span data-ar="نعم" data-en="Yes">نعم</span></button>
+        <button class="rating-btn dislike" id="rate-dislike">👎 <span data-ar="لا" data-en="No">لا</span></button>
+      </div>
+      <div class="rating-bar-wrap"><div class="rating-bar" id="rating-bar" style="width:0%"></div></div>
+      <p class="rating-text" id="rating-text"></p>
+    </div>
+    <div class="ad-banner" style="margin-top:20px">📢 <span data-ar="مساحة إعلانية" data-en="Ad Space">مساحة إعلانية</span></div>
+  </div>
+</div>
+<div id="toast-container" class="toast-container"></div>
+<div id="loading-overlay" class="loading-overlay"><div class="spinner"></div><div class="loading-text"></div></div>
+<script src="../js/app.js"></script>
+<script src="../js/tools/speed-test.js"></script>
+<script>initSpeedTest();</script>
+</body>
+</html>
