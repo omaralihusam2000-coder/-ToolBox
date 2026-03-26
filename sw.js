@@ -3,8 +3,8 @@
  * Provides offline caching and PWA support
  */
 
-const CACHE_NAME = 'toolbox-v1';
-const STATIC_CACHE = 'toolbox-static-v1';
+const CACHE_NAME = 'toolbox-v2';
+const STATIC_CACHE = 'toolbox-static-v2';
 
 // Core files to cache for offline use
 const CORE_ASSETS = [
@@ -19,6 +19,8 @@ const CORE_ASSETS = [
   'js/tools/calculators.js',
   'js/tools/design-tools.js',
   'js/tools/dev-tools.js',
+  'js/tools/converters.js',
+  'js/tools/speed-test.js',
   'manifest.json',
   'suggest.html',
   // Tool pages
@@ -52,6 +54,11 @@ const CORE_ASSETS = [
   'tools/minifier.html',
   'tools/regex-tester.html',
   'tools/markdown-preview.html',
+  'tools/gpa-calculator.html',
+  'tools/number-converter.html',
+  'tools/screen-ppi.html',
+  'tools/speed-test.html',
+  'tools/timezone-converter.html',
 ];
 
 // Install: cache all core assets
