@@ -3,6 +3,14 @@
  * Uses: pptxgenjs (reading via zip), html2pdf
  */
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 async function initPptxToPdf() {
   initToolPage('pptx-to-pdf');
   let pptxFile = null;
@@ -16,25 +24,34 @@ async function initPptxToPdf() {
 
   document.getElementById('convert-btn').onclick = async () => {
     if (!pptxFile) { showToast(currentLang === 'ar' ? 'اختر ملف PPTX أولاً' : 'Select a PPTX file first', 'error'); return; }
-    await convertPptxToPdf(pptxFile);
+    const btn = document.getElementById('convert-btn');
+    if (btn) btn.disabled = true;
+    try {
+      await convertPptxToPdf(pptxFile);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
   };
 }
 
 function showPptxFileInfo(file) {
   const area = document.getElementById('upload-area');
+  if (!area) return;
   area.innerHTML = `
     <span class="upload-icon">✅</span>
-    <div class="upload-title">${file.name}</div>
+    <div class="upload-title">${escapeHtml(file.name)}</div>
     <div class="upload-desc">${formatFileSize(file.size)}</div>
     <button class="btn-outline" onclick="location.reload()" style="margin-top:12px">
       ${window.currentLang === 'ar' ? 'تغيير الملف' : 'Change File'}
     </button>
   `;
-  document.getElementById('convert-btn').disabled = false;
+  const btn = document.getElementById('convert-btn');
+  if (btn) btn.disabled = false;
 }
 
 async function convertPptxToPdf(file) {
   showLoading(currentLang === 'ar' ? 'جاري معالجة الملف...' : 'Processing file...');
+  let container = null;
   try {
     // Use JSZip to read pptx (which is a zip file)
     const arrayBuffer = await file.arrayBuffer();
@@ -42,6 +59,18 @@ async function convertPptxToPdf(file) {
 
     // Extract slide XML files
     const slideFiles = Object.keys(zip.files).filter(name => name.match(/ppt\/slides\/slide\d+\.xml$/));
+
+    if (!slideFiles.length) {
+      hideLoading();
+      showToast(
+        currentLang === 'ar'
+          ? 'لم يتم العثور على شرائح في الملف'
+          : 'No slides found in this file',
+        'error'
+      );
+      return;
+    }
+
     slideFiles.sort((a, b) => {
       const numA = parseInt(a.match(/slide(\d+)/)[1]);
       const numB = parseInt(b.match(/slide(\d+)/)[1]);
@@ -101,7 +130,7 @@ ${slidesHtml}
 </body>
 </html>`;
 
-    const container = document.createElement('div');
+    container = document.createElement('div');
     container.innerHTML = fullHtml;
     document.body.appendChild(container);
     container.style.position = 'absolute';
@@ -117,7 +146,6 @@ ${slidesHtml}
     };
 
     await html2pdf().set(opt).from(container).save();
-    document.body.removeChild(container);
 
     hideLoading();
     showToast(currentLang === 'ar' ? `✅ تم تحويل ${slideFiles.length} شرائح` : `✅ Converted ${slideFiles.length} slides`, 'success');
@@ -130,6 +158,10 @@ ${slidesHtml}
     hideLoading();
     showToast(currentLang === 'ar' ? 'خطأ في التحويل: ' + err.message : 'Conversion error: ' + err.message, 'error');
     console.error(err);
+  } finally {
+    if (container && document.body.contains(container)) {
+      document.body.removeChild(container);
+    }
   }
 }
 
@@ -155,12 +187,12 @@ function pptxSlideToHtml(xmlContent, slideNum) {
     </div>`;
   }
 
-  const title = texts[0] || `Slide ${slideNum}`;
-  const content = texts.slice(1).join('<br>');
+  const safeTitle = escapeHtml(texts[0] || `Slide ${slideNum}`);
+  const safeContent = texts.slice(1).map(t => escapeHtml(t)).join('<br>');
 
   return `<div class="slide">
-    <div class="slide-title">${title}</div>
-    ${content ? `<div class="slide-content">${content}</div>` : ''}
+    <div class="slide-title">${safeTitle}</div>
+    ${safeContent ? `<div class="slide-content">${safeContent}</div>` : ''}
     <div class="slide-number">${slideNum}</div>
   </div>`;
 }
