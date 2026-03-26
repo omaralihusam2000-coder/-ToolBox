@@ -2,6 +2,8 @@
  * PDF Tools - pdf-to-word, word-to-pdf, pdf-merger, pdf-splitter
  * Uses: pdf-lib, pdf.js, mammoth.js, html2pdf.js
  */
+/* global currentLang, showToast, showLoading, hideLoading, initToolPage,
+          initDragDrop, formatFileSize, downloadBlob, PDFLib, mammoth, html2pdf */
 
 // Module-level variable so renderMergeFileList can access it
 let pdfFiles = [];
@@ -38,7 +40,7 @@ function showFileInfo(file) {
 // Extract text content from a pdf.js TextContent object, grouping by Y position
 function extractPageText(content) {
   // pdf.js transform: [scaleX, skewX, skewY, scaleY, translateX, translateY]
-  const LINE_Y_THRESHOLD = 5;
+  const LINE_Y_THRESHOLD = 5; // points – minimum Y-gap to consider a new line
   const lines = [];
   let currentLine = '';
   let lastY = null;
@@ -61,7 +63,7 @@ function extractPageText(content) {
 
 // Render a pdf.js page to a PNG image, returns { dataUrl, width, height }
 async function renderPageAsImage(page) {
-  const scale = 1.5;
+  const scale = 1.5; // 1.5× gives good quality without excessive file size
   const viewport = page.getViewport({ scale: scale });
   const canvas = document.createElement('canvas');
   canvas.width = viewport.width;
@@ -127,8 +129,8 @@ async function convertPdfToWord(file) {
       pages.push(pageData);
     }
 
-    const pagesWithText = pages.filter(function(p) { return p.text.trim(); }).length;
-    const pagesWithImages = pages.filter(function(p) { return p.image; }).length;
+    const pagesWithText = pages.filter(p => p.text.trim()).length;
+    const pagesWithImages = pages.filter(p => p.image).length;
 
     // Generate the Word document
     try {
@@ -206,7 +208,7 @@ async function createDocxFromPages(pages, originalName) {
           imageBytes[bi] = raw.charCodeAt(bi);
         }
 
-        // Scale image to fit Word page content area (~550px wide)
+        // Scale image to fit Word page content area (A4 with 1″ margins ≈ 550px)
         const maxWidth = 550;
         const imgScale = Math.min(1, maxWidth / (page.image.width || 550));
         const imgWidth = Math.round((page.image.width || 550) * imgScale);
@@ -385,8 +387,6 @@ async function initPdfMerger() {
 function renderMergeFileList() {
   const list = document.getElementById('file-list');
   if (!list) return;
-
-  if (window.pdfFiles) pdfFiles = window.pdfFiles;
 
   list.innerHTML = pdfFiles.map((f, i) => `
     <div class="file-item">
