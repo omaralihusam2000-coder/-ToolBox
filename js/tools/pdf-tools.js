@@ -3,6 +3,9 @@
  * Uses: pdf-lib, pdf.js, mammoth.js, html2pdf.js
  */
 
+// Module-level variable so renderMergeFileList can access it
+let pdfFiles = [];
+
 // ===== PDF TO WORD =====
 async function initPdfToWord() {
   initToolPage('pdf-to-word');
@@ -38,7 +41,7 @@ async function convertPdfToWord(file) {
     const arrayBuffer = await file.arrayBuffer();
 
     // Load PDF with pdf.js
-    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    const pdfjsLib = window.pdfjsLib;
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -163,7 +166,7 @@ ${result.value}
 // ===== PDF MERGER =====
 async function initPdfMerger() {
   initToolPage('pdf-merger');
-  let pdfFiles = [];
+  pdfFiles = []; // reset module-level array
 
   initDragDrop('upload-area', 'file-input', (files) => {
     const pdfs = files.filter(f => f.name.toLowerCase().endsWith('.pdf'));
