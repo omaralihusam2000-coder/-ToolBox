@@ -61,16 +61,16 @@ function extractPageText(content) {
 
 // Render a pdf.js page to a PNG image, returns { dataUrl, width, height }
 async function renderPageAsImage(page) {
-  var scale = 1.5;
-  var viewport = page.getViewport({ scale: scale });
-  var canvas = document.createElement('canvas');
+  const scale = 1.5;
+  const viewport = page.getViewport({ scale: scale });
+  const canvas = document.createElement('canvas');
   canvas.width = viewport.width;
   canvas.height = viewport.height;
-  var ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d');
 
   await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
-  var result = {
+  const result = {
     dataUrl: canvas.toDataURL('image/png'),
     width: viewport.width,
     height: viewport.height
@@ -113,7 +113,7 @@ async function convertPdfToWord(file) {
       const content = await page.getTextContent();
       const text = extractPageText(content);
 
-      var pageData = { pageNum: i, text: text, image: null };
+      const pageData = { pageNum: i, text: text, image: null };
 
       // If no text extracted, render the page as an image
       if (!text.trim()) {
@@ -127,8 +127,8 @@ async function convertPdfToWord(file) {
       pages.push(pageData);
     }
 
-    var pagesWithText = pages.filter(function(p) { return p.text.trim(); }).length;
-    var pagesWithImages = pages.filter(function(p) { return p.image; }).length;
+    const pagesWithText = pages.filter(function(p) { return p.text.trim(); }).length;
+    const pagesWithImages = pages.filter(function(p) { return p.image; }).length;
 
     // Generate the Word document
     try {
@@ -146,7 +146,7 @@ async function convertPdfToWord(file) {
     showToast(currentLang === 'ar' ? '✅ تم التحويل بنجاح!' : '✅ Conversion successful!', 'success');
     document.getElementById('result-section').style.display = 'block';
 
-    var info;
+    let info;
     if (pagesWithText === totalPages) {
       info = currentLang === 'ar'
         ? 'تم استخراج النص من ' + totalPages + ' صفحة'
@@ -173,15 +173,15 @@ async function createDocxFromPages(pages, originalName) {
 
   const sections = [];
 
-  for (var p = 0; p < pages.length; p++) {
-    var page = pages[p];
-    var children = [];
+  for (let p = 0; p < pages.length; p++) {
+    const page = pages[p];
+    const children = [];
 
     if (page.text.trim()) {
       // Text-based page: create paragraphs from extracted lines
-      var lines = page.text.split('\n');
-      for (var li = 0; li < lines.length; li++) {
-        var trimmed = lines[li].trim();
+      const lines = page.text.split('\n');
+      for (let li = 0; li < lines.length; li++) {
+        const trimmed = lines[li].trim();
         if (!trimmed) {
           children.push(new Paragraph({ spacing: { after: 100 } }));
           continue;
@@ -199,18 +199,18 @@ async function createDocxFromPages(pages, originalName) {
     } else if (page.image && ImageRun) {
       // Image-based page: embed the rendered page image
       try {
-        var base64 = page.image.dataUrl.split(',')[1];
-        var raw = atob(base64);
-        var imageBytes = new Uint8Array(raw.length);
-        for (var bi = 0; bi < raw.length; bi++) {
+        const base64 = page.image.dataUrl.split(',')[1];
+        const raw = atob(base64);
+        const imageBytes = new Uint8Array(raw.length);
+        for (let bi = 0; bi < raw.length; bi++) {
           imageBytes[bi] = raw.charCodeAt(bi);
         }
 
         // Scale image to fit Word page content area (~550px wide)
-        var maxWidth = 550;
-        var imgScale = Math.min(1, maxWidth / (page.image.width || 550));
-        var imgWidth = Math.round((page.image.width || 550) * imgScale);
-        var imgHeight = Math.round((page.image.height || 750) * imgScale);
+        const maxWidth = 550;
+        const imgScale = Math.min(1, maxWidth / (page.image.width || 550));
+        const imgWidth = Math.round((page.image.width || 550) * imgScale);
+        const imgHeight = Math.round((page.image.height || 750) * imgScale);
 
         children.push(new Paragraph({
           children: [new ImageRun({
@@ -255,13 +255,13 @@ async function createDocxFromPages(pages, originalName) {
     });
   }
 
-  var doc = new Document({ sections: sections });
-  var blob = await Packer.toBlob(doc);
+  const doc = new Document({ sections: sections });
+  const blob = await Packer.toBlob(doc);
   downloadBlob(blob, originalName.replace(/\.pdf$/i, '.docx'));
 }
 
 function createHtmlDocFromPages(pages, originalName) {
-  var htmlContent = '<!DOCTYPE html>\n<html dir="auto">\n<head>\n'
+  let htmlContent = '<!DOCTYPE html>\n<html dir="auto">\n<head>\n'
     + '<meta charset="UTF-8">\n'
     + '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">\n'
     + '<title>' + escapeHtml(originalName) + '</title>\n'
@@ -275,21 +275,21 @@ function createHtmlDocFromPages(pages, originalName) {
     + '</style>\n'
     + '</head>\n<body>\n';
 
-  for (var i = 0; i < pages.length; i++) {
-    var page = pages[i];
-    var pageLabel = (currentLang === 'ar' ? 'صفحة' : 'Page') + ' ' + page.pageNum;
+  for (let i = 0; i < pages.length; i++) {
+    const page = pages[i];
+    const pageLabel = (currentLang === 'ar' ? 'صفحة' : 'Page') + ' ' + page.pageNum;
     htmlContent += '<div class="page-section">\n';
     htmlContent += '<div class="page-header">' + pageLabel + '</div>\n';
 
     if (page.text.trim()) {
-      var textLines = page.text.split('\n');
-      for (var j = 0; j < textLines.length; j++) {
+      const textLines = page.text.split('\n');
+      for (let j = 0; j < textLines.length; j++) {
         htmlContent += '<p>' + escapeHtml(textLines[j]) + '</p>\n';
       }
     } else if (page.image) {
       htmlContent += '<img class="page-image" src="' + page.image.dataUrl + '" alt="' + pageLabel + '">\n';
     } else {
-      var emptyMsg = currentLang === 'ar'
+      const emptyMsg = currentLang === 'ar'
         ? '[صفحة ' + page.pageNum + ' - فارغة]'
         : '[Page ' + page.pageNum + ' - Empty]';
       htmlContent += '<p class="empty-note">' + escapeHtml(emptyMsg) + '</p>\n';
@@ -300,7 +300,7 @@ function createHtmlDocFromPages(pages, originalName) {
 
   htmlContent += '</body>\n</html>';
 
-  var blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword;charset=UTF-8' });
+  const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword;charset=UTF-8' });
   downloadBlob(blob, originalName.replace(/\.pdf$/i, '.doc'));
 }
 
