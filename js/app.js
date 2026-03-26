@@ -464,6 +464,21 @@ function copyToClipboard(text, msg) {
   });
 }
 
+// ===== LOADING OVERLAY =====
+function showLoading(text) {
+  const overlay = document.getElementById('loading-overlay');
+  if (!overlay) return;
+  const textEl = overlay.querySelector('.loading-text');
+  if (textEl) textEl.textContent = text || '';
+  overlay.classList.add('active');
+}
+
+function hideLoading() {
+  const overlay = document.getElementById('loading-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('active');
+}
+
 // ===== TOAST =====
 function showToast(msg, type = 'info', duration = 3000) {
   const container = document.getElementById('toast-container');
