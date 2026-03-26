@@ -422,28 +422,44 @@ function initShareButtons(tool) {
 function initRating(toolId) {
   const ratings    = JSON.parse(localStorage.getItem('tb_ratings') || '{}');
   const toolRating = ratings[toolId] || { likes: 0, dislikes: 0 };
-  const likeBtn    = document.getElementById('tool-like');
-  const dislikeBtn = document.getElementById('tool-dislike');
+  const likeBtn    = document.getElementById('rate-like') || document.getElementById('tool-like');
+  const dislikeBtn = document.getElementById('rate-dislike') || document.getElementById('tool-dislike');
+  const ratingBar  = document.getElementById('rating-bar');
+  const ratingText = document.getElementById('rating-text');
+
+  function updateRatingUI() {
+    const total = toolRating.likes + toolRating.dislikes;
+    if (ratingBar && total > 0) {
+      ratingBar.style.width = Math.round((toolRating.likes / total) * 100) + '%';
+    }
+    if (ratingText && total > 0) {
+      const pct = Math.round((toolRating.likes / total) * 100);
+      ratingText.textContent = currentLang === 'ar'
+        ? `${pct}% من المستخدمين أعجبوا بهذه الأداة (${total} تقييم)`
+        : `${pct}% of users liked this tool (${total} ratings)`;
+    }
+  }
+
+  updateRatingUI();
 
   if (likeBtn) {
-    likeBtn.querySelector('.count') && (likeBtn.querySelector('.count').textContent = toolRating.likes);
     likeBtn.onclick = () => {
       toolRating.likes++;
       ratings[toolId] = toolRating;
       localStorage.setItem('tb_ratings', JSON.stringify(ratings));
-      if (likeBtn.querySelector('.count')) likeBtn.querySelector('.count').textContent = toolRating.likes;
       likeBtn.classList.add('liked');
+      updateRatingUI();
       showToast(currentLang === 'ar' ? '👍 شكراً لتقييمك!' : '👍 Thanks for rating!', 'success');
     };
   }
   if (dislikeBtn) {
-    dislikeBtn.querySelector('.count') && (dislikeBtn.querySelector('.count').textContent = toolRating.dislikes);
     dislikeBtn.onclick = () => {
       toolRating.dislikes++;
       ratings[toolId] = toolRating;
       localStorage.setItem('tb_ratings', JSON.stringify(ratings));
-      if (dislikeBtn.querySelector('.count')) dislikeBtn.querySelector('.count').textContent = toolRating.dislikes;
       dislikeBtn.classList.add('disliked');
+      updateRatingUI();
+      showToast(currentLang === 'ar' ? '👎 شكراً لتقييمك' : '👎 Thanks for your feedback', 'info');
     };
   }
 }
@@ -461,6 +477,67 @@ function copyToClipboard(text, msg) {
     document.execCommand('copy');
     document.body.removeChild(ta);
     showToast(msg || (currentLang === 'ar' ? '✅ تم النسخ!' : '✅ Copied!'), 'success');
+  });
+}
+
+// Alias used by design-tools, dev-tools, etc.
+function copyText(text) {
+  copyToClipboard(text);
+}
+
+// ===== FILE UTILITIES =====
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename || 'download';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function initDragDrop(areaId, inputId, onFiles) {
+  const area = document.getElementById(areaId);
+  const input = document.getElementById(inputId);
+  if (!area || !input) return;
+
+  // Click to select files
+  area.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+      input.click();
+    } else if (e.target === area || area.contains(e.target)) {
+      input.click();
+    }
+  });
+
+  // File input change
+  input.addEventListener('change', () => {
+    if (input.files.length) onFiles(Array.from(input.files));
+  });
+
+  // Drag & drop
+  area.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    area.classList.add('drag-over');
+  });
+
+  area.addEventListener('dragleave', () => {
+    area.classList.remove('drag-over');
+  });
+
+  area.addEventListener('drop', (e) => {
+    e.preventDefault();
+    area.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) onFiles(Array.from(e.dataTransfer.files));
   });
 }
 
