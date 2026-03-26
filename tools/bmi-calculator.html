@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="حاسبة مؤشر كتلة الجسم مجاناً أونلاين - ToolBox">
+  <meta property="og:title" content="حاسبة مؤشر كتلة الجسم | ToolBox">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#e63946">
+  <title>حاسبة مؤشر كتلة الجسم | ToolBox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body dir="rtl">
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo"><div class="logo-icon">🔧</div><span class="logo-text">Tool<span>Box</span></span></a>
+    <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="search-input" placeholder="ابحث عن أداة..." data-ar-placeholder="ابحث عن أداة..." data-en-placeholder="Search tools..."><div class="search-results" id="search-results"></div></div>
+    <div class="header-actions">
+      <button class="btn-icon" id="theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+</header>
+<div class="tool-page">
+  <div class="tool-hero">
+    <div class="tool-hero-inner">
+      <div class="breadcrumb">
+        <a href="/" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+        <span>›</span>
+        <span data-ar="الحاسبات" data-en="Calculators">الحاسبات</span>
+        <span>›</span>
+        <span>حاسبة مؤشر كتلة الجسم</span>
+      </div>
+      <div class="tool-title-area">
+        <span class="tool-big-icon">⚖️</span>
+        <div>
+          <h1 data-ar="حاسبة مؤشر كتلة الجسم" data-en="BMI Calculator">حاسبة مؤشر كتلة الجسم</h1>
+          <p data-ar="احسب مؤشر كتلة جسمك واعرف تصنيف وزنك" data-en="Calculate your Body Mass Index and weight classification">احسب مؤشر كتلة جسمك واعرف تصنيف وزنك</p>
+        </div>
+      </div>
+      <div class="tool-meta">
+        <div class="tool-stat-badge">📊 <span data-ar="الاستخدامات:" data-en="Uses:">الاستخدامات:</span> <span class="val" id="tool-usage-count">0</span></div>
+        <div class="tool-stat-badge">👥 <span class="val" id="tool-live-users">--</span> <span data-ar="الآن" data-en="online">الآن</span></div>
+        <button class="btn-icon" id="tool-fav-btn" title="مفضلة">🤍</button>
+      </div>
+    </div>
+  </div>
+  <div class="tool-workspace">
+    <div class="ad-banner" style="margin-bottom:20px">📢 <span data-ar="مساحة إعلانية - Google AdSense" data-en="Ad Space - Google AdSense">مساحة إعلانية</span></div>
+    <div class="tool-box">
+      <h3 data-ar="📊 أدخل بياناتك" data-en="📊 Enter Your Data">📊 أدخل بياناتك</h3>
+      <div class="grid-2">
+        <div class="form-group">
+          <label data-ar="الوزن (كيلوغرام)" data-en="Weight (kg)">الوزن (كيلوغرام)</label>
+          <input type="number" class="form-control" id="weight-input" placeholder="70" min="1" max="500">
+        </div>
+        <div class="form-group">
+          <label data-ar="الطول (سنتيمتر)" data-en="Height (cm)">الطول (سنتيمتر)</label>
+          <input type="number" class="form-control" id="height-input" placeholder="170" min="50" max="300">
+        </div>
+      </div>
+      <button class="btn-red" style="width:100%;padding:14px;font-size:1.05rem" onclick="calculateBMI()"
+        data-ar="⚖️ احسب BMI" data-en="⚖️ Calculate BMI">⚖️ احسب BMI</button>
+    </div>
+    <div class="tool-box" id="result-section" style="display:none">
+      <div id="bmi-result"></div>
+    </div>
+    <div class="tool-box">
+      <h3 data-ar="📋 جدول تصنيف BMI" data-en="📋 BMI Classification">📋 جدول تصنيف BMI</h3>
+      <table class="data-table">
+        <thead><tr>
+          <th data-ar="مؤشر BMI" data-en="BMI Index">مؤشر BMI</th>
+          <th data-ar="التصنيف" data-en="Category">التصنيف</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>&lt; 18.5</td><td style="color:#4895ef" data-ar="نحيل" data-en="Underweight">نحيل</td></tr>
+          <tr><td>18.5 – 24.9</td><td style="color:#22c55e" data-ar="وزن طبيعي ✅" data-en="Normal ✅">وزن طبيعي ✅</td></tr>
+          <tr><td>25 – 29.9</td><td style="color:#ffd166" data-ar="زيادة وزن" data-en="Overweight">زيادة وزن</td></tr>
+          <tr><td>≥ 30</td><td style="color:#e63946" data-ar="سمنة" data-en="Obese">سمنة</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="share-section">
+      <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>
+      <div class="share-btns">
+        <button class="share-btn facebook" id="share-facebook">f Facebook</button>
+        <button class="share-btn telegram" id="share-telegram">✈ Telegram</button>
+        <button class="share-btn whatsapp" id="share-whatsapp">📱 WhatsApp</button>
+        <button class="share-btn twitter" id="share-twitter">𝕏 Twitter</button>
+      </div>
+    </div>
+    <div class="rating-section">
+      <h4 data-ar="⭐ هل كانت هذه الأداة مفيدة؟" data-en="⭐ Was this tool helpful?">⭐ هل كانت هذه الأداة مفيدة؟</h4>
+      <div class="rating-btns">
+        <button class="rating-btn like" id="rate-like">👍 <span data-ar="نعم" data-en="Yes">نعم</span></button>
+        <button class="rating-btn dislike" id="rate-dislike">👎 <span data-ar="لا" data-en="No">لا</span></button>
+      </div>
+      <div class="rating-bar-wrap"><div class="rating-bar" id="rating-bar" style="width:0%"></div></div>
+      <p class="rating-text" id="rating-text"></p>
+    </div>
+    <div class="ad-banner" style="margin-top:20px">📢 <span data-ar="مساحة إعلانية" data-en="Ad Space">مساحة إعلانية</span></div>
+  </div>
+</div>
+<div id="toast-container" class="toast-container"></div>
+<div id="loading-overlay" class="loading-overlay"><div class="spinner"></div><div class="loading-text"></div></div>
+<script src="/js/app.js"></script>
+<script src="/js/tools/calculators.js"></script>
+<script>initBmiCalculator();</script>
+</body>
+</html>

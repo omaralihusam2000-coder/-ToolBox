@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="مولد QR Code مجاناً أونلاين - ToolBox">
+  <meta property="og:title" content="مولد QR Code | ToolBox">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#e63946">
+  <title>مولد QR Code | ToolBox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body dir="rtl">
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo"><div class="logo-icon">🔧</div><span class="logo-text">Tool<span>Box</span></span></a>
+    <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="search-input" placeholder="ابحث عن أداة..." data-ar-placeholder="ابحث عن أداة..." data-en-placeholder="Search tools..."><div class="search-results" id="search-results"></div></div>
+    <div class="header-actions">
+      <button class="btn-icon" id="theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+</header>
+<div class="tool-page">
+  <div class="tool-hero">
+    <div class="tool-hero-inner">
+      <div class="breadcrumb">
+        <a href="/" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+        <span>›</span>
+        <span data-ar="أدوات التصميم" data-en="Design Tools">أدوات التصميم</span>
+        <span>›</span>
+        <span>مولد QR Code</span>
+      </div>
+      <div class="tool-title-area">
+        <span class="tool-big-icon">📱</span>
+        <div>
+          <h1 data-ar="مولد QR Code" data-en="QR Code Generator">مولد QR Code</h1>
+          <p data-ar="أنشئ باركود QR من أي نص أو رابط بسهولة" data-en="Generate QR codes from any text or URL">أنشئ باركود QR من أي نص أو رابط بسهولة</p>
+        </div>
+      </div>
+      <div class="tool-meta">
+        <div class="tool-stat-badge">📊 <span data-ar="الاستخدامات:" data-en="Uses:">الاستخدامات:</span> <span class="val" id="tool-usage-count">0</span></div>
+        <div class="tool-stat-badge">👥 <span class="val" id="tool-live-users">--</span> <span data-ar="الآن" data-en="online">الآن</span></div>
+        <button class="btn-icon" id="tool-fav-btn" title="مفضلة">🤍</button>
+      </div>
+    </div>
+  </div>
+  <div class="tool-workspace">
+    <div class="ad-banner" style="margin-bottom:20px">📢 <span data-ar="مساحة إعلانية - Google AdSense" data-en="Ad Space - Google AdSense">مساحة إعلانية</span></div>
+    <div class="tool-box">
+      <h3 data-ar="📝 أدخل النص أو الرابط" data-en="📝 Enter Text or URL">📝 أدخل النص أو الرابط</h3>
+      <textarea class="form-control" id="qr-input" rows="3"
+        placeholder="https://example.com أو أي نص..."></textarea>
+      <div class="grid-2" style="margin-top:16px">
+        <div class="form-group">
+          <label data-ar="الحجم" data-en="Size">الحجم</label>
+          <select class="form-control" id="qr-size">
+            <option value="128">128px</option>
+            <option value="256" selected>256px</option>
+            <option value="512">512px</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-ar="مستوى التصحيح" data-en="Error Correction">مستوى التصحيح</label>
+          <select class="form-control" id="qr-error">
+            <option value="L">L - منخفض</option>
+            <option value="M" selected>M - متوسط</option>
+            <option value="Q">Q - عالي</option>
+            <option value="H">H - أعلى</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label data-ar="لون QR" data-en="QR Color">لون QR</label>
+          <input type="color" class="form-control" id="qr-color" value="#000000" style="height:44px;padding:4px">
+        </div>
+        <div class="form-group">
+          <label data-ar="لون الخلفية" data-en="Background">لون الخلفية</label>
+          <input type="color" class="form-control" id="qr-bg" value="#ffffff" style="height:44px;padding:4px">
+        </div>
+      </div>
+      <button class="btn-red" style="width:100%;padding:14px;font-size:1.05rem" onclick="generateQR()"
+        data-ar="📱 إنشاء QR Code" data-en="📱 Generate QR Code">📱 إنشاء QR Code</button>
+    </div>
+    <div class="tool-box" id="result-section" style="display:none">
+      <h3 data-ar="✅ QR Code الخاص بك" data-en="✅ Your QR Code">✅ QR Code الخاص بك</h3>
+      <div id="qr-container" style="text-align:center;padding:16px"></div>
+      <button id="download-btn" class="btn-blue" style="width:100%;margin-top:12px;padding:12px;display:none"
+        onclick="downloadQR()" data-ar="⬇️ تحميل QR Code" data-en="⬇️ Download QR Code">⬇️ تحميل QR Code</button>
+    </div>
+
+    <div class="share-section">
+      <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>
+      <div class="share-btns">
+        <button class="share-btn facebook" id="share-facebook">f Facebook</button>
+        <button class="share-btn telegram" id="share-telegram">✈ Telegram</button>
+        <button class="share-btn whatsapp" id="share-whatsapp">📱 WhatsApp</button>
+        <button class="share-btn twitter" id="share-twitter">𝕏 Twitter</button>
+      </div>
+    </div>
+    <div class="rating-section">
+      <h4 data-ar="⭐ هل كانت هذه الأداة مفيدة؟" data-en="⭐ Was this tool helpful?">⭐ هل كانت هذه الأداة مفيدة؟</h4>
+      <div class="rating-btns">
+        <button class="rating-btn like" id="rate-like">👍 <span data-ar="نعم" data-en="Yes">نعم</span></button>
+        <button class="rating-btn dislike" id="rate-dislike">👎 <span data-ar="لا" data-en="No">لا</span></button>
+      </div>
+      <div class="rating-bar-wrap"><div class="rating-bar" id="rating-bar" style="width:0%"></div></div>
+      <p class="rating-text" id="rating-text"></p>
+    </div>
+    <div class="ad-banner" style="margin-top:20px">📢 <span data-ar="مساحة إعلانية" data-en="Ad Space">مساحة إعلانية</span></div>
+  </div>
+</div>
+<div id="toast-container" class="toast-container"></div>
+<div id="loading-overlay" class="loading-overlay"><div class="spinner"></div><div class="loading-text"></div></div>
+<script src="/js/app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="/js/tools/design-tools.js"></script>
+<script>initQrGenerator();</script>
+</body>
+</html>

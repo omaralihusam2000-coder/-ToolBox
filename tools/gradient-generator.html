@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="مولد التدرجات اللونية مجاناً أونلاين - ToolBox">
+  <meta property="og:title" content="مولد التدرجات اللونية | ToolBox">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#e63946">
+  <title>مولد التدرجات اللونية | ToolBox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body dir="rtl">
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo"><div class="logo-icon">🔧</div><span class="logo-text">Tool<span>Box</span></span></a>
+    <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="search-input" placeholder="ابحث عن أداة..." data-ar-placeholder="ابحث عن أداة..." data-en-placeholder="Search tools..."><div class="search-results" id="search-results"></div></div>
+    <div class="header-actions">
+      <button class="btn-icon" id="theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+</header>
+<div class="tool-page">
+  <div class="tool-hero">
+    <div class="tool-hero-inner">
+      <div class="breadcrumb">
+        <a href="/" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+        <span>›</span>
+        <span data-ar="أدوات التصميم" data-en="Design Tools">أدوات التصميم</span>
+        <span>›</span>
+        <span>مولد التدرجات اللونية</span>
+      </div>
+      <div class="tool-title-area">
+        <span class="tool-big-icon">🌈</span>
+        <div>
+          <h1 data-ar="مولد التدرجات اللونية" data-en="Gradient Generator">مولد التدرجات اللونية</h1>
+          <p data-ar="أنشئ تدرجات CSS جميلة وانسخ الكود مباشرة" data-en="Create beautiful CSS gradients and copy the code instantly">أنشئ تدرجات CSS جميلة وانسخ الكود مباشرة</p>
+        </div>
+      </div>
+      <div class="tool-meta">
+        <div class="tool-stat-badge">📊 <span data-ar="الاستخدامات:" data-en="Uses:">الاستخدامات:</span> <span class="val" id="tool-usage-count">0</span></div>
+        <div class="tool-stat-badge">👥 <span class="val" id="tool-live-users">--</span> <span data-ar="الآن" data-en="online">الآن</span></div>
+        <button class="btn-icon" id="tool-fav-btn" title="مفضلة">🤍</button>
+      </div>
+    </div>
+  </div>
+  <div class="tool-workspace">
+    <div class="ad-banner" style="margin-bottom:20px">📢 <span data-ar="مساحة إعلانية - Google AdSense" data-en="Ad Space - Google AdSense">مساحة إعلانية</span></div>
+    <div id="gradient-preview" style="height:200px;border-radius:var(--radius-lg);margin-bottom:20px;background:linear-gradient(135deg,#e63946,#ffd166);border:1px solid var(--border-color);transition:background 0.3s"></div>
+    <div class="tool-box">
+      <h3 data-ar="⚙️ إعدادات التدرج" data-en="⚙️ Gradient Settings">⚙️ إعدادات التدرج</h3>
+      <div class="grid-2">
+        <div class="form-group">
+          <label data-ar="اللون الأول" data-en="Color 1">اللون الأول</label>
+          <input type="color" class="form-control" id="color1" value="#e63946" oninput="updateGradient()" style="height:44px;padding:4px">
+        </div>
+        <div class="form-group">
+          <label data-ar="اللون الثاني" data-en="Color 2">اللون الثاني</label>
+          <input type="color" class="form-control" id="color2" value="#ffd166" oninput="updateGradient()" style="height:44px;padding:4px">
+        </div>
+      </div>
+      <div class="form-group">
+        <label data-ar="اللون الثالث (اختياري)" data-en="Third Color (optional)">اللون الثالث (اختياري)</label>
+        <input type="color" class="form-control" id="color3" value="#4895ef" oninput="updateGradient()" style="height:44px;padding:4px">
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label data-ar="النوع" data-en="Type">النوع</label>
+          <select class="form-control" id="gradient-type" onchange="updateGradient()">
+            <option value="linear" data-ar="خطي" data-en="Linear">خطي</option>
+            <option value="radial" data-ar="دائري" data-en="Radial">دائري</option>
+            <option value="conic" data-ar="مخروطي" data-en="Conic">مخروطي</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-ar="الزاوية" data-en="Angle">الزاوية: <span id="angle-val">135°</span></label>
+          <input type="range" id="gradient-angle" min="0" max="360" value="135" oninput="updateGradient()">
+        </div>
+      </div>
+    </div>
+    <div class="tool-box">
+      <h3 data-ar="💻 كود CSS" data-en="💻 CSS Code">💻 كود CSS</h3>
+      <div class="output-box">
+        <button class="copy-btn" onclick="copyGradientCSS()">نسخ</button>
+        <pre id="css-code" style="font-family:monospace;white-space:pre-wrap;font-size:0.9rem"></pre>
+      </div>
+    </div>
+
+    <div class="share-section">
+      <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>
+      <div class="share-btns">
+        <button class="share-btn facebook" id="share-facebook">f Facebook</button>
+        <button class="share-btn telegram" id="share-telegram">✈ Telegram</button>
+        <button class="share-btn whatsapp" id="share-whatsapp">📱 WhatsApp</button>
+        <button class="share-btn twitter" id="share-twitter">𝕏 Twitter</button>
+      </div>
+    </div>
+    <div class="rating-section">
+      <h4 data-ar="⭐ هل كانت هذه الأداة مفيدة؟" data-en="⭐ Was this tool helpful?">⭐ هل كانت هذه الأداة مفيدة؟</h4>
+      <div class="rating-btns">
+        <button class="rating-btn like" id="rate-like">👍 <span data-ar="نعم" data-en="Yes">نعم</span></button>
+        <button class="rating-btn dislike" id="rate-dislike">👎 <span data-ar="لا" data-en="No">لا</span></button>
+      </div>
+      <div class="rating-bar-wrap"><div class="rating-bar" id="rating-bar" style="width:0%"></div></div>
+      <p class="rating-text" id="rating-text"></p>
+    </div>
+    <div class="ad-banner" style="margin-top:20px">📢 <span data-ar="مساحة إعلانية" data-en="Ad Space">مساحة إعلانية</span></div>
+  </div>
+</div>
+<div id="toast-container" class="toast-container"></div>
+<div id="loading-overlay" class="loading-overlay"><div class="spinner"></div><div class="loading-text"></div></div>
+<script src="/js/app.js"></script>
+<script src="/js/tools/design-tools.js"></script>
+<script>initGradientGenerator();</script>
+</body>
+</html>

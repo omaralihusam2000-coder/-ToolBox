@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="اقترح أداة جديدة - ToolBox">
+  <title>اقترح أداة | ToolBox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body dir="rtl">
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon">🔧</div>
+      <span class="logo-text">Tool<span>Box</span></span>
+    </a>
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input"
+        data-ar-placeholder="ابحث عن أداة..."
+        data-en-placeholder="Search tools..."
+        placeholder="ابحث عن أداة...">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" id="theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<div style="background:linear-gradient(135deg,var(--bg-secondary) 0%,#1a0a0a 100%);padding:48px 20px;text-align:center;border-bottom:1px solid var(--border-color)">
+  <span style="font-size:3.5rem;display:block;margin-bottom:16px">💡</span>
+  <h1 style="font-size:clamp(1.6rem,3vw,2.4rem);font-weight:900;color:var(--text-primary);margin-bottom:12px">
+    <span data-ar="اقترح أداة جديدة" data-en="Suggest a New Tool">اقترح أداة جديدة</span>
+  </h1>
+  <p style="color:var(--text-secondary);font-size:1.05rem;max-width:500px;margin:0 auto"
+    data-ar="هل تحتاج أداة غير موجودة؟ أخبرنا وسنحاول إضافتها!"
+    data-en="Need a tool that doesn't exist yet? Tell us and we'll try to add it!">
+    هل تحتاج أداة غير موجودة؟ أخبرنا وسنحاول إضافتها!
+  </p>
+</div>
+
+<!-- Main Content -->
+<div class="suggest-page">
+
+  <!-- Ad -->
+  <div class="ad-banner" style="margin-bottom:24px">
+    📢 <span data-ar="مساحة إعلانية" data-en="Ad Space">مساحة إعلانية</span>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" style="margin-bottom:32px">
+    <div class="stat-card">
+      <div class="num" id="suggestions-count">0</div>
+      <div class="lbl" data-ar="اقتراح مُرسل" data-en="Suggestions Sent">اقتراح مُرسل</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">30</div>
+      <div class="lbl" data-ar="أداة متوفرة الآن" data-en="Tools Available Now">أداة متوفرة الآن</div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="tool-box">
+    <h3 data-ar="📝 نموذج الاقتراح" data-en="📝 Suggestion Form">📝 نموذج الاقتراح</h3>
+
+    <div id="success-msg" style="display:none;background:rgba(34,197,94,0.1);border:1px solid #22c55e;border-radius:var(--radius-sm);padding:16px;text-align:center;margin-bottom:16px">
+      <span style="font-size:1.5rem">✅</span>
+      <p style="color:#22c55e;font-weight:700;margin-top:8px"
+        data-ar="شكراً! تم إرسال اقتراحك بنجاح 🎉"
+        data-en="Thank you! Your suggestion was sent successfully 🎉">
+        شكراً! تم إرسال اقتراحك بنجاح 🎉
+      </p>
+    </div>
+
+    <form id="suggest-form" onsubmit="submitSuggestion(event)">
+      <div class="form-group">
+        <label data-ar="اسم الأداة المقترحة *" data-en="Tool Name *">اسم الأداة المقترحة *</label>
+        <input type="text" class="form-control" id="tool-name" required
+          data-ar-placeholder="مثال: محوّل PDF إلى Excel"
+          data-en-placeholder="e.g. PDF to Excel Converter"
+          placeholder="مثال: محوّل PDF إلى Excel">
+      </div>
+
+      <div class="form-group">
+        <label data-ar="تصنيف الأداة" data-en="Tool Category">تصنيف الأداة</label>
+        <select class="form-control" id="tool-category">
+          <option value="" data-ar="-- اختر تصنيفاً --" data-en="-- Select Category --">-- اختر تصنيفاً --</option>
+          <option value="files" data-ar="أدوات الملفات" data-en="File Tools">أدوات الملفات</option>
+          <option value="text" data-ar="أدوات النصوص" data-en="Text Tools">أدوات النصوص</option>
+          <option value="calc" data-ar="الحاسبات" data-en="Calculators">الحاسبات</option>
+          <option value="design" data-ar="أدوات التصميم" data-en="Design Tools">أدوات التصميم</option>
+          <option value="dev" data-ar="أدوات المطورين" data-en="Developer Tools">أدوات المطورين</option>
+          <option value="other" data-ar="أخرى" data-en="Other">أخرى</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label data-ar="وصف الأداة وكيف تعمل *" data-en="Description & How it works *">وصف الأداة وكيف تعمل *</label>
+        <textarea class="form-control" id="tool-description" rows="5" required
+          data-ar-placeholder="اشرح ما تفعله الأداة وكيف ستساعد المستخدمين..."
+          data-en-placeholder="Explain what the tool does and how it will help users..."
+          placeholder="اشرح ما تفعله الأداة وكيف ستساعد المستخدمين..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label data-ar="مثال على الاستخدام (اختياري)" data-en="Usage Example (optional)">مثال على الاستخدام</label>
+        <input type="text" class="form-control" id="tool-example"
+          data-ar-placeholder="مثال: أريد تحويل صور PNG إلى PDF بضغطة واحدة"
+          data-en-placeholder="e.g. I want to convert PNG images to PDF with one click"
+          placeholder="مثال: أريد تحويل صور PNG إلى PDF بضغطة واحدة">
+      </div>
+
+      <div class="form-group">
+        <label data-ar="بريدك الإلكتروني (اختياري - للتواصل معك)" data-en="Your Email (optional - to follow up)">بريدك الإلكتروني (اختياري)</label>
+        <input type="email" class="form-control" id="suggester-email"
+          placeholder="your@email.com">
+      </div>
+
+      <button type="submit" class="btn-red" style="width:100%;padding:14px;font-size:1.05rem"
+        data-ar="💡 إرسال الاقتراح" data-en="💡 Submit Suggestion">💡 إرسال الاقتراح</button>
+    </form>
+  </div>
+
+  <!-- Existing suggestions list -->
+  <div class="tool-box" id="suggestions-list-box" style="display:none">
+    <h3 data-ar="📋 الاقتراحات المُرسلة" data-en="📋 Submitted Suggestions">📋 الاقتراحات المُرسلة</h3>
+    <div id="suggestions-list"></div>
+  </div>
+
+  <!-- Back to home -->
+  <div style="text-align:center;margin-top:24px;margin-bottom:48px">
+    <a href="/" class="btn-outline" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;text-decoration:none"
+      data-ar="← العودة إلى الرئيسية" data-en="← Back to Home">← العودة إلى الرئيسية</a>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast-container" class="toast-container"></div>
+
+<script src="/js/app.js"></script>
+<script>
+(function() {
+  applyLang(currentLang);
+  applyTheme(currentTheme);
+  initSearch();
+
+  // Load and display stored suggestions count
+  const suggestions = JSON.parse(localStorage.getItem('tb_suggestions') || '[]');
+  const countEl = document.getElementById('suggestions-count');
+  if (countEl) countEl.textContent = suggestions.length;
+
+  // Show suggestions list if any
+  if (suggestions.length > 0) {
+    const box = document.getElementById('suggestions-list-box');
+    const list = document.getElementById('suggestions-list');
+    if (box && list) {
+      box.style.display = 'block';
+      list.innerHTML = suggestions.slice(-5).reverse().map(s => `
+        <div style="background:var(--bg-primary);border:1px solid var(--border-color);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:8px">
+          <div style="font-weight:700;color:var(--text-primary)">${s.name}</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px">${s.description.slice(0,100)}${s.description.length>100?'...':''}</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px">${new Date(s.date).toLocaleDateString()}</div>
+        </div>`).join('');
+    }
+  }
+})();
+
+function submitSuggestion(e) {
+  e.preventDefault();
+  const name = document.getElementById('tool-name').value.trim();
+  const cat = document.getElementById('tool-category').value;
+  const desc = document.getElementById('tool-description').value.trim();
+  const example = document.getElementById('tool-example').value.trim();
+  const email = document.getElementById('suggester-email').value.trim();
+
+  if (!name || !desc) {
+    showToast(currentLang === 'ar' ? 'الرجاء ملء الحقول الإلزامية' : 'Please fill required fields', 'error');
+    return;
+  }
+
+  const suggestion = { name, category: cat, description: desc, example, email, date: new Date().toISOString() };
+  const suggestions = JSON.parse(localStorage.getItem('tb_suggestions') || '[]');
+  suggestions.push(suggestion);
+  localStorage.setItem('tb_suggestions', JSON.stringify(suggestions));
+
+  // Show success
+  document.getElementById('success-msg').style.display = 'block';
+  document.getElementById('suggest-form').style.display = 'none';
+
+  const countEl = document.getElementById('suggestions-count');
+  if (countEl) countEl.textContent = suggestions.length;
+
+  showToast(currentLang === 'ar' ? '✅ تم إرسال اقتراحك بنجاح!' : '✅ Suggestion submitted!', 'success');
+}
+
+window.submitSuggestion = submitSuggestion;
+</script>
+</body>
+</html>

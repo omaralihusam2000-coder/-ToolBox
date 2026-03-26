@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="تحويل Word إلى PDF مجاناً أونلاين - ToolBox">
+  <meta property="og:title" content="تحويل Word إلى PDF | ToolBox">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#e63946">
+  <title>تحويل Word إلى PDF | ToolBox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body dir="rtl">
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo"><div class="logo-icon">🔧</div><span class="logo-text">Tool<span>Box</span></span></a>
+    <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="search-input" placeholder="ابحث عن أداة..." data-ar-placeholder="ابحث عن أداة..." data-en-placeholder="Search tools..."><div class="search-results" id="search-results"></div></div>
+    <div class="header-actions">
+      <button class="btn-icon" id="theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+</header>
+<div class="tool-page">
+  <div class="tool-hero">
+    <div class="tool-hero-inner">
+      <div class="breadcrumb">
+        <a href="/" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+        <span>›</span>
+        <span data-ar="أدوات الملفات" data-en="File Tools">أدوات الملفات</span>
+        <span>›</span>
+        <span>تحويل Word إلى PDF</span>
+      </div>
+      <div class="tool-title-area">
+        <span class="tool-big-icon">📝</span>
+        <div>
+          <h1 data-ar="تحويل Word إلى PDF" data-en="Word to PDF Converter">تحويل Word إلى PDF</h1>
+          <p data-ar="حوّل مستندات Word إلى PDF مباشرة في متصفحك" data-en="Convert Word documents to PDF in your browser">حوّل مستندات Word إلى PDF مباشرة في متصفحك</p>
+        </div>
+      </div>
+      <div class="tool-meta">
+        <div class="tool-stat-badge">📊 <span data-ar="الاستخدامات:" data-en="Uses:">الاستخدامات:</span> <span class="val" id="tool-usage-count">0</span></div>
+        <div class="tool-stat-badge">👥 <span class="val" id="tool-live-users">--</span> <span data-ar="الآن" data-en="online">الآن</span></div>
+        <button class="btn-icon" id="tool-fav-btn" title="مفضلة">🤍</button>
+      </div>
+    </div>
+  </div>
+  <div class="tool-workspace">
+    <div class="ad-banner" style="margin-bottom:20px">📢 <span data-ar="مساحة إعلانية - Google AdSense" data-en="Ad Space - Google AdSense">مساحة إعلانية</span></div>
+    <div class="tool-box">
+      <h3 data-ar="📁 رفع ملف Word" data-en="📁 Upload Word File">📁 رفع ملف Word</h3>
+      <div class="upload-area" id="upload-area">
+        <span class="upload-icon">📝</span>
+        <div class="upload-title" data-ar="اسحب ملف Word (.docx) هنا" data-en="Drag Word file here">اسحب ملف Word (.docx) هنا</div>
+        <button class="btn-red" style="margin-top:16px" data-ar="اختر ملف" data-en="Choose File">اختر ملف</button>
+        <input type="file" id="file-input" accept=".docx,.doc" >
+      </div>
+      <div class="file-list" id="file-list"></div>
+    </div>
+    <div class="tool-box">
+      <h3 data-ar="⚙️ التحويل" data-en="⚙️ Convert">⚙️ التحويل</h3>
+      <button class="btn-red" style="width:100%;padding:14px;font-size:1.05rem" id="convert-btn" disabled
+        data-ar="🔄 تحويل إلى PDF" data-en="🔄 Convert to PDF">🔄 تحويل إلى PDF</button>
+    </div>
+    <div class="tool-box" id="result-section">
+      <h3 data-ar="✅ تم بنجاح!" data-en="✅ Done!">✅ تم بنجاح!</h3>
+      <p id="result-info" style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:12px"></p>
+    </div>
+    <div class="share-section">
+      <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>
+      <div class="share-btns">
+        <button class="share-btn facebook" id="share-facebook">f Facebook</button>
+        <button class="share-btn telegram" id="share-telegram">✈ Telegram</button>
+        <button class="share-btn whatsapp" id="share-whatsapp">📱 WhatsApp</button>
+        <button class="share-btn twitter" id="share-twitter">𝕏 Twitter</button>
+      </div>
+    </div>
+    <div class="rating-section">
+      <h4 data-ar="⭐ هل كانت هذه الأداة مفيدة؟" data-en="⭐ Was this tool helpful?">⭐ هل كانت هذه الأداة مفيدة؟</h4>
+      <div class="rating-btns">
+        <button class="rating-btn like" id="rate-like">👍 <span data-ar="نعم" data-en="Yes">نعم</span></button>
+        <button class="rating-btn dislike" id="rate-dislike">👎 <span data-ar="لا" data-en="No">لا</span></button>
+      </div>
+      <div class="rating-bar-wrap"><div class="rating-bar" id="rating-bar" style="width:0%"></div></div>
+      <p class="rating-text" id="rating-text"></p>
+    </div>
+    <div class="ad-banner" style="margin-top:20px">📢 <span data-ar="مساحة إعلانية" data-en="Ad Space">مساحة إعلانية</span></div>
+  </div>
+</div>
+<div id="toast-container" class="toast-container"></div>
+<div id="loading-overlay" class="loading-overlay"><div class="spinner"></div><div class="loading-text"></div></div>
+<script src="/js/app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="/js/tools/pdf-tools.js"></script>
+<script>initWordToPdf();</script>
+</body>
+</html>

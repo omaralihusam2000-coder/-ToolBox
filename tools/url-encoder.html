@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="تشفير وفك تشفير URL مجاناً أونلاين - ToolBox">
+  <meta property="og:title" content="تشفير وفك تشفير URL | ToolBox">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#e63946">
+  <title>تشفير وفك تشفير URL | ToolBox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body dir="rtl">
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo"><div class="logo-icon">🔧</div><span class="logo-text">Tool<span>Box</span></span></a>
+    <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="search-input" placeholder="ابحث عن أداة..." data-ar-placeholder="ابحث عن أداة..." data-en-placeholder="Search tools..."><div class="search-results" id="search-results"></div></div>
+    <div class="header-actions">
+      <button class="btn-icon" id="theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+</header>
+<div class="tool-page">
+  <div class="tool-hero">
+    <div class="tool-hero-inner">
+      <div class="breadcrumb">
+        <a href="/" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+        <span>›</span>
+        <span data-ar="أدوات النصوص" data-en="Text Tools">أدوات النصوص</span>
+        <span>›</span>
+        <span>تشفير وفك تشفير URL</span>
+      </div>
+      <div class="tool-title-area">
+        <span class="tool-big-icon">🌐</span>
+        <div>
+          <h1 data-ar="تشفير وفك تشفير URL" data-en="URL Encoder/Decoder">تشفير وفك تشفير URL</h1>
+          <p data-ar="شفّر أو فكّ تشفير عناوين URL" data-en="Encode or decode URL strings">شفّر أو فكّ تشفير عناوين URL</p>
+        </div>
+      </div>
+      <div class="tool-meta">
+        <div class="tool-stat-badge">📊 <span data-ar="الاستخدامات:" data-en="Uses:">الاستخدامات:</span> <span class="val" id="tool-usage-count">0</span></div>
+        <div class="tool-stat-badge">👥 <span class="val" id="tool-live-users">--</span> <span data-ar="الآن" data-en="online">الآن</span></div>
+        <button class="btn-icon" id="tool-fav-btn" title="مفضلة">🤍</button>
+      </div>
+    </div>
+  </div>
+  <div class="tool-workspace">
+    <div class="ad-banner" style="margin-bottom:20px">📢 <span data-ar="مساحة إعلانية - Google AdSense" data-en="Ad Space - Google AdSense">مساحة إعلانية</span></div>
+    <div class="tool-box">
+      <h3 data-ar="📝 أدخل النص أو الرابط" data-en="📝 Enter Text or URL">📝 أدخل النص أو الرابط</h3>
+      <textarea class="form-control" id="text-input" rows="4"
+        placeholder="https://example.com/path?q=نص عربي"></textarea>
+      <div style="display:flex;gap:12px;margin-top:16px">
+        <button class="btn-red" style="flex:1;padding:12px" onclick="encodeUrl()">
+          🔒 <span data-ar="تشفير" data-en="Encode">تشفير</span>
+        </button>
+        <button class="btn-outline" style="flex:1;padding:12px" onclick="decodeUrl()">
+          🔓 <span data-ar="فك التشفير" data-en="Decode">فك التشفير</span>
+        </button>
+      </div>
+    </div>
+    <div class="tool-box" id="result-section" style="display:none">
+      <h3 data-ar="✅ النتيجة" data-en="✅ Result">✅ النتيجة</h3>
+      <div class="output-box">
+        <button class="copy-btn" onclick="copyText(document.getElementById('text-output').textContent,this)">نسخ</button>
+        <pre id="text-output" style="white-space:pre-wrap;word-break:break-all;font-family:monospace"></pre>
+      </div>
+    </div>
+
+    <div class="share-section">
+      <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>
+      <div class="share-btns">
+        <button class="share-btn facebook" id="share-facebook">f Facebook</button>
+        <button class="share-btn telegram" id="share-telegram">✈ Telegram</button>
+        <button class="share-btn whatsapp" id="share-whatsapp">📱 WhatsApp</button>
+        <button class="share-btn twitter" id="share-twitter">𝕏 Twitter</button>
+      </div>
+    </div>
+    <div class="rating-section">
+      <h4 data-ar="⭐ هل كانت هذه الأداة مفيدة؟" data-en="⭐ Was this tool helpful?">⭐ هل كانت هذه الأداة مفيدة؟</h4>
+      <div class="rating-btns">
+        <button class="rating-btn like" id="rate-like">👍 <span data-ar="نعم" data-en="Yes">نعم</span></button>
+        <button class="rating-btn dislike" id="rate-dislike">👎 <span data-ar="لا" data-en="No">لا</span></button>
+      </div>
+      <div class="rating-bar-wrap"><div class="rating-bar" id="rating-bar" style="width:0%"></div></div>
+      <p class="rating-text" id="rating-text"></p>
+    </div>
+    <div class="ad-banner" style="margin-top:20px">📢 <span data-ar="مساحة إعلانية" data-en="Ad Space">مساحة إعلانية</span></div>
+  </div>
+</div>
+<div id="toast-container" class="toast-container"></div>
+<div id="loading-overlay" class="loading-overlay"><div class="spinner"></div><div class="loading-text"></div></div>
+<script src="/js/app.js"></script>
+<script src="/js/tools/text-tools.js"></script>
+<script>initUrlEncoder();</script>
+</body>
+</html>

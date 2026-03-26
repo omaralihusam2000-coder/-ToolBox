@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ToolBox - أدوات مجانية أونلاين | تحويل PDF, ضغط صور, حاسبات, أدوات مطورين">
+  <meta name="keywords" content="أدوات مجانية, تحويل PDF, ضغط صور, حاسبة, QR code, free online tools">
+  <meta property="og:title" content="ToolBox - أدوات مجانية أونلاين">
+  <meta property="og:description" content="30+ أداة مجانية: تحويل PDF, معالجة صور, حاسبات, أدوات تصميم ومطورين">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#e63946">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
+  <title>ToolBox - أدوات مجانية أونلاين</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body dir="rtl">
+
+<!-- PWA Banner -->
+<div id="pwa-banner" class="pwa-banner">
+  <span>📱</span>
+  <span data-ar="ثبّت التطبيق على هاتفك للوصول السريع!" data-en="Install the app on your phone for quick access!"></span>
+  <button class="pwa-btn" id="pwa-install-btn" data-ar="تثبيت" data-en="Install">تثبيت</button>
+  <button class="pwa-dismiss" id="pwa-dismiss">✕</button>
+</div>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon">🔧</div>
+      <span class="logo-text">Tool<span>Box</span></span>
+    </a>
+
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" 
+        data-ar-placeholder="ابحث عن أداة..." 
+        data-en-placeholder="Search for a tool..." 
+        placeholder="ابحث عن أداة...">
+      <div class="search-results" id="search-results"></div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-icon" id="theme-btn" onclick="toggleTheme()" title="تغيير الثيم">🌙</button>
+      <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <h1>
+    <span data-ar="أدواتك المجانية" data-en="Your Free Online"></span>
+    <br>
+    <span class="highlight-red" data-ar="كلها في مكان واحد" data-en="Tools All In One Place"></span>
+    <span class="highlight-yellow"> ⚡</span>
+  </h1>
+  <p data-ar="30+ أداة مجانية تعمل مباشرة في المتصفح - بدون تسجيل، بدون رفع لسيرفر" data-en="30+ free tools that work directly in your browser - no registration, no server upload"></p>
+
+  <div class="live-users">
+    <span class="live-dot"></span>
+    <span data-ar="يستخدم الموقع الآن" data-en="Online now"></span>
+    <strong id="live-users">--</strong>
+    <span data-ar="شخص" data-en="users"></span>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="number" id="total-uses">150,432</span>
+      <span class="label" data-ar="إجمالي الاستخدامات" data-en="Total Uses"></span>
+    </div>
+    <div class="hero-stat">
+      <span class="number" id="tools-count">30</span>
+      <span class="label" data-ar="أداة مجانية" data-en="Free Tools"></span>
+    </div>
+    <div class="hero-stat">
+      <span class="number">100%</span>
+      <span class="label" data-ar="مجاناً للأبد" data-en="Always Free"></span>
+    </div>
+  </div>
+</section>
+
+<!-- Ad Banner -->
+<div class="ad-banner" style="max-width:1400px;margin:16px auto;width:calc(100% - 40px)">
+  📢 <span data-ar="مساحة إعلانية - Google AdSense" data-en="Ad Space - Google AdSense"></span>
+  <!-- Google AdSense: ca-pub-XXXXXXXXXXXXXXXX -->
+</div>
+
+<!-- Main Content -->
+<main class="container">
+
+  <!-- Favorites Section (hidden if empty) -->
+  <section class="section" id="favorites-section" style="display:none">
+    <div class="section-header">
+      <h2 class="section-title"><span class="icon">❤️</span> <span data-ar="أدواتي المفضلة" data-en="My Favorites"></span></h2>
+    </div>
+    <div class="tools-grid"></div>
+  </section>
+
+  <!-- Recent History (hidden if empty) -->
+  <section class="section" id="history-section" style="display:none">
+    <div class="section-header">
+      <h2 class="section-title"><span class="icon">🕐</span> <span data-ar="الأدوات الأخيرة" data-en="Recent Tools"></span></h2>
+    </div>
+    <div class="tools-grid"></div>
+  </section>
+
+  <!-- Most Popular -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title"><span class="icon">🔥</span> <span data-ar="الأكثر استخداماً اليوم" data-en="Most Popular Today"></span></h2>
+    </div>
+    <div class="popular-grid" id="popular-grid"></div>
+  </section>
+
+  <!-- All Tools -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title"><span class="icon">🔧</span> <span data-ar="جميع الأدوات" data-en="All Tools"></span></h2>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="category-tabs" id="cat-tabs"></div>
+
+    <!-- Tools Grid -->
+    <div class="tools-grid" id="tools-grid-main"></div>
+  </section>
+
+  <!-- Ad Between Sections -->
+  <div class="ad-banner">
+    📢 <span data-ar="مساحة إعلانية" data-en="Ad Space"></span>
+    <!-- Google AdSense -->
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-grid">
+
+    <div class="footer-col">
+      <h4 data-ar="ToolBox" data-en="ToolBox">ToolBox</h4>
+      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px" data-ar="أدوات مجانية أونلاين تعمل مباشرة في المتصفح بدون تسجيل" data-en="Free online tools that work directly in your browser without registration."></p>
+      <div class="social-links">
+        <a href="#" class="social-link" title="Facebook">f</a>
+        <a href="#" class="social-link" title="Telegram">✈</a>
+        <a href="#" class="social-link" title="Twitter">𝕏</a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4 data-ar="أدوات الملفات" data-en="File Tools">أدوات الملفات</h4>
+      <ul>
+        <li><a href="/tools/pdf-to-word.html" data-ar="PDF إلى Word" data-en="PDF to Word">PDF إلى Word</a></li>
+        <li><a href="/tools/word-to-pdf.html" data-ar="Word إلى PDF" data-en="Word to PDF">Word إلى PDF</a></li>
+        <li><a href="/tools/pdf-merger.html" data-ar="دمج PDF" data-en="PDF Merger">دمج PDF</a></li>
+        <li><a href="/tools/image-compressor.html" data-ar="ضغط الصور" data-en="Image Compressor">ضغط الصور</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4 data-ar="أدوات أخرى" data-en="More Tools">أدوات أخرى</h4>
+      <ul>
+        <li><a href="/tools/qr-generator.html" data-ar="مولد QR Code" data-en="QR Generator">مولد QR Code</a></li>
+        <li><a href="/tools/password-generator.html" data-ar="مولد كلمات المرور" data-en="Password Generator">مولد كلمات المرور</a></li>
+        <li><a href="/tools/word-counter.html" data-ar="عداد الكلمات" data-en="Word Counter">عداد الكلمات</a></li>
+        <li><a href="/tools/age-calculator.html" data-ar="حاسبة العمر" data-en="Age Calculator">حاسبة العمر</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4 data-ar="اشترك بالنشرة" data-en="Newsletter">اشترك بالنشرة</h4>
+      <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:12px" data-ar="اشترك واحصل على إشعار عند إضافة أدوات جديدة" data-en="Subscribe to get notified about new tools"></p>
+      <form class="newsletter-form" onsubmit="handleNewsletter(event)">
+        <input type="email" id="newsletter-email" 
+          data-ar-placeholder="بريدك الإلكتروني" 
+          data-en-placeholder="Your email" 
+          placeholder="بريدك الإلكتروني">
+        <button type="submit" class="btn-red" data-ar="اشترك" data-en="Subscribe">اشترك</button>
+      </form>
+      <div style="margin-top:16px">
+        <a href="/suggest.html" class="btn-outline" style="font-size:0.85rem;padding:8px 16px" data-ar="💡 اقترح أداة" data-en="💡 Suggest a Tool">💡 اقترح أداة</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Ad in footer -->
+  <div class="ad-banner" style="margin:0 auto 24px;max-width:1400px">
+    📢 <span data-ar="مساحة إعلانية - Footer" data-en="Ad Space - Footer"></span>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2025 ToolBox. <span data-ar="جميع الأدوات مجانية" data-en="All tools are free"></span>.</p>
+    <p><a href="/suggest.html" style="color:var(--text-muted)" data-ar="اقترح أداة" data-en="Suggest a Tool">اقترح أداة</a></p>
+  </div>
+</footer>
+
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- Scripts -->
+<script src="/js/app.js"></script>
+</body>
+</html>

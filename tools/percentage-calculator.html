@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="حاسبة النسبة المئوية مجاناً أونلاين - ToolBox">
+  <meta property="og:title" content="حاسبة النسبة المئوية | ToolBox">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#e63946">
+  <title>حاسبة النسبة المئوية | ToolBox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body dir="rtl">
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo"><div class="logo-icon">🔧</div><span class="logo-text">Tool<span>Box</span></span></a>
+    <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="search-input" placeholder="ابحث عن أداة..." data-ar-placeholder="ابحث عن أداة..." data-en-placeholder="Search tools..."><div class="search-results" id="search-results"></div></div>
+    <div class="header-actions">
+      <button class="btn-icon" id="theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+</header>
+<div class="tool-page">
+  <div class="tool-hero">
+    <div class="tool-hero-inner">
+      <div class="breadcrumb">
+        <a href="/" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+        <span>›</span>
+        <span data-ar="الحاسبات" data-en="Calculators">الحاسبات</span>
+        <span>›</span>
+        <span>حاسبة النسبة المئوية</span>
+      </div>
+      <div class="tool-title-area">
+        <span class="tool-big-icon">%</span>
+        <div>
+          <h1 data-ar="حاسبة النسبة المئوية" data-en="Percentage Calculator">حاسبة النسبة المئوية</h1>
+          <p data-ar="حسابات النسب المئوية: نسبة من رقم، خصم، وتغيير" data-en="Percentage calculations: percent of number, discount, change">حسابات النسب المئوية: نسبة من رقم، خصم، وتغيير</p>
+        </div>
+      </div>
+      <div class="tool-meta">
+        <div class="tool-stat-badge">📊 <span data-ar="الاستخدامات:" data-en="Uses:">الاستخدامات:</span> <span class="val" id="tool-usage-count">0</span></div>
+        <div class="tool-stat-badge">👥 <span class="val" id="tool-live-users">--</span> <span data-ar="الآن" data-en="online">الآن</span></div>
+        <button class="btn-icon" id="tool-fav-btn" title="مفضلة">🤍</button>
+      </div>
+    </div>
+  </div>
+  <div class="tool-workspace">
+    <div class="ad-banner" style="margin-bottom:20px">📢 <span data-ar="مساحة إعلانية - Google AdSense" data-en="Ad Space - Google AdSense">مساحة إعلانية</span></div>
+    <div class="tool-box">
+      <h3 data-ar="1️⃣ ما هو X% من Y؟" data-en="1️⃣ What is X% of Y?">1️⃣ ما هو X% من Y؟</h3>
+      <div class="grid-2">
+        <div class="form-group"><label>%</label><input type="number" class="form-control" id="pct1" placeholder="25"></div>
+        <div class="form-group"><label data-ar="من" data-en="of">من</label><input type="number" class="form-control" id="num1" placeholder="200"></div>
+      </div>
+      <button class="btn-red" onclick="calcPercentage('1')" data-ar="احسب" data-en="Calculate">احسب</button>
+      <p id="result-1" style="margin-top:12px;font-size:1.1rem;font-weight:700;color:var(--accent-yellow)"></p>
+    </div>
+    <div class="tool-box">
+      <h3 data-ar="2️⃣ X من Y يساوي كم بالمئة؟" data-en="2️⃣ X is what % of Y?">2️⃣ X من Y يساوي كم بالمئة؟</h3>
+      <div class="grid-2">
+        <div class="form-group"><label data-ar="الجزء" data-en="Part">الجزء</label><input type="number" class="form-control" id="part2" placeholder="50"></div>
+        <div class="form-group"><label data-ar="الكل" data-en="Total">الكل</label><input type="number" class="form-control" id="total2" placeholder="200"></div>
+      </div>
+      <button class="btn-red" onclick="calcPercentage('2')" data-ar="احسب" data-en="Calculate">احسب</button>
+      <p id="result-2" style="margin-top:12px;font-size:1.1rem;font-weight:700;color:var(--accent-yellow)"></p>
+    </div>
+    <div class="tool-box">
+      <h3 data-ar="3️⃣ نسبة التغيير" data-en="3️⃣ Percentage Change">3️⃣ نسبة التغيير</h3>
+      <div class="grid-2">
+        <div class="form-group"><label data-ar="القديم" data-en="Old">القديم</label><input type="number" class="form-control" id="old3" placeholder="100"></div>
+        <div class="form-group"><label data-ar="الجديد" data-en="New">الجديد</label><input type="number" class="form-control" id="new3" placeholder="125"></div>
+      </div>
+      <button class="btn-red" onclick="calcPercentage('3')" data-ar="احسب" data-en="Calculate">احسب</button>
+      <p id="result-3" style="margin-top:12px;font-size:1.1rem;font-weight:700;color:var(--accent-yellow)"></p>
+    </div>
+    <div class="tool-box">
+      <h3 data-ar="4️⃣ حساب الخصم" data-en="4️⃣ Discount Calculator">4️⃣ حساب الخصم</h3>
+      <div class="grid-2">
+        <div class="form-group"><label data-ar="السعر الأصلي" data-en="Original Price">السعر الأصلي</label><input type="number" class="form-control" id="base4" placeholder="1000"></div>
+        <div class="form-group"><label data-ar="الخصم %" data-en="Discount %">الخصم %</label><input type="number" class="form-control" id="pct4" placeholder="20"></div>
+      </div>
+      <button class="btn-red" onclick="calcPercentage('4')" data-ar="احسب" data-en="Calculate">احسب</button>
+      <p id="result-4" style="margin-top:12px;font-size:1.1rem;font-weight:700;color:var(--accent-yellow)"></p>
+    </div>
+
+    <div class="share-section">
+      <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>
+      <div class="share-btns">
+        <button class="share-btn facebook" id="share-facebook">f Facebook</button>
+        <button class="share-btn telegram" id="share-telegram">✈ Telegram</button>
+        <button class="share-btn whatsapp" id="share-whatsapp">📱 WhatsApp</button>
+        <button class="share-btn twitter" id="share-twitter">𝕏 Twitter</button>
+      </div>
+    </div>
+    <div class="rating-section">
+      <h4 data-ar="⭐ هل كانت هذه الأداة مفيدة؟" data-en="⭐ Was this tool helpful?">⭐ هل كانت هذه الأداة مفيدة؟</h4>
+      <div class="rating-btns">
+        <button class="rating-btn like" id="rate-like">👍 <span data-ar="نعم" data-en="Yes">نعم</span></button>
+        <button class="rating-btn dislike" id="rate-dislike">👎 <span data-ar="لا" data-en="No">لا</span></button>
+      </div>
+      <div class="rating-bar-wrap"><div class="rating-bar" id="rating-bar" style="width:0%"></div></div>
+      <p class="rating-text" id="rating-text"></p>
+    </div>
+    <div class="ad-banner" style="margin-top:20px">📢 <span data-ar="مساحة إعلانية" data-en="Ad Space">مساحة إعلانية</span></div>
+  </div>
+</div>
+<div id="toast-container" class="toast-container"></div>
+<div id="loading-overlay" class="loading-overlay"><div class="spinner"></div><div class="loading-text"></div></div>
+<script src="/js/app.js"></script>
+<script src="/js/tools/calculators.js"></script>
+<script>initPercentageCalculator();</script>
+</body>
+</html>
