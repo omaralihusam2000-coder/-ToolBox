@@ -134,17 +134,19 @@ ${slidesHtml}
 }
 
 function pptxSlideToHtml(xmlContent, slideNum) {
-  // Extract all text nodes from the XML, decode HTML entities
-  const texts = [...xmlContent.matchAll(/<a:t>(.*?)<\/a:t>/gs)].map(m =>
-    m[1]
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
-      .replace(/&quot;/g, '"')
-      .replace(/&apos;/g, "'")
-      .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code)))
-      .replace(/&#x([0-9A-Fa-f]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
-  ).filter(t => t.trim());
+  // Extract all text nodes from the XML, decode HTML entities.
+  // Use DOMParser for safe entity decoding, avoiding double-escaping issues.
+  const decodeEntities = (function() {
+    const el = document.createElement('textarea');
+    return function(text) {
+      el.innerHTML = text;
+      return el.value;
+    };
+  })();
+
+  const texts = [...xmlContent.matchAll(/<a:t>(.*?)<\/a:t>/gs)]
+    .map(m => decodeEntities(m[1]))
+    .filter(t => t.trim());
 
   if (texts.length === 0) {
     return `<div class="slide">

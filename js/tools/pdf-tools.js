@@ -52,14 +52,16 @@ async function convertPdfToWord(file) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
 
-      // Group text items by their Y position to reconstruct lines
+      // Group text items by their Y position to reconstruct lines.
+      // pdf.js transform array: [scaleX, skewX, skewY, scaleY, translateX, translateY]
+      const LINE_Y_THRESHOLD = 5; // min Y-difference (points) to consider a new line
       const lines = [];
       let currentLine = '';
       let lastY = null;
 
       for (const item of content.items) {
-        const y = Math.round(item.transform[5]); // Y coordinate
-        if (lastY !== null && Math.abs(y - lastY) > 5) {
+        const y = Math.round(item.transform[5]); // translateY = vertical position
+        if (lastY !== null && Math.abs(y - lastY) > LINE_Y_THRESHOLD) {
           // New line
           if (currentLine.trim()) lines.push(currentLine.trim());
           currentLine = item.str;
