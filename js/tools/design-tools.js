@@ -57,9 +57,16 @@ function renderColorPalette(r, g, b) {
     colors.push(`rgb(${Math.round(r + (255 - r) * (1 - factor))}, ${Math.round(g + (255 - g) * (1 - factor))}, ${Math.round(b + (255 - b) * (1 - factor))})`);
   }
   palette.innerHTML = colors.map(c => `
-    <div style="background:${c};height:40px;border-radius:6px;cursor:pointer;border:1px solid var(--border-color)" 
-         title="${c}" onclick="copyText('${c}')"></div>
+    <div class="palette-swatch" style="background:${c};height:40px;border-radius:6px;cursor:pointer;border:1px solid var(--border-color)" 
+         title="${escapeHTMLAttr(c)}" data-color="${escapeHTMLAttr(c)}"></div>
   `).join('');
+  palette.querySelectorAll('.palette-swatch').forEach(el => {
+    el.addEventListener('click', () => copyText(el.dataset.color));
+  });
+}
+
+function escapeHTMLAttr(str) {
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 window.initColorPicker = initColorPicker;
@@ -70,12 +77,20 @@ function initQrGenerator() {
   initToolPage('qr-generator');
 }
 
+let _qrGenerating = false;
+
 function generateQR() {
+  if (_qrGenerating) return;
+  _qrGenerating = true;
   const text = document.getElementById('qr-input').value.trim();
-  if (!text) { showToast(currentLang === 'ar' ? 'أدخل نصاً أو رابطاً' : 'Enter text or URL', 'error'); return; }
+  if (!text) {
+    showToast(currentLang === 'ar' ? 'أدخل نصاً أو رابطاً' : 'Enter text or URL', 'error');
+    _qrGenerating = false;
+    return;
+  }
 
   const container = document.getElementById('qr-container');
-  if (!container) return;
+  if (!container) { _qrGenerating = false; return; }
   container.innerHTML = '';
 
   const size = parseInt(document.getElementById('qr-size')?.value || 256);
@@ -96,8 +111,10 @@ function generateQR() {
     document.getElementById('result-section').style.display = 'block';
     document.getElementById('download-btn').style.display = 'inline-block';
     showToast(currentLang === 'ar' ? '✅ تم إنشاء QR Code!' : '✅ QR Code generated!', 'success');
+    _qrGenerating = false;
   } catch (e) {
     showToast(currentLang === 'ar' ? 'خطأ في الإنشاء' : 'Generation error', 'error');
+    _qrGenerating = false;
   }
 }
 
@@ -174,7 +191,7 @@ function downloadFavicon() {
   const canvas = document.getElementById('favicon-canvas');
   if (!canvas) return;
   const link = document.createElement('a');
-  link.download = 'favicon.ico';
+  link.download = 'favicon.png';
   link.href = canvas.toDataURL('image/png');
   link.click();
 }

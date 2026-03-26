@@ -38,7 +38,9 @@ function convertCase(type) {
   switch (type) {
     case 'upper': result = input.toUpperCase(); break;
     case 'lower': result = input.toLowerCase(); break;
-    case 'title': result = input.replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.substr(1).toLowerCase()); break;
+    case 'title':
+      result = input.replace(/[\w\u0600-\u06FF][\w\u0600-\u06FF]*/g, t => t.charAt(0).toUpperCase() + t.slice(1));
+      break;
     case 'camel': result = input.toLowerCase().replace(/[^a-z0-9]+(.)/g, (m, c) => c.toUpperCase()); break;
     case 'snake': result = input.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''); break;
     case 'kebab': result = input.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''); break;
@@ -172,6 +174,10 @@ function speakText() {
   currentUtterance.onend = () => {
     document.getElementById('speak-btn').textContent = '🔊 ' + (currentLang === 'ar' ? 'تشغيل' : 'Speak');
   };
+  currentUtterance.onerror = (ev) => {
+    document.getElementById('speak-btn').textContent = '🔊 ' + (currentLang === 'ar' ? 'تشغيل' : 'Speak');
+    showToast(currentLang === 'ar' ? 'خطأ في تشغيل الصوت' : 'Speech error: ' + ev.error, 'error');
+  };
 
   speechSynthesis.speak(currentUtterance);
 }
@@ -193,7 +199,10 @@ function initBase64() {
 function encodeBase64() {
   const input = document.getElementById('text-input').value;
   try {
-    const result = btoa(unescape(encodeURIComponent(input)));
+    const bytes = new TextEncoder().encode(input);
+    let binary = '';
+    bytes.forEach(b => (binary += String.fromCharCode(b)));
+    const result = btoa(binary);
     document.getElementById('text-output').textContent = result;
     document.getElementById('result-section').style.display = 'block';
   } catch (e) {
@@ -204,7 +213,10 @@ function encodeBase64() {
 function decodeBase64() {
   const input = document.getElementById('text-input').value.trim();
   try {
-    const result = decodeURIComponent(escape(atob(input)));
+    const binary = atob(input);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const result = new TextDecoder().decode(bytes);
     document.getElementById('text-output').textContent = result;
     document.getElementById('result-section').style.display = 'block';
   } catch (e) {

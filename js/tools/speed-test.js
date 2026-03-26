@@ -183,12 +183,8 @@ async function measureUpload(onProgress) {
       const mbps = (sizes[i] * 8) / (elapsed * 1_000_000);
       results.push(mbps);
     } catch (_) {
-      // Fallback: measure local processing time as proxy
-      const t0 = performance.now();
-      await new Response(blob).arrayBuffer();
-      const elapsed = Math.max((performance.now() - t0) / 1000, 0.01);
-      const mbps = (sizes[i] * 8) / (elapsed * 1_000_000);
-      results.push(Math.min(mbps * 0.15, 100)); // rough proxy
+      // Cannot measure real upload speed without a server — push 0
+      results.push(0);
     }
 
     onProgress(Math.round(((i + 1) / sizes.length) * 100), results[results.length - 1]);
@@ -203,6 +199,14 @@ let isRunning = false;
 
 async function startSpeedTest() {
   if (isRunning) return;
+
+  // Check internet connection first
+  if (!navigator.onLine) {
+    const lang = window.currentLang || 'ar';
+    showToast(lang === 'ar' ? 'لا يوجد اتصال بالإنترنت!' : 'No internet connection!', 'error');
+    return;
+  }
+
   isRunning = true;
 
   const startBtn = document.getElementById('start-btn');
@@ -277,7 +281,7 @@ function showSpeedResults({ download, upload, ping, jitter }) {
   const fmt = (v) => v >= 100 ? Math.round(v) : v.toFixed(1);
 
   document.getElementById('res-download').textContent = fmt(download);
-  document.getElementById('res-upload').textContent = fmt(upload);
+  document.getElementById('res-upload').textContent = upload > 0 ? fmt(upload) : 'N/A';
   document.getElementById('res-ping').textContent = ping;
   document.getElementById('res-jitter').textContent = jitter;
 

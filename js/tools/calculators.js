@@ -76,6 +76,15 @@ function calculateBMI() {
     return;
   }
 
+  if (weight > 500 || weight < 1) {
+    showToast(currentLang === 'ar' ? 'أدخل وزناً منطقياً (1-500 كغ)' : 'Enter a valid weight (1-500 kg)', 'error');
+    return;
+  }
+  if (height > 3 || height < 0.3) {
+    showToast(currentLang === 'ar' ? 'أدخل طولاً منطقياً (30-300 سم)' : 'Enter a valid height (30-300 cm)', 'error');
+    return;
+  }
+
   const bmi = weight / (height * height);
   const rounded = bmi.toFixed(1);
 
@@ -127,15 +136,15 @@ window.calculateBMI = calculateBMI;
 const CURRENCY_RATES = {
   USD: 1,
   IQD: 1310,
-  EUR: 0.92,
-  GBP: 0.79,
+  EUR: 0.91,
+  GBP: 0.78,
   SAR: 3.75,
   AED: 3.67,
-  TRY: 32.5,
-  EGP: 48.5,
+  TRY: 38.2,
+  EGP: 50.5,
   JOD: 0.71,
   KWD: 0.31,
-  BHD: 0.38,
+  BHD: 0.376,
   QAR: 3.64,
 };
 
@@ -161,15 +170,17 @@ function populateCurrencySelects() {
   const to = document.getElementById('to-currency');
   if (!from || !to) return;
 
-  const names = currentLang === 'ar' ? CURRENCY_NAMES_AR : CURRENCY_NAMES_EN;
+  const prevFrom = from.value;
+  const prevTo = to.value;
+  const names = (window.currentLang || 'ar') === 'ar' ? CURRENCY_NAMES_AR : CURRENCY_NAMES_EN;
   const options = Object.keys(CURRENCY_RATES).map(code =>
     `<option value="${code}">${code} - ${names[code]}</option>`
   ).join('');
 
   from.innerHTML = options;
   to.innerHTML = options;
-  from.value = 'USD';
-  to.value = 'IQD';
+  from.value = prevFrom || 'USD';
+  to.value = prevTo || 'IQD';
 }
 
 function convertCurrency() {
@@ -196,7 +207,7 @@ function convertCurrency() {
           1 ${from} = ${(CURRENCY_RATES[to] / CURRENCY_RATES[from]).toFixed(4)} ${to}
         </div>
         <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px">
-          ${currentLang === 'ar' ? '* أسعار تقريبية، للاستخدام التوجيهي فقط' : '* Approximate rates for reference only'}
+          ${currentLang === 'ar' ? '* أسعار تقريبية — آخر تحديث: مارس 2026' : '* Approximate rates — Last updated: March 2026'}
         </div>
       </div>`;
   }
