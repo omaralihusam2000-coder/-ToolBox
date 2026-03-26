@@ -2,6 +2,8 @@
  * PDF Tools - pdf-to-word, word-to-pdf, pdf-merger, pdf-splitter
  * Uses: pdf-lib, pdf.js, mammoth.js, html2pdf.js
  */
+/* global currentLang, showToast, showLoading, hideLoading, initToolPage,
+          initDragDrop, formatFileSize, downloadBlob, PDFLib, mammoth, html2pdf */
 
 // Module-level variable so renderMergeFileList can access it
 let pdfFiles = [];
@@ -35,90 +37,132 @@ function showFileInfo(file) {
   document.getElementById('convert-btn').disabled = false;
 }
 
+// Extract text content from a pdf.js TextContent object, grouping by Y position
+function extractPageText(content) {
+  // pdf.js transform: [scaleX, skewX, skewY, scaleY, translateX, translateY]
+  const LINE_Y_THRESHOLD = 5; // points – minimum Y-gap to consider a new line
+  const lines = [];
+  let currentLine = '';
+  let lastY = null;
+
+  for (const item of content.items) {
+    if (!item.str) continue;
+    const y = Math.round(item.transform[5]);
+    if (lastY !== null && Math.abs(y - lastY) > LINE_Y_THRESHOLD) {
+      if (currentLine.trim()) lines.push(currentLine.trim());
+      currentLine = item.str;
+    } else {
+      currentLine += (currentLine && item.str ? ' ' : '') + item.str;
+    }
+    lastY = y;
+  }
+  if (currentLine.trim()) lines.push(currentLine.trim());
+
+  return lines.join('\n');
+}
+
+// Render a pdf.js page to a PNG image, returns { dataUrl, width, height }
+async function renderPageAsImage(page) {
+  const scale = 1.5; // 1.5× gives good quality without excessive file size
+  const viewport = page.getViewport({ scale: scale });
+  const canvas = document.createElement('canvas');
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  const ctx = canvas.getContext('2d');
+
+  await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+  const result = {
+    dataUrl: canvas.toDataURL('image/png'),
+    width: viewport.width,
+    height: viewport.height
+  };
+
+  // Free canvas memory
+  canvas.width = 0;
+  canvas.height = 0;
+
+  return result;
+}
+
+// Escape special characters for safe HTML embedding
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 async function convertPdfToWord(file) {
   showLoading(currentLang === 'ar' ? 'جاري تحويل PDF...' : 'Converting PDF...');
   try {
     const arrayBuffer = await file.arrayBuffer();
 
-    // Load PDF with pdf.js
     const pdfjsLib = window.pdfjsLib;
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
     const totalPages = pdf.numPages;
-    const pageTexts = [];
+    const pages = [];
 
     for (let i = 1; i <= totalPages; i++) {
+      showLoading(currentLang === 'ar'
+        ? 'جاري معالجة الصفحة ' + i + ' من ' + totalPages + '...'
+        : 'Processing page ' + i + ' of ' + totalPages + '...');
+
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
+      const text = extractPageText(content);
 
-      // Group text items by their Y position to reconstruct lines.
-      // pdf.js transform array: [scaleX, skewX, skewY, scaleY, translateX, translateY]
-      const LINE_Y_THRESHOLD = 5; // min Y-difference (points) to consider a new line
-      const lines = [];
-      let currentLine = '';
-      let lastY = null;
+      const pageData = { pageNum: i, text: text, image: null };
 
-      for (const item of content.items) {
-        const y = Math.round(item.transform[5]); // translateY = vertical position
-        if (lastY !== null && Math.abs(y - lastY) > LINE_Y_THRESHOLD) {
-          // New line
-          if (currentLine.trim()) lines.push(currentLine.trim());
-          currentLine = item.str;
-        } else {
-          currentLine += (currentLine && item.str ? ' ' : '') + item.str;
+      // If no text extracted, render the page as an image
+      if (!text.trim()) {
+        try {
+          pageData.image = await renderPageAsImage(page);
+        } catch (imgErr) {
+          console.warn('Failed to render page ' + i + ' as image:', imgErr);
         }
-        lastY = y;
       }
-      if (currentLine.trim()) lines.push(currentLine.trim());
 
-      pageTexts.push(lines.join('\n'));
+      pages.push(pageData);
     }
 
-    const fullText = pageTexts.join('\n\n--- ' + (currentLang === 'ar' ? 'صفحة' : 'Page') + ' ---\n\n');
+    const pagesWithText = pages.filter(p => p.text.trim()).length;
+    const pagesWithImages = pages.filter(p => p.image).length;
 
-    // Create a proper .docx if the docx library is loaded
-    if (window.docx && window.docx.Document) {
-      await createDocxFromText(fullText, file.name);
-    } else {
-      // Fallback: create a well-encoded HTML file that Word can open
-      const htmlContent = `<!DOCTYPE html>
-<html dir="auto">
-<head>
-<meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>${file.name}</title>
-<style>
-  body {
-    font-family: 'Arial', 'Tahoma', 'Noto Sans Arabic', sans-serif;
-    max-width: 800px;
-    margin: 40px auto;
-    line-height: 2;
-    direction: auto;
-    font-size: 14pt;
-    color: #222;
-  }
-  p { margin-bottom: 12px; }
-  .page-break { page-break-after: always; border-top: 1px solid #ccc; margin: 24px 0; padding-top: 12px; color: #999; font-size: 10pt; }
-</style>
-</head>
-<body>
-${pageTexts.map((text, i) =>
-  text.split('\n').map(line => `<p>${line}</p>`).join('\n') +
-  (i < pageTexts.length - 1 ? `\n<div class="page-break">${currentLang === 'ar' ? 'صفحة' : 'Page'} ${i + 1}</div>` : '')
-).join('\n')}
-</body>
-</html>`;
-      const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword;charset=UTF-8' });
-      downloadBlob(blob, file.name.replace('.pdf', '.doc'));
+    // Generate the Word document
+    try {
+      if (window.docx && window.docx.Document && window.docx.Packer) {
+        await createDocxFromPages(pages, file.name);
+      } else {
+        createHtmlDocFromPages(pages, file.name);
+      }
+    } catch (docxErr) {
+      console.warn('DOCX creation failed, using HTML fallback:', docxErr);
+      createHtmlDocFromPages(pages, file.name);
     }
 
     hideLoading();
     showToast(currentLang === 'ar' ? '✅ تم التحويل بنجاح!' : '✅ Conversion successful!', 'success');
     document.getElementById('result-section').style.display = 'block';
-    document.getElementById('result-info').textContent = currentLang === 'ar'
-      ? `تم استخراج نص من ${totalPages} صفحة`
-      : `Extracted text from ${totalPages} pages`;
+
+    let info;
+    if (pagesWithText === totalPages) {
+      info = currentLang === 'ar'
+        ? 'تم استخراج النص من ' + totalPages + ' صفحة'
+        : 'Extracted text from ' + totalPages + ' pages';
+    } else if (pagesWithText > 0) {
+      info = currentLang === 'ar'
+        ? 'تم استخراج النص من ' + pagesWithText + ' صفحة، و ' + pagesWithImages + ' صفحة كصور'
+        : 'Extracted text from ' + pagesWithText + ' pages, ' + pagesWithImages + ' pages as images';
+    } else {
+      info = currentLang === 'ar'
+        ? 'تم تحويل ' + totalPages + ' صفحة كصور (الملف لا يحتوي نصوص قابلة للاستخراج)'
+        : 'Converted ' + totalPages + ' pages as images (no extractable text found)';
+    }
+    document.getElementById('result-info').textContent = info;
 
   } catch (err) {
     hideLoading();
@@ -126,42 +170,140 @@ ${pageTexts.map((text, i) =>
   }
 }
 
-async function createDocxFromText(text, originalName) {
-  const { Document, Packer, Paragraph, TextRun } = window.docx;
+async function createDocxFromPages(pages, originalName) {
+  const { Document, Packer, Paragraph, TextRun, ImageRun } = window.docx;
 
-  const lines = text.split('\n');
-  const children = [];
+  const sections = [];
 
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) {
-      children.push(new Paragraph({ spacing: { after: 100 } }));
-      continue;
+  for (let p = 0; p < pages.length; p++) {
+    const page = pages[p];
+    const children = [];
+
+    if (page.text.trim()) {
+      // Text-based page: create paragraphs from extracted lines
+      const lines = page.text.split('\n');
+      for (let li = 0; li < lines.length; li++) {
+        const trimmed = lines[li].trim();
+        if (!trimmed) {
+          children.push(new Paragraph({ spacing: { after: 100 } }));
+          continue;
+        }
+        children.push(new Paragraph({
+          children: [new TextRun({
+            text: trimmed,
+            size: 24,
+            font: 'Arial'
+          })],
+          spacing: { after: 200, line: 360 },
+          bidirectional: true
+        }));
+      }
+    } else if (page.image && ImageRun) {
+      // Image-based page: embed the rendered page image
+      try {
+        const base64 = page.image.dataUrl.split(',')[1];
+        const raw = atob(base64);
+        const imageBytes = new Uint8Array(raw.length);
+        for (let bi = 0; bi < raw.length; bi++) {
+          imageBytes[bi] = raw.charCodeAt(bi);
+        }
+
+        // Scale image to fit Word page content area (A4 with 1″ margins ≈ 550px)
+        const maxWidth = 550;
+        const imgScale = Math.min(1, maxWidth / (page.image.width || 550));
+        const imgWidth = Math.round((page.image.width || 550) * imgScale);
+        const imgHeight = Math.round((page.image.height || 750) * imgScale);
+
+        children.push(new Paragraph({
+          children: [new ImageRun({
+            data: imageBytes,
+            transformation: { width: imgWidth, height: imgHeight }
+          })]
+        }));
+      } catch (imgErr) {
+        // If image embedding fails, add a placeholder message
+        children.push(new Paragraph({
+          children: [new TextRun({
+            text: currentLang === 'ar'
+              ? '[صفحة ' + page.pageNum + ' - لا يمكن استخراج المحتوى]'
+              : '[Page ' + page.pageNum + ' - Content could not be extracted]',
+            italics: true,
+            color: '999999',
+            size: 20
+          })]
+        }));
+      }
+    } else {
+      // No text and no image available
+      children.push(new Paragraph({
+        children: [new TextRun({
+          text: currentLang === 'ar'
+            ? '[صفحة ' + page.pageNum + ' - فارغة]'
+            : '[Page ' + page.pageNum + ' - Empty]',
+          italics: true,
+          color: '999999',
+          size: 20
+        })]
+      }));
     }
-    children.push(new Paragraph({
-      children: [new TextRun({
-        text: trimmed,
-        size: 24,
-        font: 'Arial'
-      })],
-      spacing: { after: 200, line: 360 },
-      bidirectional: true
-    }));
-  }
 
-  const doc = new Document({
-    sections: [{
+    sections.push({
       properties: {
         page: {
           margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 }
         }
       },
       children: children
-    }]
-  });
+    });
+  }
 
+  const doc = new Document({ sections: sections });
   const blob = await Packer.toBlob(doc);
-  downloadBlob(blob, originalName.replace('.pdf', '.docx'));
+  downloadBlob(blob, originalName.replace(/\.pdf$/i, '.docx'));
+}
+
+function createHtmlDocFromPages(pages, originalName) {
+  let htmlContent = '<!DOCTYPE html>\n<html dir="auto">\n<head>\n'
+    + '<meta charset="UTF-8">\n'
+    + '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">\n'
+    + '<title>' + escapeHtml(originalName) + '</title>\n'
+    + '<style>\n'
+    + '  body { font-family: Arial, Tahoma, sans-serif; max-width: 800px; margin: 40px auto; line-height: 2; direction: auto; font-size: 14pt; color: #222; padding: 20px; }\n'
+    + '  p { margin-bottom: 12px; }\n'
+    + '  .page-section { margin-bottom: 40px; }\n'
+    + '  .page-header { font-size: 10pt; color: #999; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 16px; }\n'
+    + '  .page-image { max-width: 100%; height: auto; border: 1px solid #eee; }\n'
+    + '  .empty-note { color: #999; font-style: italic; }\n'
+    + '</style>\n'
+    + '</head>\n<body>\n';
+
+  for (let i = 0; i < pages.length; i++) {
+    const page = pages[i];
+    const pageLabel = (currentLang === 'ar' ? 'صفحة' : 'Page') + ' ' + page.pageNum;
+    htmlContent += '<div class="page-section">\n';
+    htmlContent += '<div class="page-header">' + pageLabel + '</div>\n';
+
+    if (page.text.trim()) {
+      const textLines = page.text.split('\n');
+      for (let j = 0; j < textLines.length; j++) {
+        htmlContent += '<p>' + escapeHtml(textLines[j]) + '</p>\n';
+      }
+    } else if (page.image) {
+      htmlContent += '<img class="page-image" src="' + page.image.dataUrl + '" alt="' + pageLabel + '">\n';
+    } else {
+      const emptyMsg = currentLang === 'ar'
+        ? '[صفحة ' + page.pageNum + ' - فارغة]'
+        : '[Page ' + page.pageNum + ' - Empty]';
+      htmlContent += '<p class="empty-note">' + escapeHtml(emptyMsg) + '</p>\n';
+    }
+
+    htmlContent += '</div>\n';
+  }
+
+  htmlContent += '</body>\n</html>';
+
+  const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword;charset=UTF-8' });
+  downloadBlob(blob, originalName.replace(/\.pdf$/i, '.doc'));
 }
 
 // ===== WORD TO PDF =====
@@ -245,8 +387,6 @@ async function initPdfMerger() {
 function renderMergeFileList() {
   const list = document.getElementById('file-list');
   if (!list) return;
-
-  if (window.pdfFiles) pdfFiles = window.pdfFiles;
 
   list.innerHTML = pdfFiles.map((f, i) => `
     <div class="file-item">
