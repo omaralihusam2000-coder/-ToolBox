@@ -61,6 +61,31 @@
     </div>
     <div class="tool-box">
       <h3 data-ar="⚙️ التحويل" data-en="⚙️ Convert">⚙️ التحويل</h3>
+      <!-- خيارات المخرجات -->
+      <div class="form-group" style="margin-bottom:16px">
+        <label data-ar="صيغة المخرج" data-en="Output Format" style="font-weight:700;margin-bottom:8px;display:block">صيغة المخرج</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <label class="check-item">
+            <input type="radio" name="output-format" value="docx" checked>
+            <span data-ar="📄 DOCX (Word)" data-en="📄 DOCX (Word)">📄 DOCX (Word)</span>
+          </label>
+          <label class="check-item">
+            <input type="radio" name="output-format" value="txt">
+            <span data-ar="📝 TXT (نص فقط)" data-en="📝 TXT (text only)">📝 TXT (نص فقط)</span>
+          </label>
+        </div>
+      </div>
+      <!-- شريط تقدم مرئي -->
+      <div id="progress-wrap" style="display:none;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:0.85rem;color:var(--text-secondary)" id="progress-label" data-ar="جاري المعالجة..." data-en="Processing...">جاري المعالجة...</span>
+          <span style="font-size:0.85rem;color:var(--accent-yellow);font-weight:700" id="progress-pct">0%</span>
+        </div>
+        <div style="background:var(--bg-primary);border-radius:999px;height:8px;overflow:hidden">
+          <div id="progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent-red),var(--accent-yellow));border-radius:999px;transition:width 0.3s ease"></div>
+        </div>
+        <div style="margin-top:8px;font-size:0.8rem;color:var(--text-muted);text-align:center" id="progress-pages"></div>
+      </div>
       <button class="btn-red" style="width:100%;padding:14px;font-size:1.05rem" id="convert-btn" disabled
         data-ar="🔄 تحويل إلى Word" data-en="🔄 Convert to Word">🔄 تحويل إلى Word</button>
       <p style="font-size:0.8rem;color:var(--text-muted);margin-top:10px;text-align:center" data-ar="كل المعالجة تتم في متصفحك - ملفاتك لا تُرفع لأي سيرفر" data-en="All processing happens in your browser - your files are never uploaded">كل المعالجة تتم في متصفحك - ملفاتك خاصة</p>
@@ -68,6 +93,19 @@
     <div class="tool-box" id="result-section" style="display:none">
       <h3 data-ar="✅ تم بنجاح!" data-en="✅ Done!">✅ تم بنجاح!</h3>
       <p id="result-info" style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:12px"></p>
+      <!-- معاينة سريعة للصفحة الأولى -->
+      <div id="pdf-preview-section" style="margin-top:16px;display:none">
+        <h4 style="margin-bottom:10px;font-size:0.95rem" data-ar="👁️ معاينة النص المستخرج (أول 500 حرف)" data-en="👁️ Extracted Text Preview (first 500 chars)">👁️ معاينة النص المستخرج</h4>
+        <div id="pdf-text-preview" style="background:var(--bg-primary);border-radius:var(--radius-sm);padding:14px;font-size:0.85rem;color:var(--text-secondary);max-height:150px;overflow-y:auto;white-space:pre-wrap;direction:auto;line-height:1.7;border:1px solid var(--border-color)"></div>
+      </div>
+      <!-- إحصائيات -->
+      <div id="pdf-stats" style="display:none;margin-top:14px">
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="stat-card"><div class="num" id="stat-pages">-</div><div class="lbl" data-ar="صفحة" data-en="Pages">صفحة</div></div>
+          <div class="stat-card"><div class="num" id="stat-words">-</div><div class="lbl" data-ar="كلمة" data-en="Words">كلمة</div></div>
+          <div class="stat-card"><div class="num" id="stat-chars">-</div><div class="lbl" data-ar="حرف" data-en="Chars">حرف</div></div>
+        </div>
+      </div>
     </div>
     <div class="share-section">
       <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>

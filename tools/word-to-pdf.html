@@ -61,12 +61,38 @@
     </div>
     <div class="tool-box">
       <h3 data-ar="⚙️ التحويل" data-en="⚙️ Convert">⚙️ التحويل</h3>
+      <!-- خيارات التحويل -->
+      <div class="form-group" style="margin-bottom:16px">
+        <label style="font-weight:700;margin-bottom:8px;display:block" data-ar="حجم الورقة" data-en="Page size">حجم الورقة</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <label class="check-item"><input type="radio" name="page-size" value="a4" checked><span>A4</span></label>
+          <label class="check-item"><input type="radio" name="page-size" value="letter"><span>Letter</span></label>
+          <label class="check-item"><input type="radio" name="page-size" value="a3"><span>A3</span></label>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:16px">
+        <label style="font-weight:700;margin-bottom:8px;display:block" data-ar="اتجاه الصفحة" data-en="Page orientation">اتجاه الصفحة</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <label class="check-item"><input type="radio" name="page-orient" value="portrait" checked><span data-ar="عمودي" data-en="Portrait">عمودي</span></label>
+          <label class="check-item"><input type="radio" name="page-orient" value="landscape"><span data-ar="أفقي" data-en="Landscape">أفقي</span></label>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:16px">
+        <label style="font-weight:700;margin-bottom:8px;display:block" data-ar="هامش الصفحة (mm)" data-en="Page margin (mm)">هامش الصفحة (mm)</label>
+        <input class="form-control" type="number" id="page-margin" value="15" min="0" max="50" style="width:120px;direction:ltr">
+      </div>
       <button class="btn-red" style="width:100%;padding:14px;font-size:1.05rem" id="convert-btn" disabled
         data-ar="🔄 تحويل إلى PDF" data-en="🔄 Convert to PDF">🔄 تحويل إلى PDF</button>
     </div>
     <div class="tool-box" id="result-section" style="display:none">
       <h3 data-ar="✅ تم بنجاح!" data-en="✅ Done!">✅ تم بنجاح!</h3>
       <p id="result-info" style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:12px"></p>
+      <!-- إحصائيات -->
+      <div id="word-result-stats" style="display:none;margin-top:12px">
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="stat-card"><div class="num" id="word-stat-size">-</div><div class="lbl" data-ar="حجم الملف" data-en="File size">حجم الملف</div></div>
+        </div>
+      </div>
     </div>
     <div class="share-section">
       <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>

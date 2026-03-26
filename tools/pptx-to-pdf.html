@@ -60,13 +60,53 @@
       <div class="file-list" id="file-list"></div>
     </div>
     <div class="tool-box">
-      <h3 data-ar="⚙️ التحويل" data-en="⚙️ Convert">⚙️ التحويل</h3>
+      <h3 data-ar="⚙️ خيارات التحويل" data-en="⚙️ Conversion Options">⚙️ خيارات التحويل</h3>
+      <!-- جودة التحويل -->
+      <div class="form-group" style="margin-bottom:16px">
+        <label style="font-weight:700;margin-bottom:8px;display:block" data-ar="جودة الصور في PDF" data-en="Image quality in PDF">جودة الصور في PDF</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <label class="check-item">
+            <input type="radio" name="pptx-quality" value="high" checked>
+            <span data-ar="عالية (أكبر حجم)" data-en="High (larger size)">عالية</span>
+          </label>
+          <label class="check-item">
+            <input type="radio" name="pptx-quality" value="medium">
+            <span data-ar="متوسطة (متوازن)" data-en="Medium (balanced)">متوسطة</span>
+          </label>
+          <label class="check-item">
+            <input type="radio" name="pptx-quality" value="low">
+            <span data-ar="منخفضة (أصغر حجم)" data-en="Low (smaller size)">منخفضة</span>
+          </label>
+        </div>
+      </div>
+      <!-- معاينة الشرائح قبل التحويل -->
+      <div id="slides-preview-section" style="display:none;margin-bottom:16px">
+        <h4 style="margin-bottom:10px;font-size:0.9rem" data-ar="🖼️ معاينة الشرائح" data-en="🖼️ Slides Preview">🖼️ معاينة الشرائح</h4>
+        <div id="slides-preview-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;max-height:200px;overflow-y:auto"></div>
+      </div>
+      <!-- شريط تقدم -->
+      <div id="pptx-progress-wrap" style="display:none;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:0.85rem;color:var(--text-secondary)" id="pptx-progress-label" data-ar="جاري المعالجة..." data-en="Processing...">جاري المعالجة...</span>
+          <span style="font-size:0.85rem;color:var(--accent-yellow);font-weight:700" id="pptx-progress-pct">0%</span>
+        </div>
+        <div style="background:var(--bg-primary);border-radius:999px;height:8px;overflow:hidden">
+          <div id="pptx-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent-red),var(--accent-yellow));border-radius:999px;transition:width 0.3s ease"></div>
+        </div>
+      </div>
       <button class="btn-red" style="width:100%;padding:14px;font-size:1.05rem" id="convert-btn" disabled
         data-ar="🔄 تحويل إلى PDF" data-en="🔄 Convert to PDF">🔄 تحويل إلى PDF</button>
     </div>
     <div class="tool-box" id="result-section" style="display:none">
       <h3 data-ar="✅ تم بنجاح!" data-en="✅ Done!">✅ تم بنجاح!</h3>
       <p id="result-info" style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:12px"></p>
+      <!-- معلومات الشرائح بعد التحويل -->
+      <div id="pptx-result-stats" style="display:none;margin-top:12px">
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="stat-card"><div class="num" id="pptx-stat-slides">-</div><div class="lbl" data-ar="شريحة" data-en="Slides">شريحة</div></div>
+          <div class="stat-card"><div class="num" id="pptx-stat-text">-</div><div class="lbl" data-ar="كلمة نص" data-en="Text extracted">كلمة نص</div></div>
+        </div>
+      </div>
     </div>
     <div class="share-section">
       <h4 data-ar="📤 شارك هذه الأداة" data-en="📤 Share this tool">📤 شارك هذه الأداة</h4>
